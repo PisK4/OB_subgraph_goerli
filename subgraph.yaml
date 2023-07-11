@@ -1,0 +1,24 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: MDCFactory
+    network: goerli
+    source:
+      address: "0x08a7bd7f18680d174916f4619692dfd5b385db95"
+      abi: MDCFactory
+      startBlock: 9287800
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MDCCreated
+      abis:
+        - name: MDCFactory
+          file: ./abis/MDCFactory.json
+      eventHandlers:
+        - event: MDCCreated(address,address)
+          handler: handleMDCCreated
+      file: ./src/mdc-factory.ts

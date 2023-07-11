@@ -1,0 +1,8 @@
+type MDCCreated @entity(immutable: true) {
+  id: Bytes!
+  maker: Bytes! # address
+  mdc: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
