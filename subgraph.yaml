@@ -21,4 +21,32 @@ dataSources:
       eventHandlers:
         - event: MDCCreated(address,address)
           handler: handleMDCCreated
-      file: ./src/mdc-factory.ts
+      file: ./src/mappings/mdc-factory.ts
+templates:
+  - kind: ethereum
+    name: MDC
+    network: goerli
+    source:
+      abi: MDC
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        # - ColumnArrayUpdated
+        # - ResponseMakersUpdated
+        - RulesRootUpdated
+        # - SpvUpdated
+      abis:
+        - name: MDC
+          file: ./abis/MDC.json
+      eventHandlers:
+        # - event: ColumnArrayUpdated(indexed address,bytes32,address[],address[],uint16[])
+        #   handler: handleColumnArrayUpdated
+        # - event: ResponseMakersUpdated(indexed address,address[])
+        #   handler: handleResponseMakersUpdated
+        - event: RulesRootUpdated(indexed address,address,(bytes32,uint32))
+          handler: handleRulesRootUpdated
+        # - event: SpvUpdated(indexed address,uint16,address)
+        #   handler: handleSpvUpdated
+      file: ./src/mappings/mdc.ts

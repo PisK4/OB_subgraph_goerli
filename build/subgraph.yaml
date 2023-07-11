@@ -22,3 +22,22 @@ dataSources:
         - event: MDCCreated(address,address)
           handler: handleMDCCreated
       file: MDCFactory/MDCFactory.wasm
+templates:
+  - kind: ethereum
+    name: MDC
+    network: goerli
+    source:
+      abi: MDC
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RulesRootUpdated
+      abis:
+        - name: MDC
+          file: MDC/abis/MDC.json
+      eventHandlers:
+        - event: RulesRootUpdated(indexed address,address,(bytes32,uint32))
+          handler: handleRulesRootUpdated
+      file: templates/MDC/MDC.wasm

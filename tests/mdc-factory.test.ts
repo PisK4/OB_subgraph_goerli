@@ -9,7 +9,7 @@ import {
 import { Address } from "@graphprotocol/graph-ts"
 import { MDCCreated } from "../src/types/schema"
 import { MDCCreated as MDCCreatedEvent } from "../src/types/MDCFactory/MDCFactory"
-import { handleMDCCreated } from "../src/mdc-factory"
+import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
