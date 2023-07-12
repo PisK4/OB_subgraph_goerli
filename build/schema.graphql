@@ -6,26 +6,26 @@ type MDCCreated @entity(immutable: true) {
   blockTimestamp: BigInt!
 }
 
-# type ColumnArrayUpdated @entity(immutable: true) {
-#   id: Bytes!
-#   impl: Bytes! # address
-#   columnArrayHash: Bytes! # bytes32
-#   dealers: [Bytes!]! # address[]
-#   ebcs: [Bytes!]! # address[]
-#   chainIds: [Int!]! # uint16[]
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
+type ColumnArrayUpdated @entity(immutable: true) {
+  id: Bytes!
+  impl: Bytes! # address
+  columnArrayHash: Bytes! # bytes32
+  dealers: [Bytes!] # address[]
+  ebcs: [Bytes!] # address[]
+  chainIds: [Int!] # uint16[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
-# type ResponseMakersUpdated @entity(immutable: true) {
-#   id: Bytes!
-#   impl: Bytes! # address
-#   responseMakers: [Bytes!]! # address[]
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
+type ResponseMakersUpdated @entity(immutable: true) {
+  id: Bytes!
+  impl: Bytes! # address
+  responseMakers: [Bytes!] # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
 type RulesRootUpdated @entity(immutable: true) {
   id: Bytes!
@@ -38,15 +38,15 @@ type RulesRootUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-# type SpvUpdated @entity(immutable: true) {
-#   id: Bytes!
-#   impl: Bytes! # address
-#   chainId: Int! # uint16
-#   spv: Bytes! # address
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
+type SpvUpdated @entity(immutable: true) {
+  id: Bytes!
+  impl: Bytes! # address
+  chainId: Int! # uint16
+  spv: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
 type MDC @entity {
   id: ID!
