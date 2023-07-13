@@ -40,11 +40,35 @@ export function getFunctionSelector(selector: Bytes): updateRulesRootMode {
 
 
 
-export function parseTransactionInputData(data: Bytes): updateRulesRootMode {
-    if(data.length < 4) {
-        return updateRulesRootMode.INV
+export class updateRulesRoot {
+    ebcAddress: Bytes;
+    rsc: Bytes;
+    root: Bytes;
+    version: i32;
+    sourceChainIds: Array<BigInt>;
+    pledgeAmounts: Array<BigInt>;
+    tokenAddr: Bytes;
+    constructor(
+        ebcAddress: Bytes,
+        rsc: Bytes,
+        root: Bytes,
+        version: i32,
+        sourceChainIds: Array<BigInt>,
+        pledgeAmounts: Array<BigInt>,
+        tokenAddress: Bytes
+    ) {
+        this.ebcAddress = ebcAddress;
+        this.rsc = rsc;
+        this.root = root;
+        this.version = version;
+        this.sourceChainIds = sourceChainIds;
+        this.pledgeAmounts = pledgeAmounts;
+        this.tokenAddr = tokenAddress
     }
+}
 
+
+export function parseTransactionInputData(data: Bytes): updateRulesRoot {
     let selector = data.toHexString().slice(2, 10)
     let func = getFunctionSelector(Bytes.fromHexString(selector))
     log.debug("selector: {}, func: {}", [selector, func.toString()])
@@ -63,7 +87,6 @@ export function parseTransactionInputData(data: Bytes): updateRulesRootMode {
         Prefix.length + dataWithoutSelector.length
     );
     
-    //concat prefix & original input
     functionInputAsTuple.set(Prefix, 0);
     functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
 
@@ -76,7 +99,6 @@ export function parseTransactionInputData(data: Bytes): updateRulesRootMode {
     if (tupleInputBytes.length < 32) {
         log.error("Failed to decode transaction input data", ["error"])
     }
-    // log.debug("tupleInputBytes: {}", [tupleInputBytes.toHexString()])
 
     let decoded = ethereum.decode(
         selectorofFunc,
@@ -86,34 +108,85 @@ export function parseTransactionInputData(data: Bytes): updateRulesRootMode {
         log.error("Failed to decode transaction input data", ["error"])
     }
     let tuple = decoded.toTuple();
-    // log.debug("tuple[0] kind: {}", [tuple[0].kind.toString()])
-    log.debug("tuple[1] kind: {}", [tuple[1].kind.toString()])
-    // log.debug("tuple[2] kind: {}", [tuple[2].kind.toString()])
-    // log.debug("tuple[3] kind: {}", [tuple[3].kind.toString()])
-    // log.debug("tuple[4] kind: {}", [tuple[4].kind.toString()])
 
-    let rsc = Bytes.fromBigInt(tuple[1].toBigInt())
-    
-    let ebcAddress = tuple[0].toAddress();
-    let rootWithVersion = tuple[2].toTuple();
-    let root = rootWithVersion[0].toBytes();
-    let version = rootWithVersion[1].toI32();
-    let sourceChainIds = tuple[3].toBigIntArray();
-    let pledgeAmounts = tuple[4].toBigIntArray();
-    
-    log.debug(
-        "ebcAddress: {}, root: {}, version: {}, sourceChainIds: {}, pledgeAmounts: {}", 
-        [   ebcAddress.toHexString(), 
-            root.toHexString(), 
-            version.toString(), 
-            sourceChainIds.toString(), 
-            pledgeAmounts.toString()])
-    
-    if(selectorofFunc == func_updateRulesRootERC20Selector) {
-        let tokenAddress = Address.fromHexString(tuple[5].toBigInt().toHexString())
-        log.debug("tokenAddress: {}", [tokenAddress.toHexString()])
+    if(func == updateRulesRootMode.ERC20) {
+        log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
+            tuple[0].kind.toString(),
+            tuple[1].kind.toString(),
+            tuple[2].kind.toString(),
+            tuple[3].kind.toString(),
+            tuple[4].kind.toString(),
+            tuple[5].kind.toString(),
+        ])
+    }else{
+        log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
+            tuple[0].kind.toString(),
+            tuple[1].kind.toString(),
+            tuple[2].kind.toString(),
+            tuple[3].kind.toString(),
+            tuple[4].kind.toString()
+        ])
     }
 
-    return func
+    // init all value
+    let rsc = Bytes.fromI32(0)
+    let ebcAddress = Address.fromI32(0);
+    let rootWithVersion = new ethereum.Tuple()
+    let root = getONEBytes()
+    let version = 0
+    let sourceChainIds = new Array<BigInt>()
+    let pledgeAmounts = new Array<BigInt>()
+    let tokenAddress = Address.fromI32(0)
+
+    if(tuple[0].kind == ethereum.ValueKind.ADDRESS) {
+        ebcAddress = tuple[0].toAddress();
+    }
+
+    if(tuple[1].kind == ethereum.ValueKind.UINT) {
+        let _rcs = tuple[1].toBigInt();
+        rsc = Bytes.fromI32(_rcs.toI32());
+    }    
+
+    if(tuple[2].kind == ethereum.ValueKind.TUPLE){
+        rootWithVersion = tuple[2].toTuple();
+        log.debug("rootWithVersion[0].kind: {}, rootWithVersion[1].kind: {}", [
+            rootWithVersion[0].kind.toString(),
+            rootWithVersion[1].kind.toString()
+        ])
+        if(rootWithVersion[0].kind == ethereum.ValueKind.BYTES ||
+            rootWithVersion[0].kind == ethereum.ValueKind.FIXED_BYTES) {
+            root = rootWithVersion[0].toBytes();
+        }
+        if(rootWithVersion[1].kind == ethereum.ValueKind.UINT){
+            version = rootWithVersion[1].toI32();
+        }
+    }
+
+    if(tuple[3].kind == ethereum.ValueKind.ARRAY) {
+        sourceChainIds = tuple[3].toBigIntArray();
+    }
+    
+    if(tuple[4].kind == ethereum.ValueKind.ARRAY){
+        pledgeAmounts = tuple[4].toBigIntArray();   
+    }
+     
+
+    if(selectorofFunc == func_updateRulesRootERC20Selector) {
+        if(tuple[5].kind == ethereum.ValueKind.UINT) {
+            tokenAddress = Address.fromHexString(tuple[5].toBigInt().toHexString())
+        }
+    }
+
+    let updateRulesRootEntity = new updateRulesRoot(
+        ebcAddress,
+        rsc,
+        root,
+        version,
+        sourceChainIds,
+        pledgeAmounts,
+        tokenAddress
+    )
+
+    return updateRulesRootEntity
 }
 
