@@ -11,7 +11,7 @@ import {
   SpvUpdated
 } from "../types/schema"
 import { Bytes, ethereum, log } from '@graphprotocol/graph-ts'
-import { funcERC20, getFunctionSelector, parseTransactionInputData } from "./helpers"
+import { funcERC20, funcETH, getFunctionSelector, parseTransactionInputData } from "./helpers"
 
 export function handleColumnArrayUpdated(event: ColumnArrayUpdatedEvent): void {
   let entity = new ColumnArrayUpdated(
@@ -60,20 +60,9 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
-  // get first 4 bytes
-  // let selector = event.transaction.input.toHexString().slice(2, 10)
-
   
   // for test only
   let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-  // let selector = debugInput.toHexString().slice(2, 10)
-  // log.debug("selector: {}", [selector])
-  // let func = getFunctionSelector(Bytes.fromHexString(selector))
-  // if (func) {
-  //   log.debug("func: {}", [func.toString()])
-  // }
-
-  // log.debug("input: {}", [event.transaction.input.toHexString()])
   parseTransactionInputData(debugInput)
 
   entity.save()
