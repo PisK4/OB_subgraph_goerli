@@ -2,6 +2,7 @@
   "name": "OBCabin",
   "license": "UNLICENSED",
   "scripts": {
+    "ct": "graph codegen --output-dir src/types/ && graph build && graph test",
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ OBCabin",
@@ -12,10 +13,10 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.51.2",
-    "ethers": "^6.6.2"
+    "@graphprotocol/graph-ts": "^0.31.0",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
-    "@graphprotocol/graph-ts": "^0.31.0",
     "matchstick-as": "0.5.0"
   }
 }

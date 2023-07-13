@@ -92,6 +92,11 @@ export class RulesRootUpdated__Params {
       this._event.parameters[2].value.toTuple()
     );
   }
+
+  get input(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+
 }
 
 export class RulesRootUpdatedRootWithVersionStruct extends ethereum.Tuple {

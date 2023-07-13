@@ -36,6 +36,7 @@ type RulesRootUpdated @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  input: Bytes!
 }
 
 type SpvUpdated @entity(immutable: true) {
