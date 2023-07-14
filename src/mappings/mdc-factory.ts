@@ -19,21 +19,9 @@ export function handleMDCCreated(event: MDCCreatedEvent): void {
   entity.blockTimestamp = event.block.timestamp
 
   let mdcNew = new MDC(event.params.mdc.toHexString()) as MDC
-  mdcNew.owner = getONEBytes()
+  mdcNew.owner = event.params.maker
   mdcNew.columnArrayHash = getONEBytes()
-  // for(let i = 0; i < mdcNew.responseMakers.length; i++) {
-  //   mdcNew.responseMakers.push(getONEBytes())
-  // }
   mdcNew.rootWithVersion = getONEBytes()
-  // for(let i = 0; i < mdcNew.spvs.length; i++) {
-  //   mdcNew.spvs.push(getONEBytes())
-  // }
-  // for(let i = 0; i < mdcNew.chainIds.length; i++) {
-  //   mdcNew.chainIds[i] = ONE_NUM
-  // }
-  // for(let i = 0; i < mdcNew.dealers.length; i++) {
-  //   mdcNew.dealers.push(getONEBytes())
-  // }
   mdcNew.ebc = ONE_ADDRESS
   mdcNew.createblockNumber = event.block.number
   mdcNew.createblockTimestamp = event.block.timestamp

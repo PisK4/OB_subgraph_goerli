@@ -128,7 +128,6 @@ export function parseTransactionInputData(data: Bytes): updateRulesRoot {
         ])
     }
 
-    // init all value
     let rsc = Bytes.fromI32(0)
     let ebcAddress = Address.fromI32(0);
     let rootWithVersion = new ethereum.Tuple()

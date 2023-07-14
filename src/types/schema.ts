@@ -904,8 +904,77 @@ export class EBC extends Entity {
     this.set("rule", Value.fromString(value));
   }
 
-  get mdc(): MDCLoader {
-    return new MDCLoader("EBC", this.get("id")!.toString(), "mdc");
+  get root(): Bytes {
+    let value = this.get("root");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set root(value: Bytes) {
+    this.set("root", Value.fromBytes(value));
+  }
+
+  get version(): i32 {
+    let value = this.get("version");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set version(value: i32) {
+    this.set("version", Value.fromI32(value));
+  }
+
+  get sourceChainIds(): Array<BigInt> {
+    let value = this.get("sourceChainIds");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set sourceChainIds(value: Array<BigInt>) {
+    this.set("sourceChainIds", Value.fromBigIntArray(value));
+  }
+
+  get pledgeAmounts(): Array<BigInt> {
+    let value = this.get("pledgeAmounts");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set pledgeAmounts(value: Array<BigInt>) {
+    this.set("pledgeAmounts", Value.fromBigIntArray(value));
+  }
+
+  get token(): Bytes | null {
+    let value = this.get("token");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set token(value: Bytes | null) {
+    if (!value) {
+      this.unset("token");
+    } else {
+      this.set("token", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get mdcs(): MDCLoader {
+    return new MDCLoader("EBC", this.get("id")!.toString(), "mdcs");
   }
 }
 

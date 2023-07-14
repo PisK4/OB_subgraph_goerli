@@ -66,9 +66,14 @@ type MDC @entity {
 }
 
 type EBC @entity {
-  id: ID!
+  id: ID! #ebc address
   rule: ruleTypes! # ruleTypes
-  mdc: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
+  root: Bytes! # bytes32
+  version: Int! # uint32
+  sourceChainIds: [BigInt!]! # uint64
+  pledgeAmounts: [BigInt!]! # uint128
+  token: Bytes # address
+  mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
 }
 
 type ruleTypes @entity {

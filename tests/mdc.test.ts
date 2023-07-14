@@ -7,12 +7,14 @@ import {
   beforeAll,
   afterAll
 } from "matchstick-as/assembly/index"
-import { Address, Bytes, ethereum } from "@graphprotocol/graph-ts"
+import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import { ColumnArrayUpdated } from "../src/types/schema"
 import { ColumnArrayUpdated as ColumnArrayUpdatedEvent } from "../src/types/templates/MDC/MDC"
 import { handleColumnArrayUpdated, handleRulesRootUpdated } from "../src/mappings/mdc"
 import { createColumnArrayUpdatedEvent, createRulesRootUpdatedEvent } from "./mdc-utils"
-import { funcETH } from "../src/mappings/helpers"
+import { funcERC20, funcETH } from "../src/mappings/helpers"
+import { createMDCCreatedEvent } from "./mdc-factory-utils"
+import { handleMDCCreated } from "../src/mappings/mdc-factory"
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
@@ -87,14 +89,19 @@ import { funcETH } from "../src/mappings/helpers"
 
 describe("Describe event RulesRootUpdated", () => {
   beforeAll(() => {
+    let maker = Address.fromString("0xF2BE509057855b055f0515CCD0223BEf84D19ad4")
+    let mdc = Address.fromString("0x7A0B33bDcBD07f10FfAa8251fC843ed293495fEb")
+    let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
+    handleMDCCreated(newMDCCreatedEvent)
+
     let impl = Address.fromString("0x5f9204bc7402d77d8c9baa97d8f225e85347961e")
-    let ebc = Address.fromString("0x0000000000000000000000000000000000000001")
+    let ebc = Address.fromString("0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929")
     let rootWithVersion_root = Bytes.fromHexString("0x123456")
-    let rootWithVersion_version = Bytes.fromI32(1)
+    let rootWithVersion_version = BigInt.fromI32(1)
 
     const tupleArray: Array<ethereum.Value> = [
       ethereum.Value.fromBytes(rootWithVersion_root),
-      ethereum.Value.fromBytes(rootWithVersion_version)
+      ethereum.Value.fromSignedBigInt(rootWithVersion_version)
     ]
     const rootWithVersion = changetype<ethereum.Tuple>(tupleArray);   
 
@@ -107,20 +114,40 @@ describe("Describe event RulesRootUpdated", () => {
     handleRulesRootUpdated(newRulesRootUpdatedEvent)
   })
 
-  // afterAll(() => {
-  //   clearStore()
-  // })
+  afterAll(() => {
+    clearStore()
+  })
 
-  // test("RulesRootUpdated created and stored", () => {
-    // assert.entityCount("RulesRootUpdated", 1)
+  test("RulesRootUpdated created and stored", () => {
+    assert.entityCount("RulesRootUpdated", 1)
 
-    // assert.fieldEquals(
-    //   "RulesRootUpdated",
-    //   "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
-    //   "impl",
-    //   "0x5f9204bc7402d77d8c9baa97d8f225e85347961e"
-    // )
+    assert.fieldEquals(
+      "RulesRootUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "impl",
+      "0x5f9204bc7402d77d8c9baa97d8f225e85347961e"
+    )
 
-  // })
+    assert.fieldEquals(
+      "RulesRootUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "ebc",
+      "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
+    )
+
+    assert.fieldEquals(
+      "RulesRootUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "rootWithVersion_root",
+      "0x123456"
+    )
+
+    assert.fieldEquals(
+      "RulesRootUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "rootWithVersion_version",
+      "1"
+    )
+  })
 
 })

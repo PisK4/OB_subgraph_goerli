@@ -6,6 +6,8 @@ import {
 } from "../types/templates/MDC/MDC"
 import {
   ColumnArrayUpdated,
+  EBC,
+  MDC,
   ResponseMakersUpdated,
   RulesRootUpdated,
   SpvUpdated
@@ -58,7 +60,6 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
   )
   entity.impl = event.params.impl
   entity.ebc = event.params.ebc
-  // mark for uint test
   entity.rootWithVersion_root = event.params.rootWithVersion.root
   entity.rootWithVersion_version = event.params.rootWithVersion.version
   entity.input = event.transaction.input
@@ -73,7 +74,6 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
   // # for production
   let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
 
-  // print all log
   log.debug('ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
   [
     updateRulesRootEntity.ebcAddress.toHexString(),
@@ -85,6 +85,31 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
     updateRulesRootEntity.tokenAddr.toHexString()
   ])
 
+  if(updateRulesRootEntity.ebcAddress.toHexString() != null){
+    let ebc = EBC.load(updateRulesRootEntity.ebcAddress.toHexString())
+    if (ebc == null) {
+      log.debug('create new EBC:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
+      ebc = new EBC(updateRulesRootEntity.ebcAddress.toHexString()) as EBC
+      ebc.rule = "default"
+    }
+    log.info('loaded EBC', ["ebc"])
+    ebc.root = updateRulesRootEntity.root
+    ebc.version = updateRulesRootEntity.version
+    ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
+    ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
+    ebc.save()
+
+    if(event.transaction.to != null){
+      let mdc = MDC.load(event.transaction.to.toHexString())
+      if (mdc == null) {
+        mdc = new MDC(event.transaction.to.toHexString())
+      }else{
+        mdc.ebc = ebc.id
+      }
+      mdc.save()
+    }
+    
+  }
   entity.save()
 }
 
