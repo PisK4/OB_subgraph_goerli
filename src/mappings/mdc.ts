@@ -68,11 +68,11 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
   entity.transactionHash = event.transaction.hash
   
   // # for test only
-  // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-  // let updateRulesRootEntity = parseTransactionInputData(debugInput)
+  let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
+  let updateRulesRootEntity = parseTransactionInputData(debugInput)
 
   // # for production
-  let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
+  // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
 
   log.debug('ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
   [
@@ -85,31 +85,31 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
     updateRulesRootEntity.tokenAddr.toHexString()
   ])
 
-  if(updateRulesRootEntity.ebcAddress.toHexString() != null){
-    let ebc = EBC.load(updateRulesRootEntity.ebcAddress.toHexString())
-    if (ebc == null) {
-      log.debug('create new EBC:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
-      ebc = new EBC(updateRulesRootEntity.ebcAddress.toHexString()) as EBC
-      ebc.rule = "default"
-    }
-    log.info('loaded EBC', ["ebc"])
-    ebc.root = updateRulesRootEntity.root
-    ebc.version = updateRulesRootEntity.version
-    ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
-    ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
-    ebc.save()
+  // if(updateRulesRootEntity.ebcAddress.toHexString() != null){
+  //   let ebc = EBC.load(updateRulesRootEntity.ebcAddress.toHexString())
+  //   if (ebc == null) {
+  //     log.debug('create new EBC:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
+  //     ebc = new EBC(updateRulesRootEntity.ebcAddress.toHexString()) as EBC
+  //     ebc.rule = "default"
+  //   }
+  //   log.info('loaded EBC', ["ebc"])
+  //   ebc.root = updateRulesRootEntity.root
+  //   ebc.version = updateRulesRootEntity.version
+  //   ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
+  //   ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
+  //   ebc.save()
 
-    if(event.transaction.to != null){
-      let mdc = MDC.load(event.transaction.to.toHexString())
-      if (mdc == null) {
-        mdc = new MDC(event.transaction.to.toHexString())
-      }else{
-        mdc.ebc = ebc.id
-      }
-      mdc.save()
-    }
+  //   if(event.transaction.to != null){
+  //     let mdc = MDC.load(event.transaction.to.toHexString())
+  //     if (mdc == null) {
+  //       mdc = new MDC(event.transaction.to.toHexString())
+  //     }else{
+  //       mdc.ebc = ebc.id
+  //     }
+  //     mdc.save()
+  //   }
     
-  }
+  // }
   entity.save()
 }
 

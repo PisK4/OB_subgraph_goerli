@@ -17,8 +17,8 @@ const tupleprefix = "0x000000000000000000000000000000000000000000000000000000000
 const ONE_BYTES = new Bytes(32);
 const func_updateRulesRoot = "0x5266dbda"
 const func_updateRulesRootERC20 = "0x16d38f5d"
-const func_updateRulesRootSelector = "(address, bytes, (bytes32,uint32), uint16[], uint256[])"
-const func_updateRulesRootERC20Selector = "(address, bytes, (bytes32,uint32), uint16[], uint256[], address)"
+const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint16[],uint256[])"
+const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
 enum updateRulesRootMode {
     ETH = 0,
     ERC20 = 1,
@@ -141,9 +141,8 @@ export function parseTransactionInputData(data: Bytes): updateRulesRoot {
         ebcAddress = tuple[0].toAddress();
     }
 
-    if(tuple[1].kind == ethereum.ValueKind.UINT) {
-        let _rcs = tuple[1].toBigInt();
-        rsc = Bytes.fromI32(_rcs.toI32());
+    if(tuple[1].kind == ethereum.ValueKind.BYTES) {
+        rsc = tuple[1].toBytes();
     }    
 
     if(tuple[2].kind == ethereum.ValueKind.TUPLE){
@@ -171,8 +170,8 @@ export function parseTransactionInputData(data: Bytes): updateRulesRoot {
      
 
     if(selectorofFunc == func_updateRulesRootERC20Selector) {
-        if(tuple[5].kind == ethereum.ValueKind.UINT) {
-            tokenAddress = Address.fromHexString(tuple[5].toBigInt().toHexString())
+        if(tuple[5].kind == ethereum.ValueKind.ADDRESS) {
+            tokenAddress = tuple[5].toAddress();
         }
     }
 
