@@ -77,7 +77,7 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
   log.debug('ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
   [
     updateRulesRootEntity.ebcAddress.toHexString(),
-    updateRulesRootEntity.rsc.toHexString(),
+    "default",
     updateRulesRootEntity.root.toHexString(),
     updateRulesRootEntity.version.toString(),
     updateRulesRootEntity.sourceChainIds.toString(),

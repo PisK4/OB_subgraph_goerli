@@ -78,8 +78,8 @@ type EBC @entity {
 
 type ruleTypes @entity {
   id: ID!
-  chain0: Int! # uint32
-  chain1: Int! # uint32
+  chain0: BigInt! # uint64
+  chain1: BigInt! # uint64
   chain0Status: Int! # uint8
   chain1Status: Int! # uint8
   chain0Token: BigInt! # uint

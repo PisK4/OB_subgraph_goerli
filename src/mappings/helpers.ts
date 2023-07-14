@@ -67,6 +67,73 @@ export class updateRulesRoot {
     }
 }
 
+export class rscRuleType {
+    chain0: BigInt;
+    chain1: BigInt;
+    chain0Status: i32;
+    chain1Status: i32;
+    chain0Token: BigInt;
+    chain1Token: BigInt;
+    minPrice: BigInt;
+    maxPrice: BigInt;
+    chain0WithholdingFee: BigInt;
+    chain1WithholdingFee: BigInt;
+    chain0TradeFee: i32;
+    chain1TradeFee: i32;
+    chain0ResponseTime: i32;
+    chain1ResponseTime: i32;
+    chain0CompensationRatio: i32;
+    chain1CompensationRatio: i32;
+    constructor(
+        chain0: BigInt,
+        chain1: BigInt,
+        chain0Status: i32,
+        chain1Status: i32,
+        chain0Token: BigInt,
+        chain1Token: BigInt,
+        minPrice: BigInt,
+        maxPrice: BigInt,
+        chain0WithholdingFee: BigInt,
+        chain1WithholdingFee: BigInt,
+        chain0TradeFee: i32,
+        chain1TradeFee: i32,
+        chain0ResponseTime: i32,
+        chain1ResponseTime: i32,
+        chain0CompensationRatio: i32,
+        chain1CompensationRatio: i32
+    ) {
+        this.chain0 = chain0;
+        this.chain1 = chain1;
+        this.chain0Status = chain0Status;
+        this.chain1Status = chain1Status;
+        this.chain0Token = chain0Token;
+        this.chain1Token = chain1Token;
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
+        this.chain0WithholdingFee = chain0WithholdingFee;
+        this.chain1WithholdingFee = chain1WithholdingFee;
+        this.chain0TradeFee = chain0TradeFee;
+        this.chain1TradeFee = chain1TradeFee;
+        this.chain0ResponseTime = chain0ResponseTime;
+        this.chain1ResponseTime = chain1ResponseTime;
+        this.chain0CompensationRatio = chain0CompensationRatio;
+        this.chain1CompensationRatio = chain1CompensationRatio;
+    }
+}
+
+
+export function parseRSC(rsc: Bytes): rscRuleType {
+    let _rscRuleType = new rscRuleType(ZERO_BI,ZERO_BI,0,0,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,0,0,0,0,0,0)
+
+
+
+
+
+
+    return _rscRuleType
+
+}
+
 
 export function parseTransactionInputData(data: Bytes): updateRulesRoot {
     let selector = data.toHexString().slice(2, 10)
@@ -143,6 +210,7 @@ export function parseTransactionInputData(data: Bytes): updateRulesRoot {
 
     if(tuple[1].kind == ethereum.ValueKind.BYTES) {
         rsc = tuple[1].toBytes();
+        parseRSC(rsc)
     }    
 
     if(tuple[2].kind == ethereum.ValueKind.TUPLE){
@@ -167,7 +235,6 @@ export function parseTransactionInputData(data: Bytes): updateRulesRoot {
     if(tuple[4].kind == ethereum.ValueKind.ARRAY){
         pledgeAmounts = tuple[4].toBigIntArray();   
     }
-     
 
     if(selectorofFunc == func_updateRulesRootERC20Selector) {
         if(tuple[5].kind == ethereum.ValueKind.ADDRESS) {
