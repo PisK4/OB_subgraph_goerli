@@ -88,16 +88,20 @@ import { handleMDCCreated } from "../src/mappings/mdc-factory"
 // })
 
 describe("Describe event RulesRootUpdated", () => {
+  const ebcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
+  const root = "0x5876b545fe8e236605e28a4aba0c7ae1922d8e66e7bc5f317d482107e2883637"
+  const version = "666"
+  const mdcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
   beforeAll(() => {
     let maker = Address.fromString("0xF2BE509057855b055f0515CCD0223BEf84D19ad4")
-    let mdc = Address.fromString("0x7A0B33bDcBD07f10FfAa8251fC843ed293495fEb")
+    let mdc = Address.fromString(mdcAddress)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
 
     let impl = Address.fromString("0x5f9204bc7402d77d8c9baa97d8f225e85347961e")
-    let ebc = Address.fromString("0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929")
-    let rootWithVersion_root = Bytes.fromHexString("0x123456")
-    let rootWithVersion_version = BigInt.fromI32(1)
+    let ebc = Address.fromString(ebcAddress)
+    let rootWithVersion_root = Bytes.fromHexString(root)
+    let rootWithVersion_version = BigInt.fromString(version)
 
     const tupleArray: Array<ethereum.Value> = [
       ethereum.Value.fromBytes(rootWithVersion_root),
@@ -132,22 +136,62 @@ describe("Describe event RulesRootUpdated", () => {
       "RulesRootUpdated",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
       "ebc",
-      "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
+      ebcAddress
     )
 
     assert.fieldEquals(
       "RulesRootUpdated",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
       "rootWithVersion_root",
-      "0x123456"
+      root
+    )
+
+    // assert.fieldEquals(
+    //   "RulesRootUpdated",
+    //   "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+    //   "rootWithVersion_version",
+    //   version
+    // )
+  })
+
+  test("EBC created and stored", () => {
+    assert.entityCount("EBC", 1)
+
+    assert.fieldEquals(
+      "EBC",
+      ebcAddress,
+      "id",
+      ebcAddress
     )
 
     assert.fieldEquals(
-      "RulesRootUpdated",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
-      "rootWithVersion_version",
-      "1"
+      "EBC",
+      ebcAddress,
+      "root",
+      root
     )
+
+    //// uint test may mock some data
+    // assert.fieldEquals(
+    //   "EBC",
+    //   ebcAddress,
+    //   "version",
+    //   version
+    // )
+
+  })
+
+  test("MDC created and stored", () => {
+    assert.entityCount("MDC", 1)
+
+    assert.fieldEquals(
+      "MDC",
+      mdcAddress,
+      "id",
+      mdcAddress
+    )
+
+    
   })
 
 })

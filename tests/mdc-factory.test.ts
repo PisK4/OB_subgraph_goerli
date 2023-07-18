@@ -58,13 +58,6 @@ describe("Describe entity assertions", () => {
 
   test("MDCreated created and stored with MDCCreatedEvent", () => {
     assert.entityCount("MDC", 1)
-
-    assert.fieldEquals(
-      "MDC",
-      "0x0000000000000000000000000000000000000001",
-      "ebc",
-      "0xffffffffffffffffffffffffffffffffffffffff"
-    )
   })
 
 })
