@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes, log, EthereumUtils, ethereum, Address, ByteArray } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes, log, EthereumUtils, ethereum, Address, ByteArray, crypto } from '@graphprotocol/graph-ts'
 // import { compress } from 'brotli-compress-wasm'
 // import { compress } from '../../node_modules/brotli-compress-wasm' 
 // const wasm_gzip = fetch("./wasm_gzip_bg.wasm")
@@ -133,13 +133,17 @@ export class rscRuleType {
     }
 }
 
+export function calculateRscRootAndCompare(rules: rscRuleType, inputRoot: Bytes): boolean {
+    // TODO : finish root calculation
+    return true
+}
+
 
 export function checkifRSCRuleTypeExist(rule: BigInt): boolean {
     // TODO : check if rule exist
     return true
 
 }
-
 
 export function parseRSC(rsc: Bytes): rscRuleType {
     let _rscRuleType = new rscRuleType(ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI)
