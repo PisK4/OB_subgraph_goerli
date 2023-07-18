@@ -73,13 +73,13 @@ type EBC @entity {
   sourceChainIds: [BigInt!]! # uint64
   pledgeAmounts: [BigInt!]! # uint128
   token: Bytes # address
-  mdc: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
+  mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
 }
 
 type ruleTypes @entity {
   id: ID!
-  chain0: Int! # uint32
-  chain1: Int! # uint32
+  chain0: BigInt! # uint64
+  chain1: BigInt! # uint64
   chain0Status: Int! # uint8
   chain1Status: Int! # uint8
   chain0Token: BigInt! # uint

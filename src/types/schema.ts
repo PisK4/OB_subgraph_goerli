@@ -1017,30 +1017,30 @@ export class ruleTypes extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get chain0(): i32 {
+  get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
-      return 0;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toI32();
+      return value.toBigInt();
     }
   }
 
-  set chain0(value: i32) {
-    this.set("chain0", Value.fromI32(value));
+  set chain0(value: BigInt) {
+    this.set("chain0", Value.fromBigInt(value));
   }
 
-  get chain1(): i32 {
+  get chain1(): BigInt {
     let value = this.get("chain1");
     if (!value || value.kind == ValueKind.NULL) {
-      return 0;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toI32();
+      return value.toBigInt();
     }
   }
 
-  set chain1(value: i32) {
-    this.set("chain1", Value.fromI32(value));
+  set chain1(value: BigInt) {
+    this.set("chain1", Value.fromBigInt(value));
   }
 
   get chain0Status(): i32 {
