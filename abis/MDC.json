@@ -4,6 +4,83 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "bytes32",
+        "name": "challengeId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "sourceTxFrom",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "sourceTxTime",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "challenger",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "freezeToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "challengeUserRatio",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "freezeAmount0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "freezeAmount1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "challengeTime",
+            "type": "uint64"
+          },
+          { "internalType": "uint64", "name": "abortTime", "type": "uint64" },
+          {
+            "internalType": "uint64",
+            "name": "verifiedTime0",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "verifiedTime1",
+            "type": "uint64"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "verifiedDataHash0",
+            "type": "bytes32"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IORMakerDeposit.ChallengeInfo",
+        "name": "challengeInfo",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChallengeInfoUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "impl",
         "type": "address"
@@ -28,9 +105,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
+        "internalType": "uint64[]",
         "name": "chainIds",
-        "type": "uint16[]"
+        "type": "uint64[]"
       }
     ],
     "name": "ColumnArrayUpdated",
@@ -47,9 +124,9 @@
       },
       {
         "indexed": false,
-        "internalType": "address[]",
+        "internalType": "uint256[]",
         "name": "responseMakers",
-        "type": "address[]"
+        "type": "uint256[]"
       }
     ],
     "name": "ResponseMakersUpdated",
@@ -95,9 +172,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16",
+        "internalType": "uint64",
         "name": "chainId",
-        "type": "uint16"
+        "type": "uint64"
       },
       {
         "indexed": false,
@@ -111,10 +188,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint16", "name": "sourceChainId", "type": "uint16" },
+      { "internalType": "uint64", "name": "sourceChainId", "type": "uint64" },
       { "internalType": "bytes32", "name": "sourceTxHash", "type": "bytes32" },
+      { "internalType": "uint64", "name": "sourceTxTime", "type": "uint64" },
       { "internalType": "address", "name": "freezeToken", "type": "address" },
-      { "internalType": "uint256", "name": "freezeAmount", "type": "uint256" }
+      { "internalType": "uint256", "name": "freezeAmount1", "type": "uint256" }
     ],
     "name": "challenge",
     "outputs": [],
@@ -123,7 +201,13 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "challengeId", "type": "bytes32" }
+      { "internalType": "uint64", "name": "sourceChainId", "type": "uint64" },
+      { "internalType": "bytes32", "name": "sourceTxHash", "type": "bytes32" },
+      {
+        "internalType": "uint256[]",
+        "name": "verifiedData0",
+        "type": "uint256[]"
+      }
     ],
     "name": "checkChallenge",
     "outputs": [],
@@ -181,10 +265,8 @@
   },
   {
     "inputs": [],
-    "name": "responseMakers",
-    "outputs": [
-      { "internalType": "address[]", "name": "", "type": "address[]" }
-    ],
+    "name": "responseMakersHash",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -207,7 +289,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint16", "name": "chainId", "type": "uint16" }
+      { "internalType": "uint64", "name": "chainId", "type": "uint64" }
     ],
     "name": "spv",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
@@ -215,10 +297,17 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "storageVersion",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "address[]", "name": "dealers", "type": "address[]" },
       { "internalType": "address[]", "name": "ebcs", "type": "address[]" },
-      { "internalType": "uint16[]", "name": "chainIds", "type": "uint16[]" }
+      { "internalType": "uint64[]", "name": "chainIds", "type": "uint64[]" }
     ],
     "name": "updateColumnArray",
     "outputs": [],
@@ -228,11 +317,10 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
+        "internalType": "uint256[]",
         "name": "responseMakers_",
-        "type": "address[]"
-      },
-      { "internalType": "uint256[]", "name": "indexs", "type": "uint256[]" }
+        "type": "uint256[]"
+      }
     ],
     "name": "updateResponseMakers",
     "outputs": [],
@@ -253,9 +341,9 @@
         "type": "tuple"
       },
       {
-        "internalType": "uint16[]",
+        "internalType": "uint64[]",
         "name": "sourceChainIds",
-        "type": "uint16[]"
+        "type": "uint64[]"
       },
       {
         "internalType": "uint256[]",
@@ -282,9 +370,9 @@
         "type": "tuple"
       },
       {
-        "internalType": "uint16[]",
+        "internalType": "uint64[]",
         "name": "sourceChainIds",
-        "type": "uint16[]"
+        "type": "uint64[]"
       },
       {
         "internalType": "uint256[]",
@@ -301,7 +389,7 @@
   {
     "inputs": [
       { "internalType": "address[]", "name": "spvs", "type": "address[]" },
-      { "internalType": "uint16[]", "name": "chainIds", "type": "uint16[]" }
+      { "internalType": "uint64[]", "name": "chainIds", "type": "uint64[]" }
     ],
     "name": "updateSpvs",
     "outputs": [],
@@ -312,14 +400,14 @@
     "inputs": [
       { "internalType": "address", "name": "spvAddress", "type": "address" },
       { "internalType": "bytes", "name": "proof", "type": "bytes" },
-      { "internalType": "bytes32", "name": "spvBlockHash", "type": "bytes32" },
+      {
+        "internalType": "bytes32[2]",
+        "name": "spvBlockHashs",
+        "type": "bytes32[2]"
+      },
       {
         "components": [
-          {
-            "internalType": "uint256[]",
-            "name": "txInfos",
-            "type": "uint256[]"
-          },
+          { "internalType": "uint256[]", "name": "data", "type": "uint256[]" },
           {
             "components": [
               {
@@ -327,20 +415,12 @@
                 "name": "account",
                 "type": "address"
               },
-              {
-                "internalType": "bytes32",
-                "name": "storageKey",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "uint256",
-                "name": "storageValue",
-                "type": "uint256"
-              }
+              { "internalType": "bytes32", "name": "key", "type": "bytes32" },
+              { "internalType": "uint256", "name": "value", "type": "uint256" }
             ],
-            "internalType": "struct IORChallengeSpv.VerifyInfoSlot",
+            "internalType": "struct IORChallengeSpv.VerifyInfoSlot[]",
             "name": "slots",
-            "type": "tuple"
+            "type": "tuple[]"
           }
         ],
         "internalType": "struct IORChallengeSpv.VerifyInfo",
@@ -351,7 +431,8 @@
         "internalType": "uint256[]",
         "name": "verifiedData0",
         "type": "uint256[]"
-      }
+      },
+      { "internalType": "bytes", "name": "rawDatas", "type": "bytes" }
     ],
     "name": "verifyChallengeDest",
     "outputs": [],
@@ -362,14 +443,14 @@
     "inputs": [
       { "internalType": "address", "name": "spvAddress", "type": "address" },
       { "internalType": "bytes", "name": "proof", "type": "bytes" },
-      { "internalType": "bytes32", "name": "spvBlockHash", "type": "bytes32" },
+      {
+        "internalType": "bytes32[2]",
+        "name": "spvBlockHashs",
+        "type": "bytes32[2]"
+      },
       {
         "components": [
-          {
-            "internalType": "uint256[]",
-            "name": "txInfos",
-            "type": "uint256[]"
-          },
+          { "internalType": "uint256[]", "name": "data", "type": "uint256[]" },
           {
             "components": [
               {
@@ -377,26 +458,19 @@
                 "name": "account",
                 "type": "address"
               },
-              {
-                "internalType": "bytes32",
-                "name": "storageKey",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "uint256",
-                "name": "storageValue",
-                "type": "uint256"
-              }
+              { "internalType": "bytes32", "name": "key", "type": "bytes32" },
+              { "internalType": "uint256", "name": "value", "type": "uint256" }
             ],
-            "internalType": "struct IORChallengeSpv.VerifyInfoSlot",
+            "internalType": "struct IORChallengeSpv.VerifyInfoSlot[]",
             "name": "slots",
-            "type": "tuple"
+            "type": "tuple[]"
           }
         ],
         "internalType": "struct IORChallengeSpv.VerifyInfo",
         "name": "verifyInfo",
         "type": "tuple"
-      }
+      },
+      { "internalType": "bytes", "name": "rawDatas", "type": "bytes" }
     ],
     "name": "verifyChallengeSource",
     "outputs": [],

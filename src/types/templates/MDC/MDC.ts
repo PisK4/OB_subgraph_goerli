@@ -10,6 +10,80 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class ChallengeInfoUpdated extends ethereum.Event {
+  get params(): ChallengeInfoUpdated__Params {
+    return new ChallengeInfoUpdated__Params(this);
+  }
+}
+
+export class ChallengeInfoUpdated__Params {
+  _event: ChallengeInfoUpdated;
+
+  constructor(event: ChallengeInfoUpdated) {
+    this._event = event;
+  }
+
+  get challengeId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get challengeInfo(): ChallengeInfoUpdatedChallengeInfoStruct {
+    return changetype<ChallengeInfoUpdatedChallengeInfoStruct>(
+      this._event.parameters[1].value.toTuple()
+    );
+  }
+}
+
+export class ChallengeInfoUpdatedChallengeInfoStruct extends ethereum.Tuple {
+  get sourceTxFrom(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get sourceTxTime(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get challenger(): Address {
+    return this[2].toAddress();
+  }
+
+  get freezeToken(): Address {
+    return this[3].toAddress();
+  }
+
+  get challengeUserRatio(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get freezeAmount0(): BigInt {
+    return this[5].toBigInt();
+  }
+
+  get freezeAmount1(): BigInt {
+    return this[6].toBigInt();
+  }
+
+  get challengeTime(): BigInt {
+    return this[7].toBigInt();
+  }
+
+  get abortTime(): BigInt {
+    return this[8].toBigInt();
+  }
+
+  get verifiedTime0(): BigInt {
+    return this[9].toBigInt();
+  }
+
+  get verifiedTime1(): BigInt {
+    return this[10].toBigInt();
+  }
+
+  get verifiedDataHash0(): Bytes {
+    return this[11].toBytes();
+  }
+}
+
 export class ColumnArrayUpdated extends ethereum.Event {
   get params(): ColumnArrayUpdated__Params {
     return new ColumnArrayUpdated__Params(this);
@@ -39,8 +113,8 @@ export class ColumnArrayUpdated__Params {
     return this._event.parameters[3].value.toAddressArray();
   }
 
-  get chainIds(): Array<i32> {
-    return this._event.parameters[4].value.toI32Array();
+  get chainIds(): Array<BigInt> {
+    return this._event.parameters[4].value.toBigIntArray();
   }
 }
 
@@ -61,8 +135,8 @@ export class ResponseMakersUpdated__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get responseMakers(): Array<Address> {
-    return this._event.parameters[1].value.toAddressArray();
+  get responseMakers(): Array<BigInt> {
+    return this._event.parameters[1].value.toBigIntArray();
   }
 }
 
@@ -121,8 +195,8 @@ export class SpvUpdated__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get chainId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get chainId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 
   get spv(): Address {
@@ -219,27 +293,27 @@ export class MDC extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  responseMakers(): Array<Address> {
+  responseMakersHash(): Bytes {
     let result = super.call(
-      "responseMakers",
-      "responseMakers():(address[])",
+      "responseMakersHash",
+      "responseMakersHash():(bytes32)",
       []
     );
 
-    return result[0].toAddressArray();
+    return result[0].toBytes();
   }
 
-  try_responseMakers(): ethereum.CallResult<Array<Address>> {
+  try_responseMakersHash(): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "responseMakers",
-      "responseMakers():(address[])",
+      "responseMakersHash",
+      "responseMakersHash():(bytes32)",
       []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddressArray());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   rulesRoot(ebc: Address): MDC__rulesRootResultValue0Struct {
@@ -269,23 +343,42 @@ export class MDC extends ethereum.SmartContract {
     );
   }
 
-  spv(chainId: i32): Address {
-    let result = super.call("spv", "spv(uint16):(address)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(chainId))
+  spv(chainId: BigInt): Address {
+    let result = super.call("spv", "spv(uint64):(address)", [
+      ethereum.Value.fromUnsignedBigInt(chainId)
     ]);
 
     return result[0].toAddress();
   }
 
-  try_spv(chainId: i32): ethereum.CallResult<Address> {
-    let result = super.tryCall("spv", "spv(uint16):(address)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(chainId))
+  try_spv(chainId: BigInt): ethereum.CallResult<Address> {
+    let result = super.tryCall("spv", "spv(uint64):(address)", [
+      ethereum.Value.fromUnsignedBigInt(chainId)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  storageVersion(): BigInt {
+    let result = super.call("storageVersion", "storageVersion():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_storageVersion(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "storageVersion",
+      "storageVersion():(uint256)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 }
 
@@ -306,20 +399,24 @@ export class ChallengeCall__Inputs {
     this._call = call;
   }
 
-  get sourceChainId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get sourceChainId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
   get sourceTxHash(): Bytes {
     return this._call.inputValues[1].value.toBytes();
   }
 
-  get freezeToken(): Address {
-    return this._call.inputValues[2].value.toAddress();
+  get sourceTxTime(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 
-  get freezeAmount(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
+  get freezeToken(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+
+  get freezeAmount1(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
   }
 }
 
@@ -348,8 +445,16 @@ export class CheckChallengeCall__Inputs {
     this._call = call;
   }
 
-  get challengeId(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
+  get sourceChainId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get sourceTxHash(): Bytes {
+    return this._call.inputValues[1].value.toBytes();
+  }
+
+  get verifiedData0(): Array<BigInt> {
+    return this._call.inputValues[2].value.toBigIntArray();
   }
 }
 
@@ -450,8 +555,8 @@ export class UpdateColumnArrayCall__Inputs {
     return this._call.inputValues[1].value.toAddressArray();
   }
 
-  get chainIds(): Array<i32> {
-    return this._call.inputValues[2].value.toI32Array();
+  get chainIds(): Array<BigInt> {
+    return this._call.inputValues[2].value.toBigIntArray();
   }
 }
 
@@ -480,12 +585,8 @@ export class UpdateResponseMakersCall__Inputs {
     this._call = call;
   }
 
-  get responseMakers_(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
-  }
-
-  get indexs(): Array<BigInt> {
-    return this._call.inputValues[1].value.toBigIntArray();
+  get responseMakers_(): Array<BigInt> {
+    return this._call.inputValues[0].value.toBigIntArray();
   }
 }
 
@@ -528,8 +629,8 @@ export class UpdateRulesRootCall__Inputs {
     );
   }
 
-  get sourceChainIds(): Array<i32> {
-    return this._call.inputValues[3].value.toI32Array();
+  get sourceChainIds(): Array<BigInt> {
+    return this._call.inputValues[3].value.toBigIntArray();
   }
 
   get pledgeAmounts(): Array<BigInt> {
@@ -586,8 +687,8 @@ export class UpdateRulesRootERC20Call__Inputs {
     );
   }
 
-  get sourceChainIds(): Array<i32> {
-    return this._call.inputValues[3].value.toI32Array();
+  get sourceChainIds(): Array<BigInt> {
+    return this._call.inputValues[3].value.toBigIntArray();
   }
 
   get pledgeAmounts(): Array<BigInt> {
@@ -638,8 +739,8 @@ export class UpdateSpvsCall__Inputs {
     return this._call.inputValues[0].value.toAddressArray();
   }
 
-  get chainIds(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get chainIds(): Array<BigInt> {
+    return this._call.inputValues[1].value.toBigIntArray();
   }
 }
 
@@ -676,8 +777,8 @@ export class VerifyChallengeDestCall__Inputs {
     return this._call.inputValues[1].value.toBytes();
   }
 
-  get spvBlockHash(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
+  get spvBlockHashs(): Array<Bytes> {
+    return this._call.inputValues[2].value.toBytesArray();
   }
 
   get verifyInfo(): VerifyChallengeDestCallVerifyInfoStruct {
@@ -688,6 +789,10 @@ export class VerifyChallengeDestCall__Inputs {
 
   get verifiedData0(): Array<BigInt> {
     return this._call.inputValues[4].value.toBigIntArray();
+  }
+
+  get rawDatas(): Bytes {
+    return this._call.inputValues[5].value.toBytes();
   }
 }
 
@@ -700,14 +805,12 @@ export class VerifyChallengeDestCall__Outputs {
 }
 
 export class VerifyChallengeDestCallVerifyInfoStruct extends ethereum.Tuple {
-  get txInfos(): Array<BigInt> {
+  get data(): Array<BigInt> {
     return this[0].toBigIntArray();
   }
 
-  get slots(): VerifyChallengeDestCallVerifyInfoSlotsStruct {
-    return changetype<VerifyChallengeDestCallVerifyInfoSlotsStruct>(
-      this[1].toTuple()
-    );
+  get slots(): Array<VerifyChallengeDestCallVerifyInfoSlotsStruct> {
+    return this[1].toTupleArray<VerifyChallengeDestCallVerifyInfoSlotsStruct>();
   }
 }
 
@@ -716,11 +819,11 @@ export class VerifyChallengeDestCallVerifyInfoSlotsStruct extends ethereum.Tuple
     return this[0].toAddress();
   }
 
-  get storageKey(): Bytes {
+  get key(): Bytes {
     return this[1].toBytes();
   }
 
-  get storageValue(): BigInt {
+  get value(): BigInt {
     return this[2].toBigInt();
   }
 }
@@ -750,14 +853,18 @@ export class VerifyChallengeSourceCall__Inputs {
     return this._call.inputValues[1].value.toBytes();
   }
 
-  get spvBlockHash(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
+  get spvBlockHashs(): Array<Bytes> {
+    return this._call.inputValues[2].value.toBytesArray();
   }
 
   get verifyInfo(): VerifyChallengeSourceCallVerifyInfoStruct {
     return changetype<VerifyChallengeSourceCallVerifyInfoStruct>(
       this._call.inputValues[3].value.toTuple()
     );
+  }
+
+  get rawDatas(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 
@@ -770,14 +877,14 @@ export class VerifyChallengeSourceCall__Outputs {
 }
 
 export class VerifyChallengeSourceCallVerifyInfoStruct extends ethereum.Tuple {
-  get txInfos(): Array<BigInt> {
+  get data(): Array<BigInt> {
     return this[0].toBigIntArray();
   }
 
-  get slots(): VerifyChallengeSourceCallVerifyInfoSlotsStruct {
-    return changetype<VerifyChallengeSourceCallVerifyInfoSlotsStruct>(
-      this[1].toTuple()
-    );
+  get slots(): Array<VerifyChallengeSourceCallVerifyInfoSlotsStruct> {
+    return this[1].toTupleArray<
+      VerifyChallengeSourceCallVerifyInfoSlotsStruct
+    >();
   }
 }
 
@@ -786,11 +893,11 @@ export class VerifyChallengeSourceCallVerifyInfoSlotsStruct extends ethereum.Tup
     return this[0].toAddress();
   }
 
-  get storageKey(): Bytes {
+  get key(): Bytes {
     return this[1].toBytes();
   }
 
-  get storageValue(): BigInt {
+  get value(): BigInt {
     return this[2].toBigInt();
   }
 }

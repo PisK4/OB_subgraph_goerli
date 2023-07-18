@@ -33,6 +33,7 @@ templates:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
+        - ChallengeInfoUpdated
         - ColumnArrayUpdated
         - ResponseMakersUpdated
         - RulesRootUpdated
@@ -41,12 +42,14 @@ templates:
         - name: MDC
           file: ./abis/MDC.json
       eventHandlers:
-        - event: ColumnArrayUpdated(indexed address,bytes32,address[],address[],uint16[])
+        - event: ChallengeInfoUpdated(indexed bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
+          handler: handleChallengeInfoUpdated
+        - event: ColumnArrayUpdated(indexed address,bytes32,address[],address[],uint64[])
           handler: handleColumnArrayUpdated
-        - event: ResponseMakersUpdated(indexed address,address[])
+        - event: ResponseMakersUpdated(indexed address,uint256[])
           handler: handleResponseMakersUpdated
         - event: RulesRootUpdated(indexed address,address,(bytes32,uint32))
           handler: handleRulesRootUpdated
-        - event: SpvUpdated(indexed address,uint16,address)
+        - event: SpvUpdated(indexed address,uint64,address)
           handler: handleSpvUpdated
       file: ./src/mappings/mdc.ts

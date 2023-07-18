@@ -1,11 +1,38 @@
 import { newMockEvent } from "matchstick-as"
 import { ethereum, Address, Bytes } from "@graphprotocol/graph-ts"
 import {
+  ChallengeInfoUpdated,
   ColumnArrayUpdated,
   ResponseMakersUpdated,
   RulesRootUpdated,
   SpvUpdated
 } from "../src/types/templates/MDC/MDC"
+
+export function createChallengeInfoUpdatedEvent(
+  challengeId: Bytes,
+  challengeInfo: ethereum.Tuple
+): ChallengeInfoUpdated {
+  let challengeInfoUpdatedEvent = changetype<ChallengeInfoUpdated>(
+    newMockEvent()
+  )
+
+  challengeInfoUpdatedEvent.parameters = new Array()
+
+  challengeInfoUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "challengeId",
+      ethereum.Value.fromFixedBytes(challengeId)
+    )
+  )
+  challengeInfoUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "challengeInfo",
+      ethereum.Value.fromTuple(challengeInfo)
+    )
+  )
+
+  return challengeInfoUpdatedEvent
+}
 
 export function createColumnArrayUpdatedEvent(
   impl: Address,

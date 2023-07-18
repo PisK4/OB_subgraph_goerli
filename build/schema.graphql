@@ -1,18 +1,29 @@
-type MDCCreated @entity(immutable: true) {
+type ChallengeInfoUpdated @entity(immutable: true) {
   id: Bytes!
-  maker: Bytes! # address
-  mdc: Bytes! # address
+  challengeId: Bytes! # bytes32
+  challengeInfo_sourceTxFrom: BigInt! # uint256
+  challengeInfo_sourceTxTime: BigInt! # uint64
+  challengeInfo_challenger: Bytes! # address
+  challengeInfo_freezeToken: Bytes! # address
+  challengeInfo_challengeUserRatio: BigInt! # uint64
+  challengeInfo_freezeAmount0: BigInt! # uint256
+  challengeInfo_freezeAmount1: BigInt! # uint256
+  challengeInfo_challengeTime: BigInt! # uint64
+  challengeInfo_abortTime: BigInt! # uint64
+  challengeInfo_verifiedTime0: BigInt! # uint64
+  challengeInfo_verifiedTime1: BigInt! # uint64
+  challengeInfo_verifiedDataHash0: Bytes! # bytes32
   blockNumber: BigInt!
   blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }
-
 type ColumnArrayUpdated @entity(immutable: true) {
   id: Bytes!
   impl: Bytes! # address
   columnArrayHash: Bytes! # bytes32
   dealers: [Bytes!] # address[]
   ebcs: [Bytes!] # address[]
-  chainIds: [Int!] # uint16[]
+  chainIds: [BigInt!] # uint64[]
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -21,7 +32,7 @@ type ColumnArrayUpdated @entity(immutable: true) {
 type ResponseMakersUpdated @entity(immutable: true) {
   id: Bytes!
   impl: Bytes! # address
-  responseMakers: [Bytes!] # address[]
+  responseMakers: [BigInt!] # uint256[]
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -42,11 +53,19 @@ type RulesRootUpdated @entity(immutable: true) {
 type SpvUpdated @entity(immutable: true) {
   id: Bytes!
   impl: Bytes! # address
-  chainId: Int! # uint16
+  chainId: BigInt! # uint64
   spv: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+type MDCCreated @entity(immutable: true) {
+  id: Bytes!
+  maker: Bytes! # address
+  mdc: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type MDC @entity {
