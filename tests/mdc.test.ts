@@ -148,7 +148,7 @@ describe("Describe event RulesRootUpdated", () => {
 
     // assert.fieldEquals(
     //   "RulesRootUpdated",
-    //   "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+    //   "0xa16081f360e3847006dfb660bae1c6d1b2e17ec2a",
     //   "rootWithVersion_version",
     //   version
     // )

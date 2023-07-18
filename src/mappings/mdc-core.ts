@@ -328,13 +328,13 @@ export function updateRulesRoot(
       // # for production
       // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
 
-      let mdc = MDC.load(updateRulesRootEntity.ebcAddress.toHexString())
+      let mdc = MDC.load(ebcAddress)
       
       if (mdc) {
-        log.debug('load exist MDC:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
+        log.debug('load exist MDC:{}', [ebcAddress])
         log.debug('ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
         [
-          updateRulesRootEntity.ebcAddress.toHexString(),
+          ebcAddress,
           "default",
           updateRulesRootEntity.root.toHexString(),
           updateRulesRootEntity.version.toString(),
@@ -344,22 +344,21 @@ export function updateRulesRoot(
         ])
       
         
-        if(updateRulesRootEntity.ebcAddress.toHexString() != null){
-          let ebc = EBC.load(updateRulesRootEntity.ebcAddress.toHexString())
+        if(ebcAddress != null){
+          let ebc = EBC.load(ebcAddress)
           if (ebc == null) {
-            log.debug('create new EBC:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
-            ebc = new EBC(updateRulesRootEntity.ebcAddress.toHexString()) as EBC
+            log.debug('create new EBC:{}', [ebcAddress])
+            ebc = new EBC(ebcAddress) as EBC
             ebc.rule = "default"
             ebc.version = ONE_NUM
           }
       
-      
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){
-            let _rules = ruleTypes.load(updateRulesRootEntity.ebcAddress.toHexString())
+            let _rules = ruleTypes.load(ebcAddress)
             if(_rules == null){
-              log.debug('create new ruleTypes:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
-              _rules = new ruleTypes(updateRulesRootEntity.ebcAddress.toHexString())
+              log.debug('create new ruleTypes:{}', [ebcAddress])
+              _rules = new ruleTypes(ebcAddress)
               // init ruleTypes
               _rules.chain0 = ONE_BI
               _rules.chain1 = ONE_BI
@@ -378,7 +377,7 @@ export function updateRulesRoot(
               _rules.chain0CompensationRatio = ONE_NUM
               _rules.chain1CompensationRatio = ONE_NUM
             }else{
-              log.debug('load exist ruleTypes:{}', [updateRulesRootEntity.ebcAddress.toHexString()])
+              log.debug('load exist ruleTypes:{}', [ebcAddress])
             }
       
             if(calculateRscRootAndCompare(updateRulesRootEntity.rscType, updateRulesRootEntity.root) == true){
@@ -468,7 +467,7 @@ export function updateRulesRoot(
         mdc.save()
       
     }else{
-        log.error('MDC:{} not exist', [updateRulesRootEntity.ebcAddress.toHexString()])
+        log.error('MDC:{} not exist', [ebcAddress])
     }
 
     entity.save()    

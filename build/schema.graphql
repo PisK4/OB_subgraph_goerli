@@ -52,16 +52,18 @@ type SpvUpdated @entity(immutable: true) {
 type MDC @entity {
   id: ID!
   owner: Bytes! # address
-  columnArrayHash: Bytes! # bytes32
+  columnArrayHash: Bytes # bytes32
   responseMakers: [Bytes!] # address[]
-  rootWithVersion: Bytes! # bytes32
+  root: Bytes # bytes32
+  version: Int # uint32
   spvs: [Bytes!] # address[]
   chainIds: [Int!] # uint16[]
   dealers: [Bytes!] # address[]
-  ebc: EBC! # EBC
+  ebc: [EBC!] # EBC
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
+  lastestUpdatetransactionHash: Bytes!
 
 }
 
@@ -74,6 +76,7 @@ type EBC @entity {
   pledgeAmounts: [BigInt!]! # uint128
   token: Bytes # address
   mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
+  lastestUpdatetransactionHash: Bytes!
 }
 
 type ruleTypes @entity {
