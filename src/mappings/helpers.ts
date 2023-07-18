@@ -1,4 +1,14 @@
-import { BigInt, BigDecimal, Bytes, log, EthereumUtils, ethereum, Address, ByteArray, crypto } from '@graphprotocol/graph-ts'
+import { 
+    BigInt, 
+    BigDecimal, 
+    Bytes, 
+    log, 
+    EthereumUtils, 
+    ethereum, 
+    Address, 
+    ByteArray, 
+    crypto 
+} from '@graphprotocol/graph-ts'
 // import { compress } from 'brotli-compress-wasm'
 // import { compress } from '../../node_modules/brotli-compress-wasm' 
 // const wasm_gzip = fetch("./wasm_gzip_bg.wasm")

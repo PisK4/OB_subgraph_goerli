@@ -905,6 +905,119 @@ export class MDCCreated extends Entity {
   }
 }
 
+export class FactoryManger extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save FactoryManger entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type FactoryManger must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("FactoryManger", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): FactoryManger | null {
+    return changetype<FactoryManger | null>(
+      store.get_in_block("FactoryManger", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): FactoryManger | null {
+    return changetype<FactoryManger | null>(
+      store.get("FactoryManger", id.toHexString())
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get mdcs(): Array<string> | null {
+    let value = this.get("mdcs");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set mdcs(value: Array<string> | null) {
+    if (!value) {
+      this.unset("mdcs");
+    } else {
+      this.set("mdcs", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
+  get mdcCounts(): BigInt {
+    let value = this.get("mdcCounts");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set mdcCounts(value: BigInt) {
+    this.set("mdcCounts", Value.fromBigInt(value));
+  }
+
+  get lastestUpdateHash(): Bytes {
+    let value = this.get("lastestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lastestUpdateHash(value: Bytes) {
+    this.set("lastestUpdateHash", Value.fromBytes(value));
+  }
+
+  get lastestUpdateTimestamp(): BigInt {
+    let value = this.get("lastestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastestUpdateTimestamp(value: BigInt) {
+    this.set("lastestUpdateTimestamp", Value.fromBigInt(value));
+  }
+
+  get lastestUpdateBlockNumber(): BigInt {
+    let value = this.get("lastestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastestUpdateBlockNumber(value: BigInt) {
+    this.set("lastestUpdateBlockNumber", Value.fromBigInt(value));
+  }
+}
+
 export class MDC extends Entity {
   constructor(id: string) {
     super();
@@ -1087,6 +1200,14 @@ export class MDC extends Entity {
     } else {
       this.set("ebc", Value.fromStringArray(<Array<string>>value));
     }
+  }
+
+  get factory(): FactoryMangerLoader {
+    return new FactoryMangerLoader(
+      "MDC",
+      this.get("id")!.toString(),
+      "factory"
+    );
   }
 
   get createblockNumber(): BigInt {
@@ -1526,6 +1647,24 @@ export class ruleTypes extends Entity {
 
   set chain1CompensationRatio(value: i32) {
     this.set("chain1CompensationRatio", Value.fromI32(value));
+  }
+}
+
+export class FactoryMangerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): FactoryManger[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<FactoryManger[]>(value);
   }
 }
 
