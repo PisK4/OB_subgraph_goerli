@@ -6,11 +6,14 @@ import {
     ByteArray,
     Address
 } from "@graphprotocol/graph-ts";
+import { MDC as mdcContract} from "../types/templates/MDC/MDC"
 import {
+  ONE_ADDRESS,
     ONE_BI,
     ONE_NUM,
     ZERO_BI,
     funcERC20,
+    funcETH,
     func_updateRulesRoot,
     func_updateRulesRootERC20,
     func_updateRulesRootERC20Selector,
@@ -21,6 +24,7 @@ import {
 } from "./helpers"
 import { 
     EBC, 
+    FactoryManger, 
     MDC, 
     RulesRootUpdated, 
     ruleTypes 
@@ -76,6 +80,7 @@ export class rscRuleType {
     chain1ResponseTime: BigInt;
     chain0CompensationRatio: BigInt;
     chain1CompensationRatio: BigInt;
+    verifyPass: boolean;
     constructor(
         chain0: BigInt,
         chain1: BigInt,
@@ -110,12 +115,14 @@ export class rscRuleType {
         this.chain1ResponseTime = chain1ResponseTime;
         this.chain0CompensationRatio = chain0CompensationRatio;
         this.chain1CompensationRatio = chain1CompensationRatio;
+        this.verifyPass = false;
     }
 }
 
 export function calculateRscRootAndCompare(rules: rscRuleType, inputRoot: Bytes): boolean {
     // TODO : finish root calculation
-    return true
+    let pass = true
+    return (pass&&rules.verifyPass)
 }
 
 
@@ -123,6 +130,16 @@ export function checkifRSCRuleTypeExist(rule: BigInt): boolean {
     // TODO : check if rule exist
     return true
 
+}
+
+export function checkRulesFormat(rscTuple: ethereum.Tuple): boolean {
+    if((rscTuple[2].toBigInt() == BigInt.fromI32(0) || rscTuple[2].toBigInt() == BigInt.fromI32(1)) &&
+    (rscTuple[3].toBigInt() == BigInt.fromI32(0) || rscTuple[3].toBigInt() == BigInt.fromI32(1))){
+      return true
+    }else{
+      log.info("rules format not match [1]:{} [2]:{}", [rscTuple[2].toBigInt().toString(), rscTuple[3].toBigInt().toString()])
+      return false
+    }
 }
 
 export function parseRSC(rsc: Bytes): rscRuleType {
@@ -140,43 +157,47 @@ export function parseRSC(rsc: Bytes): rscRuleType {
     }
     let rscTuple = rscDecode.toTuple();
 
-    log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}, kind[6]:{}, kind[7]:{}, kind[8]:{}, kind[9]:{}, kind[10]:{}, kind[11]:{}, kind[12]:{}, kind[13]:{}, kind[14]:{}, kind[15]:{}", 
-        [
-        rscTuple[0].kind.toString(),
-        rscTuple[1].kind.toString(),
-        rscTuple[2].kind.toString(),
-        rscTuple[3].kind.toString(),
-        rscTuple[4].kind.toString(),
-        rscTuple[5].kind.toString(),
-        rscTuple[6].kind.toString(),
-        rscTuple[7].kind.toString(),
-        rscTuple[8].kind.toString(),
-        rscTuple[9].kind.toString(),
-        rscTuple[10].kind.toString(),
-        rscTuple[11].kind.toString(),
-        rscTuple[12].kind.toString(),
-        rscTuple[13].kind.toString(),
-        rscTuple[14].kind.toString(),
-        rscTuple[15].kind.toString()])
+    // log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}, kind[6]:{}, kind[7]:{}, kind[8]:{}, kind[9]:{}, kind[10]:{}, kind[11]:{}, kind[12]:{}, kind[13]:{}, kind[14]:{}, kind[15]:{}", 
+    //     [
+    //     rscTuple[0].kind.toString(),
+    //     rscTuple[1].kind.toString(),
+    //     rscTuple[2].kind.toString(),
+    //     rscTuple[3].kind.toString(),
+    //     rscTuple[4].kind.toString(),
+    //     rscTuple[5].kind.toString(),
+    //     rscTuple[6].kind.toString(),
+    //     rscTuple[7].kind.toString(),
+    //     rscTuple[8].kind.toString(),
+    //     rscTuple[9].kind.toString(),
+    //     rscTuple[10].kind.toString(),
+    //     rscTuple[11].kind.toString(),
+    //     rscTuple[12].kind.toString(),
+    //     rscTuple[13].kind.toString(),
+    //     rscTuple[14].kind.toString(),
+    //     rscTuple[15].kind.toString()])
 
-    _rscRuleType.chain0 = rscTuple[0].toBigInt();
-    _rscRuleType.chain1 = rscTuple[1].toBigInt();
-    _rscRuleType.chain0Status = rscTuple[2].toBigInt();
-    _rscRuleType.chain1Status = rscTuple[3].toBigInt();
-    _rscRuleType.chain0Token = rscTuple[4].toBigInt();
-    _rscRuleType.chain1Token = rscTuple[5].toBigInt();
-    _rscRuleType.minPrice = rscTuple[6].toBigInt();
-    _rscRuleType.maxPrice = rscTuple[7].toBigInt();
-    _rscRuleType.chain0WithholdingFee = rscTuple[8].toBigInt();
-    _rscRuleType.chain1WithholdingFee = rscTuple[9].toBigInt();
-    _rscRuleType.chain0TradeFee = rscTuple[10].toBigInt();
-    _rscRuleType.chain1TradeFee = rscTuple[11].toBigInt();
-    _rscRuleType.chain0ResponseTime = rscTuple[12].toBigInt();
-    _rscRuleType.chain1ResponseTime = rscTuple[13].toBigInt();
-    _rscRuleType.chain0CompensationRatio = rscTuple[14].toBigInt();
-    _rscRuleType.chain1CompensationRatio = rscTuple[15].toBigInt();
 
-    return _rscRuleType
+        if(checkRulesFormat(rscTuple)){
+          _rscRuleType.chain0 = rscTuple[0].toBigInt();
+          _rscRuleType.chain1 = rscTuple[1].toBigInt();
+          _rscRuleType.chain0Status = rscTuple[2].toBigInt();
+          _rscRuleType.chain1Status = rscTuple[3].toBigInt();
+          _rscRuleType.chain0Token = rscTuple[4].toBigInt();
+          _rscRuleType.chain1Token = rscTuple[5].toBigInt();
+          _rscRuleType.minPrice = rscTuple[6].toBigInt();
+          _rscRuleType.maxPrice = rscTuple[7].toBigInt();
+          _rscRuleType.chain0WithholdingFee = rscTuple[8].toBigInt();
+          _rscRuleType.chain1WithholdingFee = rscTuple[9].toBigInt();
+          _rscRuleType.chain0TradeFee = rscTuple[10].toBigInt();
+          _rscRuleType.chain1TradeFee = rscTuple[11].toBigInt();
+          _rscRuleType.chain0ResponseTime = rscTuple[12].toBigInt();
+          _rscRuleType.chain1ResponseTime = rscTuple[13].toBigInt();
+          _rscRuleType.chain0CompensationRatio = rscTuple[14].toBigInt();
+          _rscRuleType.chain1CompensationRatio = rscTuple[15].toBigInt();
+          _rscRuleType.verifyPass = true;
+        }
+
+        return _rscRuleType
 
 }
 
@@ -184,7 +205,7 @@ export function parseRSC(rsc: Bytes): rscRuleType {
 export function parseTransactionInputData(data: Bytes): rscRules {
     let selector = data.toHexString().slice(2, 10)
     let func = getFunctionSelector(Bytes.fromHexString(selector))
-    log.debug("selector: {}, func: {}", [selector, func.toString()])
+    // log.debug("selector: {}, func: {}", [selector, func.toString()])
 
     let selectorofFunc = "0x00000000"
     if(func == updateRulesRootMode.ETH) {
@@ -223,7 +244,7 @@ export function parseTransactionInputData(data: Bytes): rscRules {
     let tuple = decoded.toTuple();
 
     if(func == updateRulesRootMode.ERC20) {
-        log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
+        log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
             tuple[0].kind.toString(),
             tuple[1].kind.toString(),
             tuple[2].kind.toString(),
@@ -232,7 +253,7 @@ export function parseTransactionInputData(data: Bytes): rscRules {
             tuple[5].kind.toString(),
         ])
     }else{
-        log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
+        log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
             tuple[0].kind.toString(),
             tuple[1].kind.toString(),
             tuple[2].kind.toString(),
@@ -261,10 +282,10 @@ export function parseTransactionInputData(data: Bytes): rscRules {
 
     if(tuple[2].kind == ethereum.ValueKind.TUPLE){
         rootWithVersion = tuple[2].toTuple();
-        log.debug("rootWithVersion[0].kind: {}, rootWithVersion[1].kind: {}", [
-            rootWithVersion[0].kind.toString(),
-            rootWithVersion[1].kind.toString()
-        ])
+        // log.debug("rootWithVersion[0].kind: {}, rootWithVersion[1].kind: {}", [
+        //     rootWithVersion[0].kind.toString(),
+        //     rootWithVersion[1].kind.toString()
+        // ])
         if(rootWithVersion[0].kind == ethereum.ValueKind.BYTES ||
             rootWithVersion[0].kind == ethereum.ValueKind.FIXED_BYTES) {
             root = rootWithVersion[0].toBytes();
@@ -308,31 +329,57 @@ export function updateRulesRoot(
     root : Bytes,
     version : BigInt
 ): void{
-    let entity = new RulesRootUpdated(
-        event.transaction.hash
-      )
-      entity.impl = impl
-      entity.ebc = ebc
-      entity.rootWithVersion_root = root
-      entity.rootWithVersion_version = version
-      entity.input = event.transaction.input
-      entity.blockNumber = event.block.number
-      entity.blockTimestamp = event.block.timestamp
-      entity.transactionHash = event.transaction.hash
+    // let entity = new RulesRootUpdated(
+    //     event.transaction.hash
+    //   )
+    //   entity.impl = impl
+    //   entity.ebc = ebc
+    //   entity.rootWithVersion_root = root
+    //   entity.rootWithVersion_version = version
+    //   entity.input = event.transaction.input
+    //   entity.blockNumber = event.block.number
+    //   entity.blockTimestamp = event.block.timestamp
+    //   entity.transactionHash = event.transaction.hash
+
+    // log.debug("address {}", [event.address.toHexString()])
       
       // # for test only
-      let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-      let updateRulesRootEntity = parseTransactionInputData(debugInput)
-      const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
+      // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
+      // let updateRulesRootEntity = parseTransactionInputData(debugInput)
 
       // # for production
-      // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
-
-      let mdc = MDC.load(ebcAddress)
+      let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
+      const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
+      const _mdcAddress = event.transaction.to
+      ? ((event.transaction.to as Address).toHex()) as string
+      : null;
       
+      const mdcAddress = _mdcAddress as string
+      log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
+
+      let mdc = MDC.load(mdcAddress) // # for production
+      // let mdc = MDC.load(ebcAddress)  // for test only
+
       if (mdc) {
-        log.debug('load exist MDC:{}', [ebcAddress])
-        log.debug('ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
+        const _mdcContract = mdcContract.bind(Address.fromString(mdcAddress))  // # for production
+        // const _mdcContract = mdcContract.bind(Address.fromString(ebcAddress)) // for test only
+        let try_mdcFactory = _mdcContract.try_mdcFactory()
+        let factoryAddress = ONE_ADDRESS
+        if(!try_mdcFactory.reverted){
+          let _factoryAddress = try_mdcFactory.value.toHexString()
+          factoryAddress = _factoryAddress as string
+        }else{
+          log.error('mdcFactory is null, mdcAddress: {}', [mdcAddress])
+        }
+        log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress])
+        let factory = FactoryManger.load(getONEBytes())
+        if(factoryAddress != ONE_ADDRESS){
+          factory = FactoryManger.load(Bytes.fromHexString(factoryAddress))
+        }
+
+
+        // log.debug('load exist MDC:{}', [ebcAddress])
+        log.debug('inputdata decode: ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
         [
           ebcAddress,
           "default",
@@ -449,9 +496,9 @@ export function updateRulesRoot(
                 _rules.chain0CompensationRatio.toString(),
                 _rules.chain1CompensationRatio.toString()
               ])
-              
+              _rules.save()
             }
-            _rules.save()
+            
           }
           ebc.root = updateRulesRootEntity.root
           // check if version is same
@@ -465,10 +512,12 @@ export function updateRulesRoot(
         }        
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()
-      
+        if(factory){
+          factory.save()
+        }
     }else{
-        log.error('MDC:{} not exist', [ebcAddress])
+        log.error('MDC not exist', ['error'])
     }
 
-    entity.save()    
+    // entity.save()    
 }

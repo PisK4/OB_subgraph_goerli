@@ -68,6 +68,15 @@ type MDCCreated @entity(immutable: true) {
   blockTimestamp: BigInt!
 }
 
+type FactoryManger @entity{
+  id: Bytes!  # factory address
+  mdcs: [MDC!] 
+  mdcCounts: BigInt!
+  lastestUpdateHash: Bytes!
+  lastestUpdateTimestamp: BigInt!
+  lastestUpdateBlockNumber: BigInt!
+}
+
 type MDC @entity {
   id: ID!
   owner: Bytes! # address
@@ -79,6 +88,7 @@ type MDC @entity {
   chainIds: [Int!] # uint16[]
   dealers: [Bytes!] # address[]
   ebc: [EBC!] # EBC
+  # factory: [FactoryManger!]!@derivedFrom(field: "mdcs") # factory
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!

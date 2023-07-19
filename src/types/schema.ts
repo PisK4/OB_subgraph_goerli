@@ -1202,14 +1202,6 @@ export class MDC extends Entity {
     }
   }
 
-  get factory(): FactoryMangerLoader {
-    return new FactoryMangerLoader(
-      "MDC",
-      this.get("id")!.toString(),
-      "factory"
-    );
-  }
-
   get createblockNumber(): BigInt {
     let value = this.get("createblockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1647,24 +1639,6 @@ export class ruleTypes extends Entity {
 
   set chain1CompensationRatio(value: i32) {
     this.set("chain1CompensationRatio", Value.fromI32(value));
-  }
-}
-
-export class FactoryMangerLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): FactoryManger[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<FactoryManger[]>(value);
   }
 }
 
