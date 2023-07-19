@@ -12,6 +12,7 @@ import {
   SpvUpdated,
 } from "../types/schema"
 import { 
+  handleColumnArrayUpdatedEvent,
   updateRulesRoot
 } from "./mdc-core"
 
@@ -45,21 +46,14 @@ export function handleChallengeInfoUpdated(
 }
 
 export function handleColumnArrayUpdated(event: ColumnArrayUpdatedEvent): void {
-  let entity = new ColumnArrayUpdated(
-    event.transaction.hash
+  handleColumnArrayUpdatedEvent(
+    event,
+    event.params.impl,
+    event.params.columnArrayHash,
+    event.params.dealers,
+    event.params.ebcs,
+    event.params.chainIds
   )
-  entity.impl = event.params.impl
-  entity.columnArrayHash = event.params.columnArrayHash
-  // entity.dealers = event.params.dealers
-  // entity.ebcs = event.params.ebcs
-  
-  entity.chainIds = event.params.chainIds
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleResponseMakersUpdated(

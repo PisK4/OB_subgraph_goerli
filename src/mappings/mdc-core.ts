@@ -19,6 +19,7 @@ import {
     func_updateRulesRootERC20Selector,
     func_updateRulesRootSelector,
     getONEBytes,
+    mockMdcAddr,
     tupleprefix,
     updateRulesRootMode
 } from "./helpers"
@@ -506,4 +507,54 @@ export function updateRulesRoot(
     }
 
     // entity.save()    
+}
+
+/**
+ * @param {Array<Address>} ebcs
+ * @returns {Array<Address>} uniqueEbcs
+ */
+export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
+  const uniqueEbcs = new Array<Address>();
+  for (let i = 0; i < ebcs.length; i++) {
+    let isDuplicate = false;
+    for (let j = 0; j < uniqueEbcs.length; j++) {
+      if (ebcs[i].equals(uniqueEbcs[j])) {
+        isDuplicate = true;
+        break;
+      }
+    }
+    if (!isDuplicate) {
+      uniqueEbcs.push(ebcs[i]);
+    }
+  }
+  return uniqueEbcs;
+}
+
+
+export function handleColumnArrayUpdatedEvent (
+    event: ethereum.Event,
+    impl : Bytes,
+    columnArrayHash : Bytes,
+    dealers : Array<Address>,
+    ebcs : Array<Address>,
+    chainIds : Array<BigInt>
+): void{
+    // let mdc = MDC.load(event.address.toHexString())
+    let mdc = MDC.load(mockMdcAddr.toLowerCase())
+    if(mdc){
+        mdc.columnArrayHash = columnArrayHash
+        // mdc.dealers = dealers
+
+        let uniqueEbcs = removeDuplicates(ebcs)
+
+        for(let i = 0; i < uniqueEbcs.length; i++){
+          log.debug('ebcs: {}', [uniqueEbcs[i].toHexString()])
+        }
+        // mdc.ebcs = ebcs
+        // mdc.chainIds = chainIds
+        mdc.lastestUpdatetransactionHash = event.transaction.hash
+        mdc.save()
+    }else{
+        log.error('MDC not exist', ['error'])
+    }
 }
