@@ -81,7 +81,7 @@ type MDC @entity {
   dealers: [Bytes!] # address[]
   ebc: [EBC!]! # EBC
   # factory: FactoryManger 
-  # factoryMangers: [FactoryManger!]! @derivedFrom(field: "mdcs") # not work, could not find the field
+  factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
@@ -91,7 +91,6 @@ type MDC @entity {
 
 type FactoryManger @entity{
   id: Bytes!  # factory address
-  # mdcs: [MDC!] @derivedFrom(field: "factory") # MDC[] not work, could not find the field
   mdcs: [MDC!] # MDC[]
   mdcCounts: BigInt!
   lastestUpdateHash: Bytes!

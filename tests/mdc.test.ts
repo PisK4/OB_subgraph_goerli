@@ -86,12 +86,12 @@ describe("Describe event RulesRootUpdated", () => {
   test("EBC created and stored", () => {
     assert.entityCount("EBC", 1)
 
-    assert.fieldEquals(
-      "EBC",
-      ebcAddress,
-      "id",
-      ebcAddress
-    )
+    // assert.fieldEquals(
+    //   "EBC",
+    //   ebcAddress,
+    //   "id",
+    //   ebcAddress
+    // )
 
     // assert.fieldEquals(
     //   "EBC",

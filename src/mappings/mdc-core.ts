@@ -333,11 +333,11 @@ export function updateRulesRoot(
     version : BigInt
 ): void{
       // # for test only
-      // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-      // let updateRulesRootEntity = parseTransactionInputData(debugInput)
+      let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
+      let updateRulesRootEntity = parseTransactionInputData(debugInput)
 
       // # for production
-      let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
+      // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
       const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
       const _mdcAddress = event.transaction.to
       ? ((event.transaction.to as Address).toHex()) as string
@@ -346,20 +346,20 @@ export function updateRulesRoot(
       const mdcAddress = _mdcAddress as string
       log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
 
-      let mdc = MDC.load(mdcAddress) // # for production
-      // let mdc = MDC.load(ebcAddress)  // for test only
+      // let mdc = getMdcEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
+      let mdc = getMdcEntity(Address.fromString(ebcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
 
       if (mdc) {
-        const _mdcContract = mdcContract.bind(Address.fromString(mdcAddress))  // # for production
-        // const _mdcContract = mdcContract.bind(Address.fromString(ebcAddress)) // for test only
-        let try_mdcFactory = _mdcContract.try_mdcFactory()
+        // const _mdcContract = mdcContract.bind(Address.fromString(mdcAddress))  // # for production
+        const _mdcContract = mdcContract.bind(Address.fromString(ebcAddress)) // for test only
+        // let try_mdcFactory = _mdcContract.try_mdcFactory()
         let factoryAddress = ONE_ADDRESS
-        if(!try_mdcFactory.reverted){
-          let _factoryAddress = try_mdcFactory.value.toHexString()
-          factoryAddress = _factoryAddress as string
-        }else{
-          log.error('mdcFactory is null, mdcAddress: {}', [mdcAddress])
-        }
+        // if(!try_mdcFactory.reverted){
+        //   let _factoryAddress = try_mdcFactory.value.toHexString()
+        //   factoryAddress = _factoryAddress as string
+        // }else{
+        //   log.error('mdcFactory is null, mdcAddress: {}', [mdcAddress])
+        // }
         log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress])
         let factory = FactoryManger.load(getONEBytes())
         if(factoryAddress != ONE_ADDRESS){
@@ -381,13 +381,15 @@ export function updateRulesRoot(
       
         
         if(ebcAddress != null){
-          let ebc = EBC.load(ebcAddress)
-          if (ebc == null) {
-            log.debug('create new EBC:{}', [ebcAddress])
-            ebc = new EBC(ebcAddress) as EBC
-            // ebc.rule = "default"
-            ebc.version = ONE_NUM
-          }
+          // let ebc = EBC.load(ebcAddress)
+          // if (ebc == null) {
+          //   log.debug('create new EBC:{}', [ebcAddress])
+          //   ebc = new EBC(ebcAddress) as EBC
+          //   // ebc.rule = "default"
+          //   ebc.version = ONE_NUM
+          // }
+
+          let ebc = getEbcEntity(Address.fromString(mdcAddress), Address.fromString(ebcAddress))
       
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){

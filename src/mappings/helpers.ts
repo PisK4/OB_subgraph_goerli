@@ -59,7 +59,7 @@ export function getONEBytes(): Bytes {
 
 export function getEbcId(mcdAddress: Address, ebcAddress: Address): string{
     // id = "mcdAddress - ebcAddress "
-    log.debug('id: {}', [mcdAddress.toHexString() + "-" + ebcAddress.toHexString()])
+    // log.debug('id: {}', [mcdAddress.toHexString() + "-" + ebcAddress.toHexString()])
     return mcdAddress.toHexString() + "-" + ebcAddress.toHexString()
 }
 
