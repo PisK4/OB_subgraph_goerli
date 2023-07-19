@@ -9,6 +9,7 @@ import {
     ByteArray, 
     crypto 
 } from '@graphprotocol/graph-ts'
+import { EBC, MDC } from '../types/schema'
 // import { compress } from 'brotli-compress-wasm'
 // import { compress } from '../../node_modules/brotli-compress-wasm' 
 // const wasm_gzip = fetch("./wasm_gzip_bg.wasm")
@@ -56,5 +57,38 @@ export function getONEBytes(): Bytes {
     return ONE_BYTES as Bytes;
 }
 
+export function getEbcId(mcdAddress: Address, ebcAddress: Address): string{
+    // id = "mcdAddress - ebcAddress "
+    log.debug('id: {}', [mcdAddress.toHexString() + "-" + ebcAddress.toHexString()])
+    return mcdAddress.toHexString() + "-" + ebcAddress.toHexString()
+}
 
+export function getMdcEntity(
+    mdcAddress: Address,
+    maker: Address,
+    event: ethereum.Event
+): MDC {
+    let mdc = MDC.load(mdcAddress.toHexString())
+    if (mdc == null) {
+        log.info('create new MDC, maker: {}, mdc: {}', [maker.toHexString(), mdcAddress.toHexString()])
+        mdc = new MDC(mdcAddress.toHexString())
+        mdc.owner = maker
+        mdc.ebc = []
+        mdc.createblockNumber = event.block.number
+        mdc.createblockTimestamp = event.block.timestamp
+        mdc.lastestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
+    }
+    return mdc as MDC
+}
 
+export function getEbcEntity(
+    mdcAddress: Address,
+    ebcAddress: Address
+): EBC {
+    const ebcId = getEbcId(mdcAddress, ebcAddress)
+    let ebc = EBC.load(ebcId)
+    if (ebc == null) {
+        ebc = new EBC(ebcId)
+    }
+    return ebc as EBC
+}

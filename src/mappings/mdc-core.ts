@@ -18,6 +18,8 @@ import {
     func_updateRulesRootERC20,
     func_updateRulesRootERC20Selector,
     func_updateRulesRootSelector,
+    getEbcEntity,
+    getMdcEntity,
     getONEBytes,
     mockMdcAddr,
     tupleprefix,
@@ -535,11 +537,7 @@ export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
   return uniqueEbcs;
 }
 
-export function getEbcId(mcdAddress: Address, ebcAddress: Address): string{
-    // id = "mcdAddress - ebcAddress "
-    log.debug('id: {}', [mcdAddress.toHexString() + "-" + ebcAddress.toHexString()])
-    return mcdAddress.toHexString() + "-" + ebcAddress.toHexString()
-}
+
 
 export function handleColumnArrayUpdatedEvent (
     event: ethereum.Event,
@@ -549,8 +547,7 @@ export function handleColumnArrayUpdatedEvent (
     ebcs : Array<Address>,
     chainIds : Array<BigInt>
 ): void{
-    // let mdc = MDC.load(event.address.toHexString())
-    let mdc = MDC.load(mockMdcAddr.toLowerCase())
+    let mdc = getMdcEntity(Address.fromString(mockMdcAddr), Address.fromString(ONE_ADDRESS), event)
     if(mdc){
         mdc.columnArrayHash = columnArrayHash
 
@@ -566,18 +563,12 @@ export function handleColumnArrayUpdatedEvent (
         let uniqueEbcs = removeDuplicates(ebcs)
         if(uniqueEbcs.length > 0){
             for(let i = 0; i < uniqueEbcs.length; i++){
-                const ebcId = getEbcId(event.address, uniqueEbcs[i])
-                let ebc = EBC.load(ebcId)
-                if(ebc == null){
-                    ebc = new EBC(ebcId) as EBC
-                }
+                let ebc = getEbcEntity(Address.fromString(mockMdcAddr), uniqueEbcs[i])
                 ebc.lastestUpdatetransactionHash = event.transaction.hash
                 ebc.save()
                 mdc.ebc.push(ebc.id);
               }
         }
-        
-
 
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()

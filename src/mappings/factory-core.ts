@@ -10,6 +10,7 @@ import { MDC as MDCTemplate} from "../types/templates"
 import {
   ONE_ADDRESS,
   ONE_NUM,
+  getMdcEntity,
   getONEBytes
 } from './helpers'
 
@@ -37,20 +38,13 @@ export function factoryCreateMDC(
             factory.lastestUpdateTimestamp = event.block.timestamp
             factory.mdcCounts = factory.mdcCounts.plus(BigInt.fromI32(1))
 
-            let mdcNew = new MDC(mdc.toHexString()) as MDC
-            mdcNew.owner = maker
-            mdcNew.ebc = []
-            mdcNew.createblockNumber = event.block.number
-            mdcNew.createblockTimestamp = event.block.timestamp
-            mdcNew.lastestUpdatetransactionHash = mdcNew.createtransactionHash = event.transaction.hash
+            let mdcNew = getMdcEntity(mdc, maker, event)
             MDCTemplate.create(mdc)
 
             factory.mdcs = [mdcNew.id]
             
             mdcNew.save()
             factory.save()
-
-            log.info('Factory create MDC, maker: {}, mdc: {}', [maker.toHexString(), mdc.toHexString()])
         }
 
 

@@ -25,6 +25,9 @@ import {
 } from "./mdc-utils"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
+import { 
+  getEbcId 
+} from "../src/mappings/helpers"
 
 describe("Describe entity assertions", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
@@ -64,10 +67,39 @@ describe("Describe entity assertions", () => {
   test("MDC created and stored", () => {
     assert.entityCount("MDC", 1)
 
+    assert.fieldEquals(
+      "MDC",
+      mdcAddress.toLowerCase(),
+      "id",
+      mdcAddress.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "MDC",
+      mdcAddress.toLowerCase(),
+      "owner",
+      makerAddress.toLowerCase()
+    )
+
   })
 
   test("EBCs created and stored", () => {
     assert.entityCount("EBC", 2)
+
+    assert.fieldEquals(
+      "EBC",
+      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0)),
+      "id",
+      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0))
+    )
+
+    assert.fieldEquals(
+      "EBC",
+      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1)),
+      "id",
+      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1))
+    )
+    
   })
 
 })
