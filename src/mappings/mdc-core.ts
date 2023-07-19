@@ -329,20 +329,6 @@ export function updateRulesRoot(
     root : Bytes,
     version : BigInt
 ): void{
-    // let entity = new RulesRootUpdated(
-    //     event.transaction.hash
-    //   )
-    //   entity.impl = impl
-    //   entity.ebc = ebc
-    //   entity.rootWithVersion_root = root
-    //   entity.rootWithVersion_version = version
-    //   entity.input = event.transaction.input
-    //   entity.blockNumber = event.block.number
-    //   entity.blockTimestamp = event.block.timestamp
-    //   entity.transactionHash = event.transaction.hash
-
-    // log.debug("address {}", [event.address.toHexString()])
-      
       // # for test only
       // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
       // let updateRulesRootEntity = parseTransactionInputData(debugInput)

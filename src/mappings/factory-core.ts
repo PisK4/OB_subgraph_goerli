@@ -45,6 +45,8 @@ export function factoryCreateMDC(
             mdcNew.lastestUpdatetransactionHash = mdcNew.createtransactionHash = event.transaction.hash
             MDCTemplate.create(mdc)
 
+            factory.mdcs = [mdcNew.id]
+            
             mdcNew.save()
             factory.save()
 
