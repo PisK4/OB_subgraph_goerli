@@ -1038,20 +1038,20 @@ export class MDC extends Entity {
     }
   }
 
-  get chainIds(): Array<i32> | null {
+  get chainIds(): Array<BigInt> | null {
     let value = this.get("chainIds");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toI32Array();
+      return value.toBigIntArray();
     }
   }
 
-  set chainIds(value: Array<i32> | null) {
+  set chainIds(value: Array<BigInt> | null) {
     if (!value) {
       this.unset("chainIds");
     } else {
-      this.set("chainIds", Value.fromI32Array(<Array<i32>>value));
+      this.set("chainIds", Value.fromBigIntArray(<Array<BigInt>>value));
     }
   }
 
@@ -1072,21 +1072,17 @@ export class MDC extends Entity {
     }
   }
 
-  get ebc(): Array<string> | null {
+  get ebc(): Array<string> {
     let value = this.get("ebc");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toStringArray();
     }
   }
 
-  set ebc(value: Array<string> | null) {
-    if (!value) {
-      this.unset("ebc");
-    } else {
-      this.set("ebc", Value.fromStringArray(<Array<string>>value));
-    }
+  set ebc(value: Array<string>) {
+    this.set("ebc", Value.fromStringArray(value));
   }
 
   get createblockNumber(): BigInt {
@@ -1294,30 +1290,38 @@ export class EBC extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get rule(): string {
+  get rule(): Array<string> | null {
     let value = this.get("rule");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toString();
+      return value.toStringArray();
     }
   }
 
-  set rule(value: string) {
-    this.set("rule", Value.fromString(value));
+  set rule(value: Array<string> | null) {
+    if (!value) {
+      this.unset("rule");
+    } else {
+      this.set("rule", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
-  get root(): Bytes {
+  get root(): Bytes | null {
     let value = this.get("root");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBytes();
     }
   }
 
-  set root(value: Bytes) {
-    this.set("root", Value.fromBytes(value));
+  set root(value: Bytes | null) {
+    if (!value) {
+      this.unset("root");
+    } else {
+      this.set("root", Value.fromBytes(<Bytes>value));
+    }
   }
 
   get version(): i32 {
@@ -1333,30 +1337,38 @@ export class EBC extends Entity {
     this.set("version", Value.fromI32(value));
   }
 
-  get sourceChainIds(): Array<BigInt> {
+  get sourceChainIds(): Array<BigInt> | null {
     let value = this.get("sourceChainIds");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigIntArray();
     }
   }
 
-  set sourceChainIds(value: Array<BigInt>) {
-    this.set("sourceChainIds", Value.fromBigIntArray(value));
+  set sourceChainIds(value: Array<BigInt> | null) {
+    if (!value) {
+      this.unset("sourceChainIds");
+    } else {
+      this.set("sourceChainIds", Value.fromBigIntArray(<Array<BigInt>>value));
+    }
   }
 
-  get pledgeAmounts(): Array<BigInt> {
+  get pledgeAmounts(): Array<BigInt> | null {
     let value = this.get("pledgeAmounts");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBigIntArray();
     }
   }
 
-  set pledgeAmounts(value: Array<BigInt>) {
-    this.set("pledgeAmounts", Value.fromBigIntArray(value));
+  set pledgeAmounts(value: Array<BigInt> | null) {
+    if (!value) {
+      this.unset("pledgeAmounts");
+    } else {
+      this.set("pledgeAmounts", Value.fromBigIntArray(<Array<BigInt>>value));
+    }
   }
 
   get token(): Bytes | null {
@@ -1374,6 +1386,10 @@ export class EBC extends Entity {
     } else {
       this.set("token", Value.fromBytes(<Bytes>value));
     }
+  }
+
+  get mdcs(): MDCLoader {
+    return new MDCLoader("EBC", this.get("id")!.toString(), "mdcs");
   }
 
   get lastestUpdatetransactionHash(): Bytes {
@@ -1635,5 +1651,23 @@ export class ruleTypes extends Entity {
 
   set chain1CompensationRatio(value: i32) {
     this.set("chain1CompensationRatio", Value.fromI32(value));
+  }
+}
+
+export class MDCLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): MDC[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<MDC[]>(value);
   }
 }

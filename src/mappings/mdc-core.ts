@@ -383,7 +383,7 @@ export function updateRulesRoot(
           if (ebc == null) {
             log.debug('create new EBC:{}', [ebcAddress])
             ebc = new EBC(ebcAddress) as EBC
-            ebc.rule = "default"
+            // ebc.rule = "default"
             ebc.version = ONE_NUM
           }
       
@@ -527,9 +527,19 @@ export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
       uniqueEbcs.push(ebcs[i]);
     }
   }
+
+  for(let i = 0; i < uniqueEbcs.length; i++){
+    log.debug('ebcs: {}', [uniqueEbcs[i].toHexString()])
+  } 
+
   return uniqueEbcs;
 }
 
+export function getEbcId(mcdAddress: Address, ebcAddress: Address): string{
+    // id = "mcdAddress - ebcAddress "
+    log.debug('id: {}', [mcdAddress.toHexString() + "-" + ebcAddress.toHexString()])
+    return mcdAddress.toHexString() + "-" + ebcAddress.toHexString()
+}
 
 export function handleColumnArrayUpdatedEvent (
     event: ethereum.Event,
@@ -543,15 +553,32 @@ export function handleColumnArrayUpdatedEvent (
     let mdc = MDC.load(mockMdcAddr.toLowerCase())
     if(mdc){
         mdc.columnArrayHash = columnArrayHash
-        // mdc.dealers = dealers
 
-        let uniqueEbcs = removeDuplicates(ebcs)
-
-        for(let i = 0; i < uniqueEbcs.length; i++){
-          log.debug('ebcs: {}', [uniqueEbcs[i].toHexString()])
+        // process dealers
+        let dealersBytes = new Array<Bytes>()
+        for(let i = 0; i < dealers.length; i++){
+          dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
         }
-        // mdc.ebcs = ebcs
-        // mdc.chainIds = chainIds
+        mdc.dealers = dealersBytes
+
+
+        // process ebcs
+        let uniqueEbcs = removeDuplicates(ebcs)
+        if(uniqueEbcs.length > 0){
+            for(let i = 0; i < uniqueEbcs.length; i++){
+                const ebcId = getEbcId(event.address, uniqueEbcs[i])
+                let ebc = EBC.load(ebcId)
+                if(ebc == null){
+                    ebc = new EBC(ebcId) as EBC
+                }
+                ebc.lastestUpdatetransactionHash = event.transaction.hash
+                ebc.save()
+                mdc.ebc.push(ebc.id);
+              }
+        }
+        
+
+
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()
     }else{

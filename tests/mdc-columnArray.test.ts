@@ -61,9 +61,13 @@ describe("Describe entity assertions", () => {
     clearStore()
   })
 
-  test("ColumnArrayUpdated created and stored", () => {
+  test("MDC created and stored", () => {
     assert.entityCount("MDC", 1)
 
-
   })
+
+  test("EBCs created and stored", () => {
+    assert.entityCount("EBC", 2)
+  })
+
 })
