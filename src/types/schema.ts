@@ -1268,7 +1268,7 @@ export class FactoryManger extends Entity {
   }
 }
 
-export class EBCManger extends Entity {
+export class EBCManager extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1276,22 +1276,22 @@ export class EBCManger extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save EBCManger entity without an ID");
+    assert(id != null, "Cannot save EBCManager entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type EBCManger must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type EBCManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("EBCManger", id.toString(), this);
+      store.set("EBCManager", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): EBCManger | null {
-    return changetype<EBCManger | null>(store.get_in_block("EBCManger", id));
+  static loadInBlock(id: string): EBCManager | null {
+    return changetype<EBCManager | null>(store.get_in_block("EBCManager", id));
   }
 
-  static load(id: string): EBCManger | null {
-    return changetype<EBCManger | null>(store.get("EBCManger", id));
+  static load(id: string): EBCManager | null {
+    return changetype<EBCManager | null>(store.get("EBCManager", id));
   }
 
   get id(): string {

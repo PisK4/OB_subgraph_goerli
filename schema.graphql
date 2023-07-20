@@ -99,7 +99,7 @@ type FactoryManger @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
-type EBCManger @entity{
+type EBCManager @entity{
   id: ID! 
   # ebcs: [EBC!]! # MDC[]
   ebcCounts: BigInt!

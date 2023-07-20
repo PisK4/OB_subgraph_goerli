@@ -26,6 +26,7 @@ import {
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
+  EBCManagerID,
   getBindEbcId 
 } from "../src/mappings/helpers"
 
@@ -125,6 +126,17 @@ describe("Describe entity assertions", () => {
       ebc1.toLowerCase()
     )
 
+  })
+
+  test("EBC manager created and stored", () => {
+    assert.entityCount("EBCManager", 1)
+
+    assert.fieldEquals(
+      "EBCManager",
+      EBCManagerID,
+      "ebcCounts",
+      "2"
+    )
   })
 
 })

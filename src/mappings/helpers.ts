@@ -11,7 +11,7 @@ import {
 } from '@graphprotocol/graph-ts'
 import { 
     EBC, 
-    EBCManger, 
+    EBCManager, 
     MDC, 
     MDCBindEBC
 } from '../types/schema'
@@ -57,7 +57,7 @@ export enum updateRulesRootMode {
     ERC20 = 1,
     INV = 2,
 }
-export const EBCMangerID = "EBCMangerID_101" as string
+export const EBCManagerID = "EBCManagerID_101" as string
 
 export function getONEBytes(): Bytes {
     if(ONE_BYTES.length == 0) {
@@ -90,7 +90,7 @@ export function getBindEbcId(mcdAddress: Address, ebcAddress: Address): string{
 export function getEBCId(BindEbcId: string): string{
     // get ebc id from "mcdAddress - ebcAddress "
     let ebcId = BindEbcId.split("-")[1]
-    log.debug('ebcId: {}', [ebcId])
+    // log.debug('ebcId: {}', [ebcId])
     return ebcId
 }
 
@@ -131,16 +131,23 @@ export function ebcSave(
     saveMDC2EBC(ebc, mdcAddress)
     ebc.save()
 
-    let _EBCManger = EBCManger.load(EBCMangerID)
-    if(_EBCManger == null){
-        _EBCManger = new EBCManger(EBCMangerID)
-        _EBCManger.ebcCounts = BigInt.fromI32(0)
-        _EBCManger.ebc = []
+    const ebcAddress = Address.fromString(ebcId)
+    let _EBCManager = EBCManager.load(EBCManagerID)
+    if(_EBCManager == null){
+        _EBCManager = new EBCManager(EBCManagerID)
+        _EBCManager.ebcCounts = BigInt.fromI32(0)
+        _EBCManager.ebc = []
     }
-    _EBCManger.lastestUpdateHash = event.transaction.hash
-    _EBCManger.lastestUpdateBlockNumber = event.block.number
-    _EBCManger.lastestUpdateTimestamp = event.block.timestamp    
-    _EBCManger.save()    
+    _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)
+    if (_EBCManager.ebc == null) {
+        _EBCManager.ebc = [ebcAddress];
+    } else if (!_EBCManager.ebc.includes(ebcAddress)) {
+        _EBCManager.ebc = _EBCManager.ebc.concat([ebcAddress])
+    }      
+    _EBCManager.lastestUpdateHash = event.transaction.hash
+    _EBCManager.lastestUpdateBlockNumber = event.block.number
+    _EBCManager.lastestUpdateTimestamp = event.block.timestamp    
+    _EBCManager.save()    
     MDCBindEBC.save()
 }
 
@@ -162,18 +169,18 @@ export function getEBCEntity(
     _MDCBindEBC.lastestUpdateTimestamp = event.block.timestamp
     saveBindEBC2MDC(mdc, bindID)    
 
-    let _EBCManger = EBCManger.load(EBCMangerID)
-    if(_EBCManger == null){
-        _EBCManger = new EBCManger(EBCMangerID)
-        _EBCManger.ebcCounts = BigInt.fromI32(0)
-        _EBCManger.ebc = []
-    }
-    _EBCManger.ebcCounts = _EBCManger.ebcCounts.plus(ONE_BI)
-    if (_EBCManger.ebc == null) {
-        _EBCManger.ebc = [ebcAddress];
-    } else if (!_EBCManger.ebc.includes(ebcAddress)) {
-        _EBCManger.ebc = _EBCManger.ebc.concat([ebcAddress])
-    }   
+    // let _EBCManager = EBCManager.load(EBCManagerID)
+    // if(_EBCManager == null){
+    //     _EBCManager = new EBCManager(EBCManagerID)
+    //     _EBCManager.ebcCounts = BigInt.fromI32(0)
+    //     _EBCManager.ebc = []
+    // }
+    // _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)
+    // if (_EBCManager.ebc == null) {
+    //     _EBCManager.ebc = [ebcAddress];
+    // } else if (!_EBCManager.ebc.includes(ebcAddress)) {
+    //     _EBCManager.ebc = _EBCManager.ebc.concat([ebcAddress])
+    // }   
     return _MDCBindEBC as MDCBindEBC
 }
 
