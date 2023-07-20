@@ -54,27 +54,7 @@ describe("Describe event RulesRootUpdated", () => {
   test("EBC created and stored", () => {
     assert.entityCount("EBC", 1)
 
-    // assert.fieldEquals(
-    //   "EBC",
-    //   ebcAddress,
-    //   "id",
-    //   ebcAddress
-    // )
-
-    // assert.fieldEquals(
-    //   "EBC",
-    //   ebcAddress,
-    //   "root",
-    //   root
-    // )
-
-    //// uint test may mock some data
-    // assert.fieldEquals(
-    //   "EBC",
-    //   ebcAddress,
-    //   "version",
-    //   version
-    // )
+    
 
   })
 

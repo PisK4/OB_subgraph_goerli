@@ -29,7 +29,7 @@ import {
 // import { init, compress, decompress } from '../../node_modules/@bokuweb/zstd-wasm';
 
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 
 //for test 
@@ -116,7 +116,7 @@ export function getMDCEntity(
 
 export function ebcSave(
     MDCBindEBC: MDCBindEBC,
-    mdcAddress: Address,
+    mdc: MDC,
     event: ethereum.Event
 ): void {
     
@@ -128,21 +128,21 @@ export function ebcSave(
         ebc.mdcList = []
     }
     ebc.lastestUpdatetransactionHash = event.transaction.hash
-    saveMDC2EBC(ebc, mdcAddress)
+    saveMDC2EBC(ebc, mdc)
     ebc.save()
 
-    const ebcAddress = Address.fromString(ebcId)
+    // const ebcAddress = Address.fromString(ebcId)
     let _EBCManager = EBCManager.load(EBCManagerID)
     if(_EBCManager == null){
         _EBCManager = new EBCManager(EBCManagerID)
         _EBCManager.ebcCounts = BigInt.fromI32(0)
-        _EBCManager.ebc = []
+        _EBCManager.ebcs = []
     }
     _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)
-    if (_EBCManager.ebc == null) {
-        _EBCManager.ebc = [ebcAddress];
-    } else if (!_EBCManager.ebc.includes(ebcAddress)) {
-        _EBCManager.ebc = _EBCManager.ebc.concat([ebcAddress])
+    if (_EBCManager.ebcs == null) {
+        _EBCManager.ebcs = [ebcId];
+    } else if (!_EBCManager.ebcs.includes(ebcId)) {
+        _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
     }      
     _EBCManager.lastestUpdateHash = event.transaction.hash
     _EBCManager.lastestUpdateBlockNumber = event.block.number
@@ -168,19 +168,6 @@ export function getEBCEntity(
     _MDCBindEBC.lastestUpdateBlockNumber = event.block.number
     _MDCBindEBC.lastestUpdateTimestamp = event.block.timestamp
     saveBindEBC2MDC(mdc, bindID)    
-
-    // let _EBCManager = EBCManager.load(EBCManagerID)
-    // if(_EBCManager == null){
-    //     _EBCManager = new EBCManager(EBCManagerID)
-    //     _EBCManager.ebcCounts = BigInt.fromI32(0)
-    //     _EBCManager.ebc = []
-    // }
-    // _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)
-    // if (_EBCManager.ebc == null) {
-    //     _EBCManager.ebc = [ebcAddress];
-    // } else if (!_EBCManager.ebc.includes(ebcAddress)) {
-    //     _EBCManager.ebc = _EBCManager.ebc.concat([ebcAddress])
-    // }   
     return _MDCBindEBC as MDCBindEBC
 }
 
@@ -197,11 +184,11 @@ export function saveBindEBC2MDC(
 
 export function saveMDC2EBC(
     ebc: EBC, 
-    mdcAddress: Address
+    mdc: MDC
 ): void {
     if (ebc.mdcList == null) {
-        ebc.mdcList = [mdcAddress];
-    } else if (!ebc.mdcList.includes(mdcAddress)) {
-        ebc.mdcList = ebc.mdcList.concat([mdcAddress])
+        ebc.mdcList = [mdc.id];
+    } else if (!ebc.mdcList.includes(mdc.id)) {
+        ebc.mdcList = ebc.mdcList.concat([mdc.id])
     }
 }

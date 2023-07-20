@@ -480,7 +480,7 @@ export function updateRulesRoot(
           // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
           // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
           ebc.lastestUpdateHash = event.transaction.hash
-          ebcSave(ebc, Address.fromString(mdcAddress), event)
+          ebcSave(ebc, mdc, event)
         }        
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()
@@ -547,7 +547,7 @@ export function handleColumnArrayUpdatedEvent (
         if(uniqueEbcs.length > 0){
             for(let i = 0; i < uniqueEbcs.length; i++){
                 let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
-                ebcSave(ebc, mdcAddress, event)
+                ebcSave(ebc, mdc, event)
               }
         }
 

@@ -1320,17 +1320,17 @@ export class EBCManager extends Entity {
     this.set("ebcCounts", Value.fromBigInt(value));
   }
 
-  get ebc(): Array<Bytes> {
-    let value = this.get("ebc");
+  get ebcs(): Array<string> {
+    let value = this.get("ebcs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set ebc(value: Array<Bytes>) {
-    this.set("ebc", Value.fromBytesArray(value));
+  set ebcs(value: Array<string>) {
+    this.set("ebcs", Value.fromStringArray(value));
   }
 
   get lastestUpdateHash(): Bytes {
@@ -1542,119 +1542,25 @@ export class EBC extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get mdcList(): Array<Bytes> {
+  get mdcList(): Array<string> {
     let value = this.get("mdcList");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set mdcList(value: Array<Bytes>) {
-    this.set("mdcList", Value.fromBytesArray(value));
-  }
-
-  get rule(): Array<string> | null {
-    let value = this.get("rule");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
     } else {
       return value.toStringArray();
     }
   }
 
-  set rule(value: Array<string> | null) {
-    if (!value) {
-      this.unset("rule");
-    } else {
-      this.set("rule", Value.fromStringArray(<Array<string>>value));
-    }
+  set mdcList(value: Array<string>) {
+    this.set("mdcList", Value.fromStringArray(value));
   }
 
-  get root(): Bytes | null {
-    let value = this.get("root");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set root(value: Bytes | null) {
-    if (!value) {
-      this.unset("root");
-    } else {
-      this.set("root", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get version(): i32 {
-    let value = this.get("version");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set version(value: i32) {
-    this.set("version", Value.fromI32(value));
-  }
-
-  get sourceChainIds(): Array<BigInt> | null {
-    let value = this.get("sourceChainIds");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set sourceChainIds(value: Array<BigInt> | null) {
-    if (!value) {
-      this.unset("sourceChainIds");
-    } else {
-      this.set("sourceChainIds", Value.fromBigIntArray(<Array<BigInt>>value));
-    }
-  }
-
-  get pledgeAmounts(): Array<BigInt> | null {
-    let value = this.get("pledgeAmounts");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set pledgeAmounts(value: Array<BigInt> | null) {
-    if (!value) {
-      this.unset("pledgeAmounts");
-    } else {
-      this.set("pledgeAmounts", Value.fromBigIntArray(<Array<BigInt>>value));
-    }
-  }
-
-  get token(): Bytes | null {
-    let value = this.get("token");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set token(value: Bytes | null) {
-    if (!value) {
-      this.unset("token");
-    } else {
-      this.set("token", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get mdcs(): MDCLoader {
-    return new MDCLoader("EBC", this.get("id")!.toString(), "mdcs");
+  get ebcManager(): EBCManagerLoader {
+    return new EBCManagerLoader(
+      "EBC",
+      this.get("id")!.toString(),
+      "ebcManager"
+    );
   }
 
   get lastestUpdatetransactionHash(): Bytes {
@@ -1952,5 +1858,23 @@ export class MDCLoader extends Entity {
   load(): MDC[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<MDC[]>(value);
+  }
+}
+
+export class EBCManagerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): EBCManager[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<EBCManager[]>(value);
   }
 }

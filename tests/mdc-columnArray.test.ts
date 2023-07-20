@@ -88,6 +88,13 @@ describe("Describe entity assertions", () => {
       "bindEBC",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
     )
+
+    assert.fieldEquals(
+      "MDC",
+      mdcAddress.toLowerCase(),
+      "dealers",
+      "[0xa1ae843d71ef6843137f70d6e93c5d143c1843e4\]"
+    )
   })
 
   test("MDCBindEBC created and stored", () => {
@@ -126,6 +133,20 @@ describe("Describe entity assertions", () => {
       ebc1.toLowerCase()
     )
 
+    assert.fieldEquals(
+      "EBC",
+      ebc1.toLowerCase(),
+      "mdcList",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+
+    assert.fieldEquals(
+      "EBC",
+      ebc0.toLowerCase(),
+      "mdcList",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+
   })
 
   test("EBC manager created and stored", () => {
@@ -136,6 +157,13 @@ describe("Describe entity assertions", () => {
       EBCManagerID,
       "ebcCounts",
       "2"
+    )
+
+    assert.fieldEquals(
+      "EBCManager",
+      EBCManagerID,
+      "ebcs",
+      "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
     )
   })
 

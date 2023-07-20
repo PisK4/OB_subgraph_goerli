@@ -99,11 +99,11 @@ type FactoryManger @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
-type EBCManger @entity{
+type EBCManager @entity{
   id: ID! 
   # ebcs: [EBC!]! # MDC[]
   ebcCounts: BigInt!
-  ebc: [Bytes!]! # ebc address
+  ebcs: [EBC!]! # ebc entity
 
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
@@ -123,14 +123,15 @@ type MDCBindEBC @entity{
 
 type EBC @entity {
   id: ID! #ebc address
-  mdcList: [Bytes!]! # mdc address
-  rule: [ruleTypes!] # latest 30 ruleTypes
-  root: Bytes # bytes32
-  version: Int # uint32
-  sourceChainIds: [BigInt!] # uint64
-  pledgeAmounts: [BigInt!] # uint128
-  token: Bytes # address
-  mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
+  mdcList: [MDC!]! # list all mdc!! who bind this ebc
+  ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
+  # rule: [ruleTypes!] # latest 30 ruleTypes
+  # root: Bytes # bytes32
+  # version: Int # uint32
+  # sourceChainIds: [BigInt!] # uint64
+  # pledgeAmounts: [BigInt!] # uint128
+  # token: Bytes # address
+  # mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
   lastestUpdatetransactionHash: Bytes!
 }
 
