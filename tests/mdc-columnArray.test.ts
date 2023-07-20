@@ -26,7 +26,7 @@ import {
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
-  getEbcId 
+  getBindEbcId 
 } from "../src/mappings/helpers"
 
 describe("Describe entity assertions", () => {
@@ -84,28 +84,47 @@ describe("Describe entity assertions", () => {
     assert.fieldEquals(
       "MDC",
       mdcAddress.toLowerCase(),
-      "ebc",
+      "bindEBC",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
     )
   })
 
-  test("EBCs created and stored", () => {
+  test("MDCBindEBC created and stored", () => {
+    assert.entityCount("MDCBindEBC", 2)
+
+    assert.fieldEquals(
+      "MDCBindEBC",
+      getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0)),
+      "id",
+      getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0))
+    )
+
+    assert.fieldEquals(
+      "MDCBindEBC",
+      getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1)),
+      "id",
+      getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1))
+    )
+
+  })
+
+  test("EBC created and stored", () => {
     assert.entityCount("EBC", 2)
 
     assert.fieldEquals(
       "EBC",
-      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0)),
+      ebc0.toLowerCase(),
       "id",
-      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0))
+      ebc0.toLowerCase()
     )
 
     assert.fieldEquals(
       "EBC",
-      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1)),
+      ebc1.toLowerCase(),
       "id",
-      getEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1))
+      ebc1.toLowerCase()
     )
-    
+
   })
 
 })

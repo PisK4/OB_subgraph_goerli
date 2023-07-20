@@ -25,8 +25,10 @@ import {
     mockMdcAddr,
     tupleprefix,
     updateRulesRootMode,
-    saveEBC2MDC,
-    isProduction
+    saveBindEBC2MDC,
+    isProduction,
+    ebcSave,
+    debugLog
 } from "./helpers"
 import { 
     EBC, 
@@ -249,23 +251,25 @@ export function parseTransactionInputData(data: Bytes): rscRules {
     }
     let tuple = decoded.toTuple();
 
-    if(func == updateRulesRootMode.ERC20) {
-        log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
-            tuple[0].kind.toString(),
-            tuple[1].kind.toString(),
-            tuple[2].kind.toString(),
-            tuple[3].kind.toString(),
-            tuple[4].kind.toString(),
-            tuple[5].kind.toString(),
-        ])
-    }else{
-        log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
-            tuple[0].kind.toString(),
-            tuple[1].kind.toString(),
-            tuple[2].kind.toString(),
-            tuple[3].kind.toString(),
-            tuple[4].kind.toString()
-        ])
+    if (debugLog){
+      if(func == updateRulesRootMode.ERC20) {
+          log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
+              tuple[0].kind.toString(),
+              tuple[1].kind.toString(),
+              tuple[2].kind.toString(),
+              tuple[3].kind.toString(),
+              tuple[4].kind.toString(),
+              tuple[5].kind.toString(),
+          ])
+      }else{
+          log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
+              tuple[0].kind.toString(),
+              tuple[1].kind.toString(),
+              tuple[2].kind.toString(),
+              tuple[3].kind.toString(),
+              tuple[4].kind.toString()
+          ])
+      }
     }
 
     let rsc = Bytes.fromI32(0)
@@ -335,13 +339,6 @@ export function updateRulesRoot(
     root : Bytes,
     version : BigInt
 ): void{
-      // # for test only
-      // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-      // let updateRulesRootEntity = parseTransactionInputData(debugInput)
-
-      // # for production
-      // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
-
       let updateRulesRootEntity = isProduction ? 
       parseTransactionInputData(event.transaction.input) :
       parseTransactionInputData(Bytes.fromHexString(funcERC20) as Bytes)
@@ -357,14 +354,10 @@ export function updateRulesRoot(
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
 
       if (mdc) {
-        // let factoryAddress = getMDCFactory(Address.fromString(mdcAddress)) // # for production
         let factoryAddress = Bytes.fromHexString(mdc.factory._id)
         log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
-        
         let factory = FactoryManger.load(factoryAddress)
 
-
-        // log.debug('load exist MDC:{}', [ebcAddress])
         log.debug('inputdata decode: ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
         [
           ebcAddress,
@@ -375,18 +368,9 @@ export function updateRulesRoot(
           updateRulesRootEntity.pledgeAmounts.toString(),
           updateRulesRootEntity.tokenAddr.toHexString()
         ])
-      
         
         if(ebcAddress != null){
-          // let ebc = EBC.load(ebcAddress)
-          // if (ebc == null) {
-          //   log.debug('create new EBC:{}', [ebcAddress])
-          //   ebc = new EBC(ebcAddress) as EBC
-          //   // ebc.rule = "default"
-          //   ebc.version = ONE_NUM
-          // }
-
-          let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress))
+          let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
       
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){
@@ -493,10 +477,10 @@ export function updateRulesRoot(
           if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
             ebc.version = updateRulesRootEntity.version
           }
-          ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
-          ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
-          ebc.lastestUpdatetransactionHash = event.transaction.hash
-          ebc.save()
+          // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
+          // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
+          ebc.lastestUpdateHash = event.transaction.hash
+          ebcSave(ebc, Address.fromString(mdcAddress), event)
         }        
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()
@@ -507,7 +491,6 @@ export function updateRulesRoot(
         log.error('MDC not exist', ['error'])
     }
 
-    // entity.save()    
 }
 
 /**
@@ -563,14 +546,14 @@ export function handleColumnArrayUpdatedEvent (
         let uniqueEbcs = removeDuplicates(ebcs)
         if(uniqueEbcs.length > 0){
             for(let i = 0; i < uniqueEbcs.length; i++){
-                let ebc = getEBCEntity(mdc, uniqueEbcs[i])
-                ebc.lastestUpdatetransactionHash = event.transaction.hash
-                ebc.save()
+                let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
+                ebcSave(ebc, mdcAddress, event)
               }
         }
 
         mdc.lastestUpdatetransactionHash = event.transaction.hash
         mdc.save()
+        
     }else{
         log.error('MDC not exist', ['error'])
     }

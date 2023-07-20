@@ -80,6 +80,7 @@ type MDC @entity {
   chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
   ebc: [EBC!]! # EBC
+  bindEBC: [MDCBindEBC!]! # MDCBindEBC
   # factory: FactoryManger 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   createblockNumber: BigInt!
@@ -98,8 +99,31 @@ type FactoryManger @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
+type EBCManger @entity{
+  id: ID! 
+  # ebcs: [EBC!]! # MDC[]
+  ebcCounts: BigInt!
+  ebc: [Bytes!]! # ebc address
+
+  lastestUpdateHash: Bytes!
+  lastestUpdateTimestamp: BigInt!
+  lastestUpdateBlockNumber: BigInt!
+}
+
+type MDCBindEBC @entity{
+  id: ID! # mdc address - ebc address
+  root: Bytes # bytes32
+  version: Int # uint32
+  rule: [ruleTypes!] # latest 30 ruleTypes
+  mdc: MDC! @derivedFrom(field: "bindEBC") # MDC
+  lastestUpdateHash: Bytes!
+  lastestUpdateTimestamp: BigInt!
+  lastestUpdateBlockNumber: BigInt!
+}
+
 type EBC @entity {
   id: ID! #ebc address
+  mdcList: [Bytes!]! # mdc address
   rule: [ruleTypes!] # latest 30 ruleTypes
   root: Bytes # bytes32
   version: Int # uint32
