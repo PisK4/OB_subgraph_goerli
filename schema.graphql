@@ -91,7 +91,7 @@ type MDC @entity {
 
 type FactoryManger @entity{
   id: Bytes!  # factory address
-  mdcs: [MDC!] # MDC[]
+  mdcs: [MDC!]! # MDC[]
   mdcCounts: BigInt!
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!

@@ -10,7 +10,7 @@ import { MDC as MDCTemplate} from "../types/templates"
 import {
   ONE_ADDRESS,
   ONE_NUM,
-  getMdcEntity,
+  getMDCEntity,
   getONEBytes
 } from './helpers'
 
@@ -31,6 +31,7 @@ export function factoryCreateMDC(
                     to
                   )
                 factory.mdcCounts = BigInt.fromI32(0);
+                factory.mdcs = []
             }
             
             factory.lastestUpdateHash  = event.transaction.hash
@@ -38,10 +39,15 @@ export function factoryCreateMDC(
             factory.lastestUpdateTimestamp = event.block.timestamp
             factory.mdcCounts = factory.mdcCounts.plus(BigInt.fromI32(1))
 
-            let mdcNew = getMdcEntity(mdc, maker, event)
+            let mdcNew = getMDCEntity(mdc, maker, event)
             MDCTemplate.create(mdc)
 
-            factory.mdcs = [mdcNew.id]
+            // factory.mdcs = [mdcNew.id]
+            if (factory.mdcs == null) {
+                factory.mdcs = [mdcNew.id]
+            } else {
+                factory.mdcs = factory.mdcs.concat([mdcNew.id]);
+            }
             
             mdcNew.save()
             factory.save()

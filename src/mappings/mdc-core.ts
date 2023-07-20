@@ -18,12 +18,15 @@ import {
     func_updateRulesRootERC20,
     func_updateRulesRootERC20Selector,
     func_updateRulesRootSelector,
-    getEbcEntity,
-    getMdcEntity,
+    getEBCEntity,
+    getMDCFactory,
+    getMDCEntity,
     getONEBytes,
     mockMdcAddr,
     tupleprefix,
-    updateRulesRootMode
+    updateRulesRootMode,
+    saveEBC2MDC,
+    isProduction
 } from "./helpers"
 import { 
     EBC, 
@@ -333,38 +336,32 @@ export function updateRulesRoot(
     version : BigInt
 ): void{
       // # for test only
-      let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
-      let updateRulesRootEntity = parseTransactionInputData(debugInput)
+      // let debugInput = Bytes.fromHexString(funcERC20) as Bytes;
+      // let updateRulesRootEntity = parseTransactionInputData(debugInput)
 
       // # for production
       // let updateRulesRootEntity = parseTransactionInputData(event.transaction.input)
+
+      let updateRulesRootEntity = isProduction ? 
+      parseTransactionInputData(event.transaction.input) :
+      parseTransactionInputData(Bytes.fromHexString(funcERC20) as Bytes)
+      
       const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
       const _mdcAddress = event.transaction.to
       ? ((event.transaction.to as Address).toHex()) as string
       : null;
       
-      const mdcAddress = _mdcAddress as string
+      const mdcAddress = isProduction ? _mdcAddress as string : ebcAddress
       log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
 
-      // let mdc = getMdcEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
-      let mdc = getMdcEntity(Address.fromString(ebcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
+      let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
 
       if (mdc) {
-        // const _mdcContract = mdcContract.bind(Address.fromString(mdcAddress))  // # for production
-        const _mdcContract = mdcContract.bind(Address.fromString(ebcAddress)) // for test only
-        // let try_mdcFactory = _mdcContract.try_mdcFactory()
-        let factoryAddress = ONE_ADDRESS
-        // if(!try_mdcFactory.reverted){
-        //   let _factoryAddress = try_mdcFactory.value.toHexString()
-        //   factoryAddress = _factoryAddress as string
-        // }else{
-        //   log.error('mdcFactory is null, mdcAddress: {}', [mdcAddress])
-        // }
-        log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress])
-        let factory = FactoryManger.load(getONEBytes())
-        if(factoryAddress != ONE_ADDRESS){
-          factory = FactoryManger.load(Bytes.fromHexString(factoryAddress))
-        }
+        // let factoryAddress = getMDCFactory(Address.fromString(mdcAddress)) // # for production
+        let factoryAddress = Bytes.fromHexString(mdc.factory._id)
+        log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
+        
+        let factory = FactoryManger.load(factoryAddress)
 
 
         // log.debug('load exist MDC:{}', [ebcAddress])
@@ -389,7 +386,7 @@ export function updateRulesRoot(
           //   ebc.version = ONE_NUM
           // }
 
-          let ebc = getEbcEntity(Address.fromString(mdcAddress), Address.fromString(ebcAddress))
+          let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress))
       
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){
@@ -549,7 +546,8 @@ export function handleColumnArrayUpdatedEvent (
     ebcs : Array<Address>,
     chainIds : Array<BigInt>
 ): void{
-    let mdc = getMdcEntity(Address.fromString(mockMdcAddr), Address.fromString(ONE_ADDRESS), event)
+    const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
+    let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
     if(mdc){
         mdc.columnArrayHash = columnArrayHash
 
@@ -565,10 +563,9 @@ export function handleColumnArrayUpdatedEvent (
         let uniqueEbcs = removeDuplicates(ebcs)
         if(uniqueEbcs.length > 0){
             for(let i = 0; i < uniqueEbcs.length; i++){
-                let ebc = getEbcEntity(Address.fromString(mockMdcAddr), uniqueEbcs[i])
+                let ebc = getEBCEntity(mdc, uniqueEbcs[i])
                 ebc.lastestUpdatetransactionHash = event.transaction.hash
                 ebc.save()
-                mdc.ebc.push(ebc.id);
               }
         }
 

@@ -22,7 +22,7 @@ import {
 
 describe("Describe entity assertions", () => {
   const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
-  const mdcAddress = "0x7A0B33bDcBD07f10FfAa8251fC843ed293495fEb"
+  const mdcAddress = "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb"
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
     let mdc = Address.fromString(mdcAddress)
@@ -53,6 +53,13 @@ describe("Describe entity assertions", () => {
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
       "mdcCounts",
       "1"
+    )
+
+    assert.fieldEquals(
+      "FactoryManger",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "mdcs",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
     // More assert options:

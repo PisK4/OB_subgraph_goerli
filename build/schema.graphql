@@ -77,11 +77,11 @@ type MDC @entity {
   root: Bytes # bytes32
   version: Int # uint32
   spvs: [Bytes!] # address[]
-  chainIds: [Int!] # uint16[]
+  chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
-  ebc: [EBC!] # EBC
+  ebc: [EBC!]! # EBC
   # factory: FactoryManger 
-  # factoryMangers: [FactoryManger!]! @derivedFrom(field: "mdcs") # not work, could not find the field
+  factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
@@ -91,8 +91,7 @@ type MDC @entity {
 
 type FactoryManger @entity{
   id: Bytes!  # factory address
-  # mdcs: [MDC!] @derivedFrom(field: "factory") # MDC[] not work, could not find the field
-  mdcs: [MDC!] # MDC[]
+  mdcs: [MDC!]! # MDC[]
   mdcCounts: BigInt!
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
@@ -101,13 +100,13 @@ type FactoryManger @entity{
 
 type EBC @entity {
   id: ID! #ebc address
-  rule: ruleTypes! # ruleTypes
-  root: Bytes! # bytes32
-  version: Int! # uint32
-  sourceChainIds: [BigInt!]! # uint64
-  pledgeAmounts: [BigInt!]! # uint128
+  rule: [ruleTypes!] # latest 30 ruleTypes
+  root: Bytes # bytes32
+  version: Int # uint32
+  sourceChainIds: [BigInt!] # uint64
+  pledgeAmounts: [BigInt!] # uint128
   token: Bytes # address
-  # mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
+  mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
   lastestUpdatetransactionHash: Bytes!
 }
 

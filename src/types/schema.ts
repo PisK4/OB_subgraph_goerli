@@ -1085,6 +1085,14 @@ export class MDC extends Entity {
     this.set("ebc", Value.fromStringArray(value));
   }
 
+  get factory(): FactoryMangerLoader {
+    return new FactoryMangerLoader(
+      "MDC",
+      this.get("id")!.toString(),
+      "factory"
+    );
+  }
+
   get createblockNumber(): BigInt {
     let value = this.get("createblockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1181,21 +1189,17 @@ export class FactoryManger extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get mdcs(): Array<string> | null {
+  get mdcs(): Array<string> {
     let value = this.get("mdcs");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toStringArray();
     }
   }
 
-  set mdcs(value: Array<string> | null) {
-    if (!value) {
-      this.unset("mdcs");
-    } else {
-      this.set("mdcs", Value.fromStringArray(<Array<string>>value));
-    }
+  set mdcs(value: Array<string>) {
+    this.set("mdcs", Value.fromStringArray(value));
   }
 
   get mdcCounts(): BigInt {
@@ -1651,6 +1655,24 @@ export class ruleTypes extends Entity {
 
   set chain1CompensationRatio(value: i32) {
     this.set("chain1CompensationRatio", Value.fromI32(value));
+  }
+}
+
+export class FactoryMangerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): FactoryManger[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<FactoryManger[]>(value);
   }
 }
 
