@@ -72,7 +72,7 @@ dataSources:
           handler: handleProtocolFeeUpdated
         - event: SubmitterFeeUpdated(address)
           handler: handleSubmitterFeeUpdated
-      file: ./src/or-manager.ts
+      file: ./src/mappings/or-manager.ts
 templates:
   - kind: ethereum
     name: MDC

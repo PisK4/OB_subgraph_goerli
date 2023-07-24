@@ -1539,38 +1539,30 @@ export class ruleTypes extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get chain0(): BigInt | null {
+  get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0");
-    } else {
-      this.set("chain0", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0(value: BigInt) {
+    this.set("chain0", Value.fromBigInt(value));
   }
 
-  get chain1(): BigInt | null {
+  get chain1(): BigInt {
     let value = this.get("chain1");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1");
-    } else {
-      this.set("chain1", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1(value: BigInt) {
+    this.set("chain1", Value.fromBigInt(value));
   }
 
   get chain0Status(): i32 {
@@ -1599,140 +1591,108 @@ export class ruleTypes extends Entity {
     this.set("chain1Status", Value.fromI32(value));
   }
 
-  get chain0Token(): BigInt | null {
+  get chain0Token(): Bytes {
     let value = this.get("chain0Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBytes();
     }
   }
 
-  set chain0Token(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0Token");
-    } else {
-      this.set("chain0Token", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0Token(value: Bytes) {
+    this.set("chain0Token", Value.fromBytes(value));
   }
 
-  get chain1Token(): BigInt | null {
+  get chain1Token(): Bytes {
     let value = this.get("chain1Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBytes();
     }
   }
 
-  set chain1Token(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1Token");
-    } else {
-      this.set("chain1Token", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1Token(value: Bytes) {
+    this.set("chain1Token", Value.fromBytes(value));
   }
 
-  get chain0minPrice(): BigInt | null {
+  get chain0minPrice(): BigInt {
     let value = this.get("chain0minPrice");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0minPrice(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0minPrice");
-    } else {
-      this.set("chain0minPrice", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0minPrice(value: BigInt) {
+    this.set("chain0minPrice", Value.fromBigInt(value));
   }
 
-  get chain1minPrice(): BigInt | null {
+  get chain1minPrice(): BigInt {
     let value = this.get("chain1minPrice");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1minPrice(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1minPrice");
-    } else {
-      this.set("chain1minPrice", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1minPrice(value: BigInt) {
+    this.set("chain1minPrice", Value.fromBigInt(value));
   }
 
-  get chain0maxPrice(): BigInt | null {
+  get chain0maxPrice(): BigInt {
     let value = this.get("chain0maxPrice");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0maxPrice(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0maxPrice");
-    } else {
-      this.set("chain0maxPrice", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0maxPrice(value: BigInt) {
+    this.set("chain0maxPrice", Value.fromBigInt(value));
   }
 
-  get chain1maxPrice(): BigInt | null {
+  get chain1maxPrice(): BigInt {
     let value = this.get("chain1maxPrice");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1maxPrice(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1maxPrice");
-    } else {
-      this.set("chain1maxPrice", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1maxPrice(value: BigInt) {
+    this.set("chain1maxPrice", Value.fromBigInt(value));
   }
 
-  get chain0WithholdingFee(): BigInt | null {
+  get chain0WithholdingFee(): BigInt {
     let value = this.get("chain0WithholdingFee");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0WithholdingFee(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0WithholdingFee");
-    } else {
-      this.set("chain0WithholdingFee", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0WithholdingFee(value: BigInt) {
+    this.set("chain0WithholdingFee", Value.fromBigInt(value));
   }
 
-  get chain1WithholdingFee(): BigInt | null {
+  get chain1WithholdingFee(): BigInt {
     let value = this.get("chain1WithholdingFee");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1WithholdingFee(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1WithholdingFee");
-    } else {
-      this.set("chain1WithholdingFee", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1WithholdingFee(value: BigInt) {
+    this.set("chain1WithholdingFee", Value.fromBigInt(value));
   }
 
   get chain0TradeFee(): i32 {

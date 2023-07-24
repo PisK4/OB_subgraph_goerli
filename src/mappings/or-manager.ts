@@ -40,7 +40,7 @@ export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
     event.params.chainInfo.minVerifyChallengeDestTxSecond
   entity.chainInfo_maxVerifyChallengeDestTxSecond =
     event.params.chainInfo.maxVerifyChallengeDestTxSecond
-  entity.chainInfo_spvs = event.params.chainInfo.spvs
+  // entity.chainInfo_spvs = event.params.chainInfo.spvs
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -84,7 +84,7 @@ export function handleEbcsUpdated(event: EbcsUpdatedEvent): void {
   let entity = new EbcsUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.ebcs = event.params.ebcs
+  // entity.ebcs = event.params.ebcs
   entity.statuses = event.params.statuses
 
   entity.blockNumber = event.block.number

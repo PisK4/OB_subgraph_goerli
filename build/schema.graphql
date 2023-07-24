@@ -74,15 +74,15 @@ type MDC @entity {
   owner: Bytes! # address
   columnArrayHash: Bytes # bytes32
   responseMakers: [Bytes!] # address[]
-  root: Bytes # bytes32
-  version: Int # uint32
+  # root: Bytes # bytes32
+  # version: Int # uint32
   spvs: [Bytes!] # address[]
   chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
-  ebc: [EBC!]! # EBC
+  # ebc: [EBC!]! # EBC
   bindEBC: [MDCBindEBC!]! # MDCBindEBC
-  # factory: FactoryManger 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
+  
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
@@ -101,7 +101,6 @@ type FactoryManger @entity{
 
 type EBCManager @entity{
   id: ID! 
-  # ebcs: [EBC!]! # MDC[]
   ebcCounts: BigInt!
   ebcs: [EBC!]! # ebc entity
 
@@ -112,9 +111,7 @@ type EBCManager @entity{
 
 type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
-  root: Bytes # bytes32
-  version: Int # uint32
-  rule: [ruleTypes!] # latest 30 ruleTypes
+  rules: [ruleTypes!]! # latest 30 ruleTypes
   mdc: MDC! @derivedFrom(field: "bindEBC") # MDC
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
@@ -125,13 +122,6 @@ type EBC @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
   ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
-  # rule: [ruleTypes!] # latest 30 ruleTypes
-  # root: Bytes # bytes32
-  # version: Int # uint32
-  # sourceChainIds: [BigInt!] # uint64
-  # pledgeAmounts: [BigInt!] # uint128
-  # token: Bytes # address
-  # mdcs: [MDC!]!@derivedFrom(field: "ebc") # MDC[]
   lastestUpdatetransactionHash: Bytes!
 }
 
@@ -141,10 +131,12 @@ type ruleTypes @entity {
   chain1: BigInt! # uint64
   chain0Status: Int! # uint8
   chain1Status: Int! # uint8
-  chain0Token: BigInt! # uint
-  chain1Token: BigInt! # uint
-  minPrice: BigInt! # uint128
-  maxPrice: BigInt! # uint128
+  chain0Token: Bytes! # Address
+  chain1Token: Bytes! # Address
+  chain0minPrice: BigInt! # uint128
+  chain1minPrice: BigInt! # uint128
+  chain0maxPrice: BigInt! # uint128
+  chain1maxPrice: BigInt! # uint128
   chain0WithholdingFee: BigInt! # uint128
   chain1WithholdingFee: BigInt! # uint128
   chain0TradeFee: Int! # uint16
@@ -153,4 +145,106 @@ type ruleTypes @entity {
   chain1ResponseTime: Int! # uint32
   chain0CompensationRatio: Int! # uint32
   chain1CompensationRatio: Int! # uint32
+  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rules") # MDCBindEBC
+  root: Bytes! # bytes32
+  version: Int! # uint32  
+}
+type ChainInfoUpdated @entity(immutable: true) {
+  id: Bytes!
+  ORManager_id: BigInt! # uint64
+  chainInfo_id: BigInt! # uint64
+  chainInfo_batchLimit: BigInt! # uint192
+  chainInfo_minVerifyChallengeSourceTxSecond: BigInt! # uint64
+  chainInfo_maxVerifyChallengeSourceTxSecond: BigInt! # uint64
+  chainInfo_minVerifyChallengeDestTxSecond: BigInt! # uint64
+  chainInfo_maxVerifyChallengeDestTxSecond: BigInt! # uint64
+  chainInfo_spvs: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ChainTokenUpdated @entity(immutable: true) {
+  id: Bytes!
+  ORManager_id: BigInt! # uint64
+  tokenInfo_token: BigInt! # uint256
+  tokenInfo_mainnetToken: Bytes! # address
+  tokenInfo_decimals: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ChallengeUserRatioUpdated @entity(immutable: true) {
+  id: Bytes!
+  challengeUserRatio: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type EbcsUpdated @entity(immutable: true) {
+  id: Bytes!
+  ebcs: [Bytes!]! # address[]
+  statuses: [Boolean!]! # bool[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeChallengeSecondUpdated @entity(immutable: true) {
+  id: Bytes!
+  feeChallengeSecond: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeTakeOnChallengeSecondUpdated @entity(immutable: true) {
+  id: Bytes!
+  feeTakeOnChallengeSecond: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MaxMDCLimitUpdated @entity(immutable: true) {
+  id: Bytes!
+  maxMDCLimit: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MinChallengeRatioUpdated @entity(immutable: true) {
+  id: Bytes!
+  minChallengeRatio: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProtocolFeeUpdated @entity(immutable: true) {
+  id: Bytes!
+  protocolFee: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubmitterFeeUpdated @entity(immutable: true) {
+  id: Bytes!
+  submitter: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }

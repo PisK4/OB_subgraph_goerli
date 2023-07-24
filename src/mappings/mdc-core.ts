@@ -12,8 +12,6 @@ import {
     ONE_BI,
     ONE_NUM,
     ZERO_BI,
-    funcERC20,
-    funcETH,
     func_updateRulesRoot,
     func_updateRulesRootERC20,
     func_updateRulesRootERC20Selector,
@@ -22,7 +20,6 @@ import {
     getMDCFactory,
     getMDCEntity,
     getONEBytes,
-    mockMdcAddr,
     tupleprefix,
     updateRulesRootMode,
     saveBindEBC2MDC,
@@ -43,6 +40,11 @@ import {
     RulesRootUpdated, 
     ruleTypes 
 } from "../types/schema";
+import { 
+  funcETHRootMockInput,
+  funcERC20RootMockInput, 
+  mockMdcAddr 
+} from "./mock-data";
 
 
 
@@ -55,14 +57,14 @@ export function handleupdateRulesRootEvent(
 ): void{
       let updateRulesRootEntity = isProduction ? 
       parseTransactionInputData(event.transaction.input) :
-      parseTransactionInputData(Bytes.fromHexString(funcERC20) as Bytes)
+      parseTransactionInputData(Bytes.fromHexString(funcETHRootMockInput) as Bytes)
       
       const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
       const _mdcAddress = event.transaction.to
       ? ((event.transaction.to as Address).toHex()) as string
       : null;
       
-      const mdcAddress = isProduction ? _mdcAddress as string : ebcAddress
+      const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
       log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
 
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
