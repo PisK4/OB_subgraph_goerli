@@ -103,7 +103,7 @@ type EBCManager @entity{
   id: ID! 
   ebcCounts: BigInt!
   ebcs: [EBC!]! # ebc entity
-
+  
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
   lastestUpdateBlockNumber: BigInt!
@@ -121,6 +121,7 @@ type MDCBindEBC @entity{
 type EBC @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
+  statuses: Boolean!
   ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
   lastestUpdatetransactionHash: Bytes!
 }

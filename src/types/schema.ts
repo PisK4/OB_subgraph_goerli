@@ -1478,6 +1478,19 @@ export class EBC extends Entity {
     this.set("mdcList", Value.fromStringArray(value));
   }
 
+  get statuses(): boolean {
+    let value = this.get("statuses");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set statuses(value: boolean) {
+    this.set("statuses", Value.fromBoolean(value));
+  }
+
   get ebcManager(): EBCManagerLoader {
     return new EBCManagerLoader(
       "EBC",

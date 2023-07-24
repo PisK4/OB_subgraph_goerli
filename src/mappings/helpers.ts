@@ -161,6 +161,45 @@ export function getMDCEntity(
     return mdc as MDC
 }
 
+export function ebcManagerUpdate(
+    ebcAddress: Address,
+    status: boolean,
+    event: ethereum.Event
+) :void{
+    let ebcId = ebcAddress.toHexString()
+    let ebc = EBC.load(ebcId)
+    if (ebc == null) {
+        log.info('create new EBC, ebc: {}', [ebcId])
+        ebc = new EBC(ebcId)
+        ebc.mdcList = []
+    }    
+    ebc.statuses = status
+    ebc.lastestUpdatetransactionHash = event.transaction.hash
+    
+    let _EBCManager = EBCManager.load(EBCManagerID)
+    if(_EBCManager == null){
+        _EBCManager = new EBCManager(EBCManagerID)
+        _EBCManager.ebcCounts = BigInt.fromI32(0)
+        _EBCManager.ebcs = []
+        _EBCManager.lastestUpdateHash = event.transaction.hash
+        _EBCManager.lastestUpdateBlockNumber = event.block.number
+        _EBCManager.lastestUpdateTimestamp = event.block.timestamp           
+    }
+    if(!_EBCManager.ebcs.includes(ebcId)){
+        _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)  
+        if (_EBCManager.ebcs == null) {
+            _EBCManager.ebcs = [ebcId];
+        } else {
+            _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
+        }   
+        _EBCManager.lastestUpdateHash = event.transaction.hash
+        _EBCManager.lastestUpdateBlockNumber = event.block.number
+        _EBCManager.lastestUpdateTimestamp = event.block.timestamp    
+    }
+    ebc.save()
+    _EBCManager.save() 
+}
+
 export function ebcSave(
     MDCBindEBC: MDCBindEBC,
     mdc: MDC,
@@ -170,31 +209,15 @@ export function ebcSave(
     const ebcId = getEBCId(MDCBindEBC.id)
     let ebc = EBC.load(ebcId)
     if (ebc == null) {
-        log.info('create new EBC, ebc: {}', [ebcId])
+        log.error('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
         ebc = new EBC(ebcId)
+        ebc.statuses = true
         ebc.mdcList = []
     }
     ebc.lastestUpdatetransactionHash = event.transaction.hash
     saveMDC2EBC(ebc, mdc)
     ebc.save()
-
-    // const ebcAddress = Address.fromString(ebcId)
-    let _EBCManager = EBCManager.load(EBCManagerID)
-    if(_EBCManager == null){
-        _EBCManager = new EBCManager(EBCManagerID)
-        _EBCManager.ebcCounts = BigInt.fromI32(0)
-        _EBCManager.ebcs = []
-    }
-    _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)
-    if (_EBCManager.ebcs == null) {
-        _EBCManager.ebcs = [ebcId];
-    } else if (!_EBCManager.ebcs.includes(ebcId)) {
-        _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
-    }      
-    _EBCManager.lastestUpdateHash = event.transaction.hash
-    _EBCManager.lastestUpdateBlockNumber = event.block.number
-    _EBCManager.lastestUpdateTimestamp = event.block.timestamp    
-    _EBCManager.save()    
+    // ebcManagerUpdate(Address.fromString(ebcId), event)
     MDCBindEBC.save()
 }
 
@@ -590,7 +613,7 @@ export function updateRuleTypesThenSave(
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
             _rule.save()
 
-            log.debug('{} Rule2update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
+            log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
                 i.toString(),
                 _rule.chain0.toString(),
                 _rule.chain1.toString(),
@@ -613,92 +636,6 @@ export function updateRuleTypesThenSave(
             ])
         }           
     }
-    
-            
-
-
-    // if(calculateRscRootAndCompare(updateRulesRootEntity.rscType, updateRulesRootEntity.root) == true){
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0)){
-    //       _rules.chain0 = updateRulesRootEntity.rscType.chain0
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1)){
-    //       _rules.chain1 = updateRulesRootEntity.rscType.chain1
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0Status)){
-    //       _rules.chain0Status = updateRulesRootEntity.rscType.chain0Status.toI32()
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1Status)){
-    //       _rules.chain1Status = updateRulesRootEntity.rscType.chain1Status.toI32()
-    //     }
-    //     // if(checkifRSCRuleTypeExist(BigInt.fromI32(updateRulesRootEntity.rscType.chain0Token.toI32()))){
-    //       _rules.chain0Token = Bytes.fromHexString(updateRulesRootEntity.rscType.chain0Token.toHexString())
-    //     // }
-    //     // if(checkifRSCRuleTypeExist(BigInt.fromI32(updateRulesRootEntity.rscType.chain1Token.toI32()))){
-    //       _rules.chain1Token = Bytes.fromHexString(updateRulesRootEntity.rscType.chain1Token.toHexString())
-    //     // }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0minPrice)){
-    //       _rules.chain0minPrice = updateRulesRootEntity.rscType.chain0minPrice
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0maxPrice)){
-    //       _rules.chain0maxPrice = updateRulesRootEntity.rscType.chain0maxPrice
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1minPrice)){
-    //         _rules.chain1minPrice = updateRulesRootEntity.rscType.chain1minPrice
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1maxPrice)){
-    //         _rules.chain1maxPrice = updateRulesRootEntity.rscType.chain1maxPrice
-    //     }        
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0WithholdingFee)){
-    //       _rules.chain0WithholdingFee = updateRulesRootEntity.rscType.chain0WithholdingFee
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1WithholdingFee)){
-    //       _rules.chain1WithholdingFee = updateRulesRootEntity.rscType.chain1WithholdingFee
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0TradeFee)){
-    //       _rules.chain0TradeFee = updateRulesRootEntity.rscType.chain0TradeFee.toI32()
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1TradeFee)){
-    //       _rules.chain1TradeFee = updateRulesRootEntity.rscType.chain1TradeFee.toI32()
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0ResponseTime)){
-    //       _rules.chain0ResponseTime = updateRulesRootEntity.rscType.chain0ResponseTime.toI32()
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1ResponseTime)){
-    //       _rules.chain1ResponseTime = updateRulesRootEntity.rscType.chain1ResponseTime.toI32()
-    //     }
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0CompensationRatio)){
-    //       _rules.chain0CompensationRatio = updateRulesRootEntity.rscType.chain0CompensationRatio.toI32()
-    //     }
-  
-    //     if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1CompensationRatio)){
-    //       _rules.chain1CompensationRatio = updateRulesRootEntity.rscType.chain1CompensationRatio.toI32()
-    //     }
-  
-    //     if (_rules.chain0 !== null && _rules.chain1 !== null && _rules.chain0Token !== null && _rules.chain1Token !== null && _rules.chain0minPrice !== null && _rules.chain0maxPrice !== null && _rules.chain1minPrice !== null && _rules.chain1maxPrice !== null && _rules.chain0WithholdingFee !== null && _rules.chain1WithholdingFee !== null) {
-    //         log.debug('rscRule2update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
-    //             _rules.chain0.toString(),
-    //             _rules.chain1.toString(),
-    //             _rules.chain0Status.toString(),
-    //             _rules.chain1Status.toString(),
-    //             _rules.chain0Token.toHexString(),
-    //             _rules.chain1Token.toHexString(),
-    //             _rules.chain0minPrice.toString(),
-    //             _rules.chain0maxPrice.toString(),
-    //             _rules.chain1minPrice.toString(),
-    //             _rules.chain1maxPrice.toString(),
-    //             _rules.chain0WithholdingFee.toString(),
-    //             _rules.chain1WithholdingFee.toString(),
-    //             _rules.chain0TradeFee.toString(),
-    //             _rules.chain1TradeFee.toString(),
-    //             _rules.chain0ResponseTime.toString(),
-    //             _rules.chain1ResponseTime.toString(),
-    //             _rules.chain0CompensationRatio.toString(),
-    //             _rules.chain1CompensationRatio.toString()
-    //         ])
-    //     }
-    //     _rules.save()
-    //   }
-
 }
 
 /**

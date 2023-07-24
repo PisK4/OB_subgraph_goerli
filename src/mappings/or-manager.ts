@@ -24,6 +24,7 @@ import {
   ProtocolFeeUpdated,
   SubmitterFeeUpdated
 } from "../types/schema"
+import { handleEbcsUpdatedEvent } from "./mdc-core"
 
 export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
   let entity = new ChainInfoUpdated(
@@ -81,17 +82,22 @@ export function handleChallengeUserRatioUpdated(
 }
 
 export function handleEbcsUpdated(event: EbcsUpdatedEvent): void {
-  let entity = new EbcsUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
+  // let entity = new EbcsUpdated(
+  //   event.transaction.hash.concatI32(event.logIndex.toI32())
+  // )
   // entity.ebcs = event.params.ebcs
-  entity.statuses = event.params.statuses
+  // entity.statuses = event.params.statuses
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  // entity.blockNumber = event.block.number
+  // entity.blockTimestamp = event.block.timestamp
+  // entity.transactionHash = event.transaction.hash
 
-  entity.save()
+  // entity.save()
+  handleEbcsUpdatedEvent(
+    event,
+    event.params.ebcs,
+    event.params.statuses
+  )
 }
 
 export function handleFeeChallengeSecondUpdated(

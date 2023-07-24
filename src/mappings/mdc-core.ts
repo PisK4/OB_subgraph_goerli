@@ -32,7 +32,8 @@ import {
     removeDuplicates,
     getRuleEntity,
     updateRuleTypesThenSave,
-    getRulesEntity
+    getRulesEntity,
+    ebcManagerUpdate
 } from "./helpers"
 import { 
     EBC, 
@@ -150,5 +151,19 @@ export function handleColumnArrayUpdatedEvent (
         
     }else{
         log.error('MDC not exist', ['error'])
+    }
+}
+
+export function handleEbcsUpdatedEvent(
+    event: ethereum.Event,
+    ebcs: Array<Address>,
+    statuses: Array<boolean>
+) : void{
+    for(let ebc_index = 0; ebc_index < ebcs.length; ebc_index++){
+        ebcManagerUpdate(
+          ebcs[ebc_index],
+          statuses[ebc_index],
+          event
+        )
     }
 }

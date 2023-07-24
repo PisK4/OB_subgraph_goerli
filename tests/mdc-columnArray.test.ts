@@ -149,22 +149,22 @@ describe("Describe entity assertions", () => {
 
   })
 
-  test("EBC manager created and stored", () => {
-    assert.entityCount("EBCManager", 1)
+  // test("EBC manager created and stored", () => {
+  //   assert.entityCount("EBCManager", 1)
 
-    assert.fieldEquals(
-      "EBCManager",
-      EBCManagerID,
-      "ebcCounts",
-      "2"
-    )
+  //   assert.fieldEquals(
+  //     "EBCManager",
+  //     EBCManagerID,
+  //     "ebcCounts",
+  //     "2"
+  //   )
 
-    assert.fieldEquals(
-      "EBCManager",
-      EBCManagerID,
-      "ebcs",
-      "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
-    )
-  })
+  //   assert.fieldEquals(
+  //     "EBCManager",
+  //     EBCManagerID,
+  //     "ebcs",
+  //     "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
+  //   )
+  // })
 
 })
