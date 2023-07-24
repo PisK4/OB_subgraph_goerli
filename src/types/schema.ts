@@ -1539,6 +1539,93 @@ export class ruleTypes extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get rules(): Array<string> {
+    let value = this.get("rules");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rules(value: Array<string>) {
+    this.set("rules", Value.fromStringArray(value));
+  }
+
+  get mdcBindebc(): MDCBindEBCLoader {
+    return new MDCBindEBCLoader(
+      "ruleTypes",
+      this.get("id")!.toString(),
+      "mdcBindebc"
+    );
+  }
+
+  get root(): Bytes {
+    let value = this.get("root");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set root(value: Bytes) {
+    this.set("root", Value.fromBytes(value));
+  }
+
+  get version(): i32 {
+    let value = this.get("version");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set version(value: i32) {
+    this.set("version", Value.fromI32(value));
+  }
+}
+
+export class rule extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save rule entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type rule must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("rule", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): rule | null {
+    return changetype<rule | null>(store.get_in_block("rule", id));
+  }
+
+  static load(id: string): rule | null {
+    return changetype<rule | null>(store.get("rule", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
   get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1773,38 +1860,8 @@ export class ruleTypes extends Entity {
     this.set("chain1CompensationRatio", Value.fromI32(value));
   }
 
-  get mdcBindebc(): MDCBindEBCLoader {
-    return new MDCBindEBCLoader(
-      "ruleTypes",
-      this.get("id")!.toString(),
-      "mdcBindebc"
-    );
-  }
-
-  get root(): Bytes {
-    let value = this.get("root");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set root(value: Bytes) {
-    this.set("root", Value.fromBytes(value));
-  }
-
-  get version(): i32 {
-    let value = this.get("version");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set version(value: i32) {
-    this.set("version", Value.fromI32(value));
+  get ruletypes(): ruleTypesLoader {
+    return new ruleTypesLoader("rule", this.get("id")!.toString(), "ruletypes");
   }
 }
 
@@ -3117,5 +3174,23 @@ export class MDCBindEBCLoader extends Entity {
   load(): MDCBindEBC[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<MDCBindEBC[]>(value);
+  }
+}
+
+export class ruleTypesLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ruleTypes[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ruleTypes[]>(value);
   }
 }

@@ -31,7 +31,8 @@ import {
     checkifRSCRuleTypeExist,
     removeDuplicates,
     getRuleEntity,
-    updateRuleTypesThenSave
+    updateRuleTypesThenSave,
+    getRulesEntity
 } from "./helpers"
 import { 
     EBC, 
@@ -90,8 +91,9 @@ export function handleupdateRulesRootEvent(
       
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){
-            let _rules = getRuleEntity(ebc)
+            let _rules = getRulesEntity(ebc)
             updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)
+            _rules.save()
           }
           // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
           // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    

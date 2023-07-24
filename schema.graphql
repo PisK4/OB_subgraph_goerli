@@ -127,6 +127,14 @@ type EBC @entity {
 
 type ruleTypes @entity {
   id: ID!
+  rules: [rule!]! # all rules   
+  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rules") # MDCBindEBC
+  root: Bytes! # bytes32
+  version: Int! # uint32  
+}
+
+type rule @entity {
+  id: ID!
   chain0: BigInt! # uint64
   chain1: BigInt! # uint64
   chain0Status: Int! # uint8
@@ -145,10 +153,9 @@ type ruleTypes @entity {
   chain1ResponseTime: Int! # uint32
   chain0CompensationRatio: Int! # uint32
   chain1CompensationRatio: Int! # uint32
-  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rules") # MDCBindEBC
-  root: Bytes! # bytes32
-  version: Int! # uint32  
+  ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
+
 type ChainInfoUpdated @entity(immutable: true) {
   id: Bytes!
   ORManager_id: BigInt! # uint64
