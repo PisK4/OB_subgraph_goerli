@@ -113,18 +113,18 @@ export function initRuleEntity(
 
 export function getRulesEntity(
     ebc: MDCBindEBC,
+    version: BigInt
 ): ruleTypes {
-    let rule = ruleTypes.load(ebc.id)
+    let id = ebc.id + "-" + version.toString()
+    let rule = ruleTypes.load(id)
     if (rule == null) {
-        rule = new ruleTypes(ebc.id)
+        rule = new ruleTypes(id)
         rule.rules = []
         initRulesEntity(rule)
         saveRule2EBC(ebc, rule)
         log.info('create new rules, rules: {}', [rule.id])
     }
-
     return rule as ruleTypes
-
 }
 
 export function getRuleEntity(

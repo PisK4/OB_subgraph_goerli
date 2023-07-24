@@ -91,9 +91,13 @@ export function handleupdateRulesRootEvent(
       
           // save ebcs ruletype
           if(updateRulesRootEntity.rscType != null){
-            let _rules = getRulesEntity(ebc)
-            updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)
-            _rules.save()
+            if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
+              let _rules = getRulesEntity(ebc, version)
+              updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)
+              _rules.save()
+            }else{
+              log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
+            }
           }
           // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
           // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
