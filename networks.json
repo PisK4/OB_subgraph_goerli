@@ -3,6 +3,9 @@
     "MDCFactory": {
       "address": "0x08a7bd7f18680d174916f4619692dfd5b385db95",
       "startBlock": 9287800
+    },
+    "ORManager": {
+      "address": "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
     }
   }
 }

@@ -13,7 +13,7 @@ import {
 } from "../types/schema"
 import { 
   handleColumnArrayUpdatedEvent,
-  updateRulesRoot
+  handleupdateRulesRootEvent
 } from "./mdc-core"
 
 export function handleChallengeInfoUpdated(
@@ -73,7 +73,7 @@ export function handleResponseMakersUpdated(
 }
 
 export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
-  updateRulesRoot(
+  handleupdateRulesRootEvent(
     event,
     event.params.impl,
     event.params.ebc,

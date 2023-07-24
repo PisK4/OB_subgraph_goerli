@@ -53,9 +53,7 @@ describe("Describe event RulesRootUpdated", () => {
 
   test("EBC created and stored", () => {
     assert.entityCount("EBC", 1)
-
     
-
   })
 
   test("MDC created and stored", () => {

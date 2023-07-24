@@ -13,23 +13,14 @@ import {
     EBC, 
     EBCManager, 
     MDC, 
-    MDCBindEBC
+    MDCBindEBC,
+    ruleTypes
 } from '../types/schema'
 import { 
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
-// import { compress } from 'brotli-compress-wasm'
-// import { compress } from '../../node_modules/brotli-compress-wasm' 
-// const wasm_gzip = fetch("./wasm_gzip_bg.wasm")
-// import { compress } from "../../node_modules/wasm-gzip"
-// import { faScalarComplement } from "../../node_modules/wasm-crypto"
-// import {  } from "../../node_modules/zstd-wasm"
-// import { init, compress, decompress } from '../../node_modules/@bokuweb/zstd-wasm';
-// import {  } from "ethereum-cryptography/keccak"
-// import { init, compress, decompress } from '../../node_modules/@bokuweb/zstd-wasm';
 
-
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 
 //for test 
@@ -52,6 +43,7 @@ export const func_updateRulesRoot = "0x5266dbda"
 export const func_updateRulesRootERC20 = "0x16d38f5d"
 export const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint16[],uint256[])"
 export const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
+export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)"
 export enum updateRulesRootMode {
     ETH = 0,
     ERC20 = 1,
@@ -94,6 +86,26 @@ export function getEBCId(BindEbcId: string): string{
     return ebcId
 }
 
+export function initRuleEntity(
+    _rules: ruleTypes
+): void {
+    _rules.root = getONEBytes()
+    _rules.version = 0
+}
+
+export function getRuleEntity(
+    ebc: MDCBindEBC,
+): ruleTypes {
+    let rule = ruleTypes.load(ebc.id)
+    if (rule == null) {
+        rule = new ruleTypes(ebc.id)
+        initRuleEntity(rule)
+        saveRule2EBC(ebc, rule)
+    }
+
+    return rule as ruleTypes
+
+}
 
 export function getMDCEntity(
     mdcAddress: Address,
@@ -105,7 +117,7 @@ export function getMDCEntity(
         log.info('create new MDC, maker: {}, mdc: {}', [maker.toHexString(), mdcAddress.toHexString()])
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker
-        mdc.ebc = []
+        // mdc.ebc = []
         mdc.bindEBC = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
@@ -162,6 +174,7 @@ export function getEBCEntity(
     let _MDCBindEBC = MDCBindEBC.load(bindID)
     if(_MDCBindEBC == null){
         _MDCBindEBC = new MDCBindEBC(bindID)
+        _MDCBindEBC.rules = []
         // log.info('create new MDCBindEBC, mdc: {}, ebc: {}', [mdcAddress.toHexString(), bindID])
     }
     _MDCBindEBC.lastestUpdateHash = event.transaction.hash
@@ -192,3 +205,439 @@ export function saveMDC2EBC(
         ebc.mdcList = ebc.mdcList.concat([mdc.id])
     }
 }
+
+export function saveRule2EBC(
+    ebc: MDCBindEBC,
+    rule: ruleTypes
+): void{
+    if (ebc.rules == null) {
+        ebc.rules = [rule.id];
+    } else if (!ebc.rules.includes(rule.id)) {
+        ebc.rules = ebc.rules.concat([rule.id])
+    }
+}
+
+export function getFunctionSelector(selector: Bytes): updateRulesRootMode {
+    return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
+}
+
+export class rscRules {
+    ebcAddress: Bytes;
+    rsc: Bytes;
+    rscType : rscRuleType;
+    root: Bytes;
+    version: i32;
+    sourceChainIds: Array<BigInt>;
+    pledgeAmounts: Array<BigInt>;
+    tokenAddr: Bytes;
+    constructor(
+        ebcAddress: Bytes,
+        rsc: Bytes,
+        root: Bytes,
+        version: i32,
+        sourceChainIds: Array<BigInt>,
+        pledgeAmounts: Array<BigInt>,
+        tokenAddress: Bytes
+    ) {
+        this.ebcAddress = ebcAddress;
+        this.rsc = rsc;
+        this.rscType = parseRSC(rsc);
+        this.root = root;
+        this.version = version;
+        this.sourceChainIds = sourceChainIds;
+        this.pledgeAmounts = pledgeAmounts;
+        this.tokenAddr = tokenAddress
+    }
+}
+
+export class rscRuleType {
+    chain0: BigInt;
+    chain1: BigInt;
+    chain0Status: BigInt;
+    chain1Status: BigInt;
+    chain0Token: BigInt;
+    chain1Token: BigInt;
+    chain0minPrice: BigInt;
+    chain0maxPrice: BigInt;
+    chain1minPrice: BigInt;
+    chain1maxPrice: BigInt;
+    chain0WithholdingFee: BigInt;
+    chain1WithholdingFee: BigInt;
+    chain0TradeFee: BigInt;
+    chain1TradeFee: BigInt;
+    chain0ResponseTime: BigInt;
+    chain1ResponseTime: BigInt;
+    chain0CompensationRatio: BigInt;
+    chain1CompensationRatio: BigInt;
+    verifyPass: boolean;
+    constructor(
+        chain0: BigInt,
+        chain1: BigInt,
+        chain0Status: BigInt,
+        chain1Status: BigInt,
+        chain0Token: BigInt,
+        chain1Token: BigInt,
+        chain0minPrice: BigInt,
+        chain0maxPrice: BigInt,
+        chain1minPrice: BigInt,
+        chain1maxPrice: BigInt,
+        chain0WithholdingFee: BigInt,
+        chain1WithholdingFee: BigInt,
+        chain0TradeFee: BigInt,
+        chain1TradeFee: BigInt,
+        chain0ResponseTime: BigInt,
+        chain1ResponseTime: BigInt,
+        chain0CompensationRatio: BigInt,
+        chain1CompensationRatio: BigInt
+    ) {
+        this.chain0 = chain0;
+        this.chain1 = chain1;
+        this.chain0Status = chain0Status;
+        this.chain1Status = chain1Status;
+        this.chain0Token = chain0Token;
+        this.chain1Token = chain1Token;
+        this.chain0minPrice = chain0minPrice;
+        this.chain0maxPrice = chain0maxPrice;
+        this.chain1minPrice = chain1minPrice;
+        this.chain1maxPrice = chain1maxPrice;
+        this.chain0WithholdingFee = chain0WithholdingFee;
+        this.chain1WithholdingFee = chain1WithholdingFee;
+        this.chain0TradeFee = chain0TradeFee;
+        this.chain1TradeFee = chain1TradeFee;
+        this.chain0ResponseTime = chain0ResponseTime;
+        this.chain1ResponseTime = chain1ResponseTime;
+        this.chain0CompensationRatio = chain0CompensationRatio;
+        this.chain1CompensationRatio = chain1CompensationRatio;
+        this.verifyPass = false;
+    }
+}
+
+export function calculateRscRootAndCompare(rules: rscRuleType, inputRoot: Bytes): boolean {
+    // TODO : finish root calculation
+    let pass = true
+    return (pass&&rules.verifyPass)
+}
+
+
+export function checkifRSCRuleTypeExist(rule: BigInt): boolean {
+    // TODO : check if rule exist
+    return true
+
+}
+
+export function checkRulesFormat(rscTuple: ethereum.Tuple): boolean {
+    if((rscTuple[2].toBigInt() == BigInt.fromI32(0) || rscTuple[2].toBigInt() == BigInt.fromI32(1)) &&
+    (rscTuple[3].toBigInt() == BigInt.fromI32(0) || rscTuple[3].toBigInt() == BigInt.fromI32(1))){
+      return true
+    }else{
+      log.info("rules format not match [1]:{} [2]:{}", [rscTuple[2].toBigInt().toString(), rscTuple[3].toBigInt().toString()])
+      return false
+    }
+}
+
+export function parseRSC(rsc: Bytes): rscRuleType {
+    let _rscRuleType = new rscRuleType(ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI)
+
+    // TODO : gzip decompress
+
+    // TODO : check if need tuple prefix?
+    let rscDecode = ethereum.decode(
+        "(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)",
+        rsc
+    ) as ethereum.Value;
+    if (!rscDecode) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    let rscTuple = rscDecode.toTuple();
+
+    // log.debug("kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}, kind[6]:{}, kind[7]:{}, kind[8]:{}, kind[9]:{}, kind[10]:{}, kind[11]:{}, kind[12]:{}, kind[13]:{}, kind[14]:{}, kind[15]:{}", 
+    //     [
+    //     rscTuple[0].kind.toString(),
+    //     rscTuple[1].kind.toString(),
+    //     rscTuple[2].kind.toString(),
+    //     rscTuple[3].kind.toString(),
+    //     rscTuple[4].kind.toString(),
+    //     rscTuple[5].kind.toString(),
+    //     rscTuple[6].kind.toString(),
+    //     rscTuple[7].kind.toString(),
+    //     rscTuple[8].kind.toString(),
+    //     rscTuple[9].kind.toString(),
+    //     rscTuple[10].kind.toString(),
+    //     rscTuple[11].kind.toString(),
+    //     rscTuple[12].kind.toString(),
+    //     rscTuple[13].kind.toString(),
+    //     rscTuple[14].kind.toString(),
+    //     rscTuple[15].kind.toString()])
+
+
+        if(checkRulesFormat(rscTuple)){
+          _rscRuleType.chain0 = rscTuple[0].toBigInt();
+          _rscRuleType.chain1 = rscTuple[1].toBigInt();
+          _rscRuleType.chain0Status = rscTuple[2].toBigInt();
+          _rscRuleType.chain1Status = rscTuple[3].toBigInt();
+          _rscRuleType.chain0Token = rscTuple[4].toBigInt();
+          _rscRuleType.chain1Token = rscTuple[5].toBigInt();
+          _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
+          _rscRuleType.chain0maxPrice = rscTuple[7].toBigInt();
+          _rscRuleType.chain1minPrice = rscTuple[8].toBigInt();
+          _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
+          _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
+          _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
+          _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
+          _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
+          _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
+          _rscRuleType.chain1ResponseTime = rscTuple[15].toBigInt();
+          _rscRuleType.chain0CompensationRatio = rscTuple[16].toBigInt();
+          _rscRuleType.chain1CompensationRatio = rscTuple[17].toBigInt();
+          _rscRuleType.verifyPass = true;
+        }
+
+        return _rscRuleType
+
+}
+
+
+export function parseTransactionInputData(data: Bytes): rscRules {
+    let selector = data.toHexString().slice(2, 10)
+    let func = getFunctionSelector(Bytes.fromHexString(selector))
+    // log.debug("selector: {}, func: {}", [selector, func.toString()])
+
+    let selectorofFunc = "0x000000"
+    if(func == updateRulesRootMode.ETH) {
+        selectorofFunc = func_updateRulesRootSelector
+    }else if(func == updateRulesRootMode.ERC20) {
+        selectorofFunc = func_updateRulesRootERC20Selector
+    }
+
+    let dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
+    const Prefix = ByteArray.fromHexString(tupleprefix);
+    
+    const functionInputAsTuple = new Uint8Array(
+        Prefix.length + dataWithoutSelector.length
+    );
+    
+    functionInputAsTuple.set(Prefix, 0);
+    functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
+
+    if (functionInputAsTuple.length < 32) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    
+    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
+
+    if (tupleInputBytes.length < 32) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+
+    let decoded = ethereum.decode(
+        selectorofFunc,
+        tupleInputBytes
+    ) as ethereum.Value;
+    if (!decoded) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    let tuple = decoded.toTuple();
+
+    if (debugLog){
+      if(func == updateRulesRootMode.ERC20) {
+          log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}, kind[5]:{}", [
+              tuple[0].kind.toString(),
+              tuple[1].kind.toString(),
+              tuple[2].kind.toString(),
+              tuple[3].kind.toString(),
+              tuple[4].kind.toString(),
+              tuple[5].kind.toString(),
+          ])
+      }else{
+          log.debug("rules kind[0]:{}, kind[1]:{}, kind[2]:{}, kind[3]:{}, kind[4]:{}", [
+              tuple[0].kind.toString(),
+              tuple[1].kind.toString(),
+              tuple[2].kind.toString(),
+              tuple[3].kind.toString(),
+              tuple[4].kind.toString()
+          ])
+      }
+    }
+
+    let rsc = Bytes.fromI32(0)
+    let ebcAddress = Address.fromI32(0);
+    let rootWithVersion = new ethereum.Tuple()
+    let root = getONEBytes()
+    let version = 0
+    let sourceChainIds = new Array<BigInt>()
+    let pledgeAmounts = new Array<BigInt>()
+    let tokenAddress = Address.fromI32(0)
+
+    if(tuple[0].kind == ethereum.ValueKind.ADDRESS) {
+        ebcAddress = tuple[0].toAddress();
+    }
+
+    if(tuple[1].kind == ethereum.ValueKind.BYTES) {
+        rsc = tuple[1].toBytes();
+        // parseRSC(rsc)
+    }    
+
+    if(tuple[2].kind == ethereum.ValueKind.TUPLE){
+        rootWithVersion = tuple[2].toTuple();
+        // log.debug("rootWithVersion[0].kind: {}, rootWithVersion[1].kind: {}", [
+        //     rootWithVersion[0].kind.toString(),
+        //     rootWithVersion[1].kind.toString()
+        // ])
+        if(rootWithVersion[0].kind == ethereum.ValueKind.BYTES ||
+            rootWithVersion[0].kind == ethereum.ValueKind.FIXED_BYTES) {
+            root = rootWithVersion[0].toBytes();
+        }
+        if(rootWithVersion[1].kind == ethereum.ValueKind.UINT){
+            version = rootWithVersion[1].toI32();
+        }
+    }
+
+    if(tuple[3].kind == ethereum.ValueKind.ARRAY) {
+        sourceChainIds = tuple[3].toBigIntArray();
+    }
+    
+    if(tuple[4].kind == ethereum.ValueKind.ARRAY){
+        pledgeAmounts = tuple[4].toBigIntArray();   
+    }
+
+    if(selectorofFunc == func_updateRulesRootERC20Selector) {
+        if(tuple[5].kind == ethereum.ValueKind.ADDRESS) {
+            tokenAddress = tuple[5].toAddress();
+        }
+    }
+
+    let updateRulesRootEntity = new rscRules(
+        ebcAddress,
+        rsc,
+        root,
+        version,
+        sourceChainIds,
+        pledgeAmounts,
+        tokenAddress
+    )
+
+    return updateRulesRootEntity
+}
+
+export function updateRuleTypesThenSave(
+    updateRulesRootEntity: rscRules,
+    _rules: ruleTypes,
+    root: Bytes,
+    version: BigInt,
+): void {
+    _rules.root = updateRulesRootEntity.root
+    // check if version is same
+    if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
+        _rules.version = updateRulesRootEntity.version
+    }
+
+    if(root == updateRulesRootEntity.root){
+        _rules.root = updateRulesRootEntity.root
+    }
+
+    if(calculateRscRootAndCompare(updateRulesRootEntity.rscType, updateRulesRootEntity.root) == true){
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0)){
+          _rules.chain0 = updateRulesRootEntity.rscType.chain0
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1)){
+          _rules.chain1 = updateRulesRootEntity.rscType.chain1
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0Status)){
+          _rules.chain0Status = updateRulesRootEntity.rscType.chain0Status.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1Status)){
+          _rules.chain1Status = updateRulesRootEntity.rscType.chain1Status.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0Token)){
+          _rules.chain0Token = updateRulesRootEntity.rscType.chain0Token
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1Token)){
+          _rules.chain1Token = updateRulesRootEntity.rscType.chain1Token
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0minPrice)){
+          _rules.chain0minPrice = updateRulesRootEntity.rscType.chain0minPrice
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0maxPrice)){
+          _rules.chain0maxPrice = updateRulesRootEntity.rscType.chain0maxPrice
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1minPrice)){
+            _rules.chain1minPrice = updateRulesRootEntity.rscType.chain1minPrice
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1maxPrice)){
+            _rules.chain1maxPrice = updateRulesRootEntity.rscType.chain1maxPrice
+        }        
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0WithholdingFee)){
+          _rules.chain0WithholdingFee = updateRulesRootEntity.rscType.chain0WithholdingFee
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1WithholdingFee)){
+          _rules.chain1WithholdingFee = updateRulesRootEntity.rscType.chain1WithholdingFee
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0TradeFee)){
+          _rules.chain0TradeFee = updateRulesRootEntity.rscType.chain0TradeFee.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1TradeFee)){
+          _rules.chain1TradeFee = updateRulesRootEntity.rscType.chain1TradeFee.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0ResponseTime)){
+          _rules.chain0ResponseTime = updateRulesRootEntity.rscType.chain0ResponseTime.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1ResponseTime)){
+          _rules.chain1ResponseTime = updateRulesRootEntity.rscType.chain1ResponseTime.toI32()
+        }
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain0CompensationRatio)){
+          _rules.chain0CompensationRatio = updateRulesRootEntity.rscType.chain0CompensationRatio.toI32()
+        }
+  
+        if(checkifRSCRuleTypeExist(updateRulesRootEntity.rscType.chain1CompensationRatio)){
+          _rules.chain1CompensationRatio = updateRulesRootEntity.rscType.chain1CompensationRatio.toI32()
+        }
+  
+        // log.debug('_rscRule[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}', [
+        //   _rules.chain0.toString(),
+        //   _rules.chain1.toString(),
+        //   _rules.chain0Status.toString(),
+        //   _rules.chain1Status.toString(),
+        //   _rules.chain0Token.toString(),
+        //   _rules.chain1Token.toString(),
+        //   _rules.minPrice.toString(),
+        //   _rules.maxPrice.toString(),
+        //   _rules.chain0WithholdingFee.toString(),
+        //   _rules.chain1WithholdingFee.toString(),
+        //   _rules.chain0TradeFee.toString(),
+        //   _rules.chain1TradeFee.toString(),
+        //   _rules.chain0ResponseTime.toString(),
+        //   _rules.chain1ResponseTime.toString(),
+        //   _rules.chain0CompensationRatio.toString(),
+        //   _rules.chain1CompensationRatio.toString()
+        // ])
+        _rules.save()
+      }
+
+}
+
+/**
+ * @param {Array<Address>} ebcs
+ * @returns {Array<Address>} uniqueEbcs
+ */
+export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
+    const uniqueEbcs = new Array<Address>();
+    for (let i = 0; i < ebcs.length; i++) {
+      let isDuplicate = false;
+      for (let j = 0; j < uniqueEbcs.length; j++) {
+        if (ebcs[i].equals(uniqueEbcs[j])) {
+          isDuplicate = true;
+          break;
+        }
+      }
+      if (!isDuplicate) {
+        uniqueEbcs.push(ebcs[i]);
+      }
+    }
+  
+    for(let i = 0; i < uniqueEbcs.length; i++){
+      log.debug('ebcs: {}', [uniqueEbcs[i].toHexString()])
+    } 
+  
+    return uniqueEbcs;
+  }
+  

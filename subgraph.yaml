@@ -22,6 +22,57 @@ dataSources:
         - event: MDCCreated(address,address)
           handler: handleMDCCreated
       file: ./src/mappings/mdc-factory.ts
+  - kind: ethereum
+    name: ORManager
+    network: goerli
+    source:
+      address: "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
+      abi: ORManager
+      startBlock: 9287800
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ChainInfoUpdated
+        - ChainTokenUpdated
+        - ChallengeUserRatioUpdated
+        - EbcsUpdated
+        - FeeChallengeSecondUpdated
+        - FeeTakeOnChallengeSecondUpdated
+        - MaxMDCLimitUpdated
+        - MinChallengeRatioUpdated
+        - OwnershipTransferred
+        - ProtocolFeeUpdated
+        - SubmitterFeeUpdated
+      abis:
+        - name: ORManager
+          file: ./abis/ORManager.json
+      eventHandlers:
+        - event: ChainInfoUpdated(indexed
+            uint64,(uint64,uint192,uint64,uint64,uint64,uint64,address[]))
+          handler: handleChainInfoUpdated
+        - event: ChainTokenUpdated(indexed uint64,(uint256,address,uint8))
+          handler: handleChainTokenUpdated
+        - event: ChallengeUserRatioUpdated(uint64)
+          handler: handleChallengeUserRatioUpdated
+        - event: EbcsUpdated(address[],bool[])
+          handler: handleEbcsUpdated
+        - event: FeeChallengeSecondUpdated(uint64)
+          handler: handleFeeChallengeSecondUpdated
+        - event: FeeTakeOnChallengeSecondUpdated(uint64)
+          handler: handleFeeTakeOnChallengeSecondUpdated
+        - event: MaxMDCLimitUpdated(uint64)
+          handler: handleMaxMDCLimitUpdated
+        - event: MinChallengeRatioUpdated(uint64)
+          handler: handleMinChallengeRatioUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ProtocolFeeUpdated(uint64)
+          handler: handleProtocolFeeUpdated
+        - event: SubmitterFeeUpdated(address)
+          handler: handleSubmitterFeeUpdated
+      file: ./src/or-manager.ts
 templates:
   - kind: ethereum
     name: MDC
@@ -42,7 +93,8 @@ templates:
         - name: MDC
           file: ./abis/MDC.json
       eventHandlers:
-        - event: ChallengeInfoUpdated(indexed bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
+        - event: ChallengeInfoUpdated(indexed
+            bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
           handler: handleChallengeInfoUpdated
         - event: ColumnArrayUpdated(indexed address,bytes32,address[],address[],uint64[])
           handler: handleColumnArrayUpdated
