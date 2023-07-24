@@ -59,13 +59,24 @@ describe("Describe event RulesRootUpdated", () => {
   test("MDC created and stored", () => {
     assert.entityCount("MDC", 1)
 
-    // assert.fieldEquals(
-    //   "MDC",
-    //   mdcAddress,
-    //   "id",
-    //   mdcAddress
-    // )
+    assert.fieldEquals(
+      "MDC",
+      mockMdcAddr.toLowerCase(),
+      "id",
+      mockMdcAddr
+    )
+    
+  })
 
+  test("ruleTypes created and stored", () => {
+    assert.entityCount("ruleTypes", 1)
+
+    assert.fieldEquals(
+      "ruleTypes",
+      mockMdcAddr.toLowerCase(),
+      "id",
+      mockMdcAddr
+    )
     
   })
 

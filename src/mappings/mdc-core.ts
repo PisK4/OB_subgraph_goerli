@@ -92,8 +92,6 @@ export function handleupdateRulesRootEvent(
           if(updateRulesRootEntity.rscType != null){
             let _rules = getRuleEntity(ebc)
             updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)
-
-            
           }
           // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
           // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
