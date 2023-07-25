@@ -21,7 +21,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 
 export let ZERO_BI = BigInt.fromI32(0)

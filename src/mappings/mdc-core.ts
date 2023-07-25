@@ -165,7 +165,7 @@ export function handleEbcsUpdatedEvent(
   let _statuses = statuses;
   if (ebcs.length > statuses.length) {
     for (let i = statuses.length; i < ebcs.length; i++) {
-      _statuses.push(false);
+      _statuses.push(true);
     }
   } else if (ebcs.length < statuses.length) {
     _statuses = statuses.slice(0, ebcs.length);
