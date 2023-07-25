@@ -154,6 +154,16 @@ type rule @entity {
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
 
+type ChainInfo @entity {
+  id: ID!
+  spv: [Bytes!]! # address[]
+  batchLimit: BigInt # uint192
+  minVerifyChallengeSourceTxSecond: BigInt # uint64
+  maxVerifyChallengeSourceTxSecond: BigInt # uint64
+  minVerifyChallengeDestTxSecond: BigInt # uint64
+  maxVerifyChallengeDestTxSecond: BigInt # uint64
+}
+
 type ChainInfoUpdated @entity(immutable: true) {
   id: Bytes!
   ORManager_id: BigInt! # uint64

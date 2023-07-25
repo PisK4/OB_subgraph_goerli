@@ -1878,6 +1878,156 @@ export class rule extends Entity {
   }
 }
 
+export class ChainInfo extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ChainInfo entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ChainInfo must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("ChainInfo", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ChainInfo | null {
+    return changetype<ChainInfo | null>(store.get_in_block("ChainInfo", id));
+  }
+
+  static load(id: string): ChainInfo | null {
+    return changetype<ChainInfo | null>(store.get("ChainInfo", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get spv(): Array<Bytes> {
+    let value = this.get("spv");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set spv(value: Array<Bytes>) {
+    this.set("spv", Value.fromBytesArray(value));
+  }
+
+  get batchLimit(): BigInt | null {
+    let value = this.get("batchLimit");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set batchLimit(value: BigInt | null) {
+    if (!value) {
+      this.unset("batchLimit");
+    } else {
+      this.set("batchLimit", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get minVerifyChallengeSourceTxSecond(): BigInt | null {
+    let value = this.get("minVerifyChallengeSourceTxSecond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set minVerifyChallengeSourceTxSecond(value: BigInt | null) {
+    if (!value) {
+      this.unset("minVerifyChallengeSourceTxSecond");
+    } else {
+      this.set(
+        "minVerifyChallengeSourceTxSecond",
+        Value.fromBigInt(<BigInt>value)
+      );
+    }
+  }
+
+  get maxVerifyChallengeSourceTxSecond(): BigInt | null {
+    let value = this.get("maxVerifyChallengeSourceTxSecond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set maxVerifyChallengeSourceTxSecond(value: BigInt | null) {
+    if (!value) {
+      this.unset("maxVerifyChallengeSourceTxSecond");
+    } else {
+      this.set(
+        "maxVerifyChallengeSourceTxSecond",
+        Value.fromBigInt(<BigInt>value)
+      );
+    }
+  }
+
+  get minVerifyChallengeDestTxSecond(): BigInt | null {
+    let value = this.get("minVerifyChallengeDestTxSecond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set minVerifyChallengeDestTxSecond(value: BigInt | null) {
+    if (!value) {
+      this.unset("minVerifyChallengeDestTxSecond");
+    } else {
+      this.set(
+        "minVerifyChallengeDestTxSecond",
+        Value.fromBigInt(<BigInt>value)
+      );
+    }
+  }
+
+  get maxVerifyChallengeDestTxSecond(): BigInt | null {
+    let value = this.get("maxVerifyChallengeDestTxSecond");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set maxVerifyChallengeDestTxSecond(value: BigInt | null) {
+    if (!value) {
+      this.unset("maxVerifyChallengeDestTxSecond");
+    } else {
+      this.set(
+        "maxVerifyChallengeDestTxSecond",
+        Value.fromBigInt(<BigInt>value)
+      );
+    }
+  }
+}
+
 export class ChainInfoUpdated extends Entity {
   constructor(id: Bytes) {
     super();

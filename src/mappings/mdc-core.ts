@@ -34,7 +34,8 @@ import {
     updateRuleTypesThenSave,
     getRulesEntity,
     ebcManagerUpdate,
-    AddressFmtPadZero
+    AddressFmtPadZero,
+    getChainInfoEntity
 } from "./helpers"
 import { 
     EBC, 
@@ -181,12 +182,25 @@ export function handleChainInfoUpdatedEvent(
     chainInfoId: BigInt,
     chainInfo: ChainInfoUpdatedChainInfoStruct
 ): void{
+    let _chainInfo = getChainInfoEntity(chainInfoId)
     let batchLimit = chainInfo.batchLimit
     let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond
     let maxVerifyChallengeSourceTxSecond = chainInfo.maxVerifyChallengeSourceTxSecond
     let minVerifyChallengeDestTxSecond = chainInfo.minVerifyChallengeDestTxSecond
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
     let spvs = chainInfo.spvs
+
+
+    _chainInfo.batchLimit = batchLimit
+    _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
+    _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
+    _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
+    _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
+    let spvsBytes = new Array<Bytes>()
+    for(let i = 0; i < spvs.length; i++){
+      spvsBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes)
+    }
+    _chainInfo.save()
 
 }
 

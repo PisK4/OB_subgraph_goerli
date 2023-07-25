@@ -10,6 +10,7 @@ import {
     crypto 
 } from '@graphprotocol/graph-ts'
 import { 
+    ChainInfo,
     EBC, 
     EBCManager, 
     MDC, 
@@ -33,8 +34,11 @@ export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
 export const ONE_NUM = 0xffffffff
 export const tupleprefix = "0x0000000000000000000000000000000000000000000000000000000000000020"
 export const ONE_BYTES = new Bytes(32);
+// function selectors
 export const func_updateRulesRoot =  "0x0abba903"//"0x5266dbda"
 export const func_updateRulesRootERC20 = "0x0e9601ae"//"0x16d38f5d"
+export const func_updateChainSpvs = "0xf0373f91"
+
 export const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint64[],uint256[])"//"(address,bytes,(bytes32,uint32),uint16[],uint256[])"
 export const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint64[],uint256[],address)"//"(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
 // export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)"
@@ -42,6 +46,11 @@ export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,u
 export enum updateRulesRootMode {
     ETH = 0,
     ERC20 = 1,
+    INV = 2,
+}
+export enum ChainInfoUpdatedMode {
+    registerChains = 0,
+    updateChainSpvs = 1,
     INV = 2,
 }
 export const EBCManagerID = "EBCManagerID_101" as string
@@ -243,6 +252,18 @@ export function getEBCEntity(
     return _MDCBindEBC as MDCBindEBC
 }
 
+export function getChainInfoEntity(
+    _id: BigInt
+): ChainInfo {
+    let id = _id.toString()
+    let _chainInfo = ChainInfo.load(id)
+    if (_chainInfo == null) {
+        _chainInfo = new ChainInfo(id)
+        _chainInfo.spv = []
+    }
+    return _chainInfo as ChainInfo
+}
+
 function saveRules2Rules(
     _rules: ruleTypes,
     rule: rule
@@ -287,7 +308,7 @@ export function saveRule2EBC(
     }
 }
 
-export function getFunctionSelector(selector: Bytes): updateRulesRootMode {
+export function compareUpdateRulesRootSelector(selector: Bytes): updateRulesRootMode {
     return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
 }
 
@@ -452,11 +473,14 @@ export function parseRSC(rsc: Bytes): rscRuleType[] {
   return rscRules;
 }
 
+export function getFunctionSelector(data: Bytes): Bytes {
+    let _data = data.toHexString().slice(2, 10);
+    log.debug("selector: {}", [_data])
+    return Bytes.fromHexString(_data);
+}
 
 export function parseTransactionInputData(data: Bytes): rscRules {
-    let selector = data.toHexString().slice(2, 10)
-    let func = getFunctionSelector(Bytes.fromHexString(selector))
-    // log.debug("selector: {}, func: {}", [selector, func.toString()])
+    let func = compareUpdateRulesRootSelector(getFunctionSelector(data))
 
     let selectorofFunc = "0x000000"
     if(func == updateRulesRootMode.ETH) {
@@ -671,4 +695,5 @@ export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
   
     return uniqueEbcs;
   }
+
   
