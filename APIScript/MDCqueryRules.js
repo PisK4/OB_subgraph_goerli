@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 
 const dataArray = [];
-
+//https://api.studio.thegraph.com/query/49058/obcabin/v0.0.30
 axios.post('https://api.studio.thegraph.com/query/49058/obcabin/version/latest',{
   query: `
   {
