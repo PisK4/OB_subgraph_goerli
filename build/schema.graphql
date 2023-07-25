@@ -74,12 +74,9 @@ type MDC @entity {
   owner: Bytes! # address
   columnArrayHash: Bytes # bytes32
   responseMakers: [Bytes!] # address[]
-  # root: Bytes # bytes32
-  # version: Int # uint32
   spvs: [Bytes!] # address[]
   chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
-  # ebc: [EBC!]! # EBC
   bindEBC: [MDCBindEBC!]! # MDCBindEBC
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   

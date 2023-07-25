@@ -1,5 +1,5 @@
 import { newMockEvent } from "matchstick-as"
-import { ethereum, Address, Bytes } from "@graphprotocol/graph-ts"
+import { ethereum, Address, Bytes, BigInt } from "@graphprotocol/graph-ts"
 import {
   ChallengeInfoUpdated,
   ColumnArrayUpdated,
@@ -69,7 +69,7 @@ export function createColumnArrayUpdatedEvent(
 
 export function createResponseMakersUpdatedEvent(
   impl: Address,
-  responseMakers: Array<Address>
+  responseMakers: Array<BigInt>
 ): ResponseMakersUpdated {
   let responseMakersUpdatedEvent = changetype<ResponseMakersUpdated>(
     newMockEvent()
@@ -83,7 +83,7 @@ export function createResponseMakersUpdatedEvent(
   responseMakersUpdatedEvent.parameters.push(
     new ethereum.EventParam(
       "responseMakers",
-      ethereum.Value.fromAddressArray(responseMakers)
+      ethereum.Value.fromUnsignedBigIntArray(responseMakers)
     )
   )
 

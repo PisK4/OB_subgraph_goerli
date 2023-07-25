@@ -93,14 +93,6 @@ export function handleChallengeUserRatioUpdated(
 }
 
 export function handleEbcsUpdated(event: EbcsUpdatedEvent): void {
-  log.debug("ebcs length: {}, statuses length: {}", 
-    [
-      event.params.ebcs.length.toString(), 
-      event.params.statuses.length.toString()
-  ])
-
-  // printArray(event.params.ebcs)
-  
   handleEbcsUpdatedEvent(
     event,
     event.params.ebcs,

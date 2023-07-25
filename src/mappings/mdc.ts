@@ -13,6 +13,7 @@ import {
 } from "../types/schema"
 import { 
   handleColumnArrayUpdatedEvent,
+  handleResponseMakersUpdatedEvent,
   handleupdateRulesRootEvent
 } from "./mdc-core"
 
@@ -59,17 +60,11 @@ export function handleColumnArrayUpdated(event: ColumnArrayUpdatedEvent): void {
 export function handleResponseMakersUpdated(
   event: ResponseMakersUpdatedEvent
 ): void {
-  let entity = new ResponseMakersUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  handleResponseMakersUpdatedEvent(
+    event,
+    event.params.impl,
+    event.params.responseMakers
   )
-  entity.impl = event.params.impl
-  // entity.responseMakers = event.params.responseMakers
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {

@@ -158,6 +158,7 @@ export function getMDCEntity(
         mdc.createblockTimestamp = event.block.timestamp
         mdc.lastestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
     }
+    mdc.lastestUpdatetransactionHash = event.transaction.hash
     return mdc as MDC
 }
 
@@ -169,7 +170,7 @@ export function ebcManagerUpdate(
     let ebcId = ebcAddress.toHexString()
     let ebc = EBC.load(ebcId)
     if (ebc == null) {
-        log.info('create new EBC, ebc: {}', [ebcId])
+        log.info('create new EBC, ebc: {}, status: {}', [ebcId, status.toString()])
         ebc = new EBC(ebcId)
         ebc.mdcList = []
     }    
@@ -599,18 +600,11 @@ export function updateRuleTypesThenSave(
 
     if(updateRulesRootEntity.rscType.length > 0){
         for(let i = 0; i < updateRulesRootEntity.rscType.length; i++){
-            let _rule = getRuleEntity(_rules, i)
-
-            log.debug("chain0Token: {}, chain1Token: {}", [
-                updateRulesRootEntity.rscType[i].chain0Token.toHexString(),
-                updateRulesRootEntity.rscType[i].chain1Token.toHexString()])            
+            let _rule = getRuleEntity(_rules, i)          
             _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
             _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
             _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
-            _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()
-            log.debug("chain0Token: {}, chain1Token: {}", [
-                updateRulesRootEntity.rscType[i].chain0Token.toHexString(),
-                updateRulesRootEntity.rscType[i].chain1Token.toHexString()])     
+            _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()    
             _rule.chain0Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain0Token.toHexString()))
             _rule.chain1Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain1Token.toHexString()))
             _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice

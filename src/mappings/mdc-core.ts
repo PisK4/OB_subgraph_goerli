@@ -33,7 +33,8 @@ import {
     getRuleEntity,
     updateRuleTypesThenSave,
     getRulesEntity,
-    ebcManagerUpdate
+    ebcManagerUpdate,
+    AddressFmtPadZero
 } from "./helpers"
 import { 
     EBC, 
@@ -171,7 +172,6 @@ export function handleEbcsUpdatedEvent(
   }
 
   for (let i = 0; i < ebcs.length; i++) {
-    log.debug("ebc: {}, status: {}", [ebcs[i].toHexString(), _statuses[i].toString()]);
     ebcManagerUpdate(ebcs[i], _statuses[i], event);
   }
 }
@@ -188,4 +188,20 @@ export function handleChainInfoUpdatedEvent(
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
     let spvs = chainInfo.spvs
 
+}
+
+export function handleResponseMakersUpdatedEvent(
+  event: ethereum.Event,
+  impl: Bytes,
+  responseMakers: Array<BigInt>
+): void {
+  const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
+  let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
+  let responseMakersBytes = new Array<Bytes>()
+  for(let i = 0; i < responseMakers.length; i++){
+    // log.info('responseMakers: {}', [responseMakers[i].toString()])
+    responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
+  }
+  mdc.responseMakers = responseMakersBytes
+  mdc.save()
 }
