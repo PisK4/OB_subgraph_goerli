@@ -39,7 +39,7 @@ describe("Describe entity assertions", () => {
     for (let i = 0; i < ebcs.length; i++) {
       ebcsAddr[i] = changetype<Address>(ebcs[i]);
     }
-    let statuses = [true, false, true]
+    let statuses = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]
     const newEbcsUpdatedEvent = createEbcsUpdatedEvent(
       ebcsAddr,
       statuses

@@ -45,8 +45,10 @@ import {
 import { 
   funcETHRootMockInput,
   funcERC20RootMockInput, 
-  mockMdcAddr 
+  mockMdcAddr, 
+  funcETHRootMockInput2
 } from "./mock-data";
+import { ChainInfoUpdatedChainInfoStruct } from "../types/ORManager/ORManager";
 
 
 
@@ -59,7 +61,7 @@ export function handleupdateRulesRootEvent(
 ): void{
       let updateRulesRootEntity = isProduction ? 
       parseTransactionInputData(event.transaction.input) :
-      parseTransactionInputData(Bytes.fromHexString(funcETHRootMockInput) as Bytes)
+      parseTransactionInputData(Bytes.fromHexString(funcETHRootMockInput2) as Bytes)
       
       const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
       const _mdcAddress = event.transaction.to
@@ -155,15 +157,35 @@ export function handleColumnArrayUpdatedEvent (
 }
 
 export function handleEbcsUpdatedEvent(
-    event: ethereum.Event,
-    ebcs: Array<Address>,
-    statuses: Array<boolean>
-) : void{
-    for(let ebc_index = 0; ebc_index < ebcs.length; ebc_index++){
-        ebcManagerUpdate(
-          ebcs[ebc_index],
-          statuses[ebc_index],
-          event
-        )
+  event: ethereum.Event,
+  ebcs: Array<Address>,
+  statuses: Array<boolean>
+): void {
+  let _statuses = statuses;
+  if (ebcs.length > statuses.length) {
+    for (let i = statuses.length; i < ebcs.length; i++) {
+      _statuses.push(false);
     }
+  } else if (ebcs.length < statuses.length) {
+    _statuses = statuses.slice(0, ebcs.length);
+  }
+
+  for (let i = 0; i < ebcs.length; i++) {
+    log.debug("ebc: {}, status: {}", [ebcs[i].toHexString(), _statuses[i].toString()]);
+    ebcManagerUpdate(ebcs[i], _statuses[i], event);
+  }
+}
+
+export function handleChainInfoUpdatedEvent(
+    event: ethereum.Event,
+    chainInfoId: BigInt,
+    chainInfo: ChainInfoUpdatedChainInfoStruct
+): void{
+    let batchLimit = chainInfo.batchLimit
+    let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond
+    let maxVerifyChallengeSourceTxSecond = chainInfo.maxVerifyChallengeSourceTxSecond
+    let minVerifyChallengeDestTxSecond = chainInfo.minVerifyChallengeDestTxSecond
+    let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
+    let spvs = chainInfo.spvs
+
 }

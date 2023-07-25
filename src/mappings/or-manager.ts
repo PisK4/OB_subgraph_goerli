@@ -1,3 +1,4 @@
+import { log } from "matchstick-as"
 import {
   ChainInfoUpdated as ChainInfoUpdatedEvent,
   ChainTokenUpdated as ChainTokenUpdatedEvent,
@@ -24,30 +25,40 @@ import {
   ProtocolFeeUpdated,
   SubmitterFeeUpdated
 } from "../types/schema"
-import { handleEbcsUpdatedEvent } from "./mdc-core"
+import { handleChainInfoUpdatedEvent, handleEbcsUpdatedEvent } from "./mdc-core"
 
 export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
-  let entity = new ChainInfoUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.ORManager_id = event.params.id
-  entity.chainInfo_id = event.params.chainInfo.id
-  entity.chainInfo_batchLimit = event.params.chainInfo.batchLimit
-  entity.chainInfo_minVerifyChallengeSourceTxSecond =
-    event.params.chainInfo.minVerifyChallengeSourceTxSecond
-  entity.chainInfo_maxVerifyChallengeSourceTxSecond =
-    event.params.chainInfo.maxVerifyChallengeSourceTxSecond
-  entity.chainInfo_minVerifyChallengeDestTxSecond =
-    event.params.chainInfo.minVerifyChallengeDestTxSecond
-  entity.chainInfo_maxVerifyChallengeDestTxSecond =
-    event.params.chainInfo.maxVerifyChallengeDestTxSecond
+  // let entity = new ChainInfoUpdated(
+  //   event.transaction.hash.concatI32(event.logIndex.toI32())
+  // )
+  // entity.ORManager_id = event.params.id
+  // entity.chainInfo_id = event.params.chainInfo.id
+  // entity.chainInfo_batchLimit = event.params.chainInfo.batchLimit
+  // entity.chainInfo_minVerifyChallengeSourceTxSecond =
+  //   event.params.chainInfo.minVerifyChallengeSourceTxSecond
+  // entity.chainInfo_maxVerifyChallengeSourceTxSecond =
+  //   event.params.chainInfo.maxVerifyChallengeSourceTxSecond
+  // entity.chainInfo_minVerifyChallengeDestTxSecond =
+  //   event.params.chainInfo.minVerifyChallengeDestTxSecond
+  // entity.chainInfo_maxVerifyChallengeDestTxSecond =
+  //   event.params.chainInfo.maxVerifyChallengeDestTxSecond
   // entity.chainInfo_spvs = event.params.chainInfo.spvs
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  // entity.blockNumber = event.block.number
+  // entity.blockTimestamp = event.block.timestamp
+  // entity.transactionHash = event.transaction.hash
 
-  entity.save()
+  // entity.save()
+
+  
+  handleChainInfoUpdatedEvent(
+    event,
+    event.params.id,
+    event.params.chainInfo
+  )
+
+
+
 }
 
 export function handleChainTokenUpdated(event: ChainTokenUpdatedEvent): void {
@@ -82,17 +93,14 @@ export function handleChallengeUserRatioUpdated(
 }
 
 export function handleEbcsUpdated(event: EbcsUpdatedEvent): void {
-  // let entity = new EbcsUpdated(
-  //   event.transaction.hash.concatI32(event.logIndex.toI32())
-  // )
-  // entity.ebcs = event.params.ebcs
-  // entity.statuses = event.params.statuses
+  log.debug("ebcs length: {}, statuses length: {}", 
+    [
+      event.params.ebcs.length.toString(), 
+      event.params.statuses.length.toString()
+  ])
 
-  // entity.blockNumber = event.block.number
-  // entity.blockTimestamp = event.block.timestamp
-  // entity.transactionHash = event.transaction.hash
-
-  // entity.save()
+  // printArray(event.params.ebcs)
+  
   handleEbcsUpdatedEvent(
     event,
     event.params.ebcs,

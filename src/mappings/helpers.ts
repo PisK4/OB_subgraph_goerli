@@ -21,7 +21,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 
 export let ZERO_BI = BigInt.fromI32(0)
@@ -209,7 +209,7 @@ export function ebcSave(
     const ebcId = getEBCId(MDCBindEBC.id)
     let ebc = EBC.load(ebcId)
     if (ebc == null) {
-        log.error('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
+        log.warning('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
         ebc = new EBC(ebcId)
         ebc.statuses = true
         ebc.mdcList = []
@@ -574,6 +574,13 @@ export function parseTransactionInputData(data: Bytes): rscRules {
     return updateRulesRootEntity
 }
 
+export function AddressFmtPadZero(address: string): string {
+    if (address.length % 2 != 0) {
+        address = "0" + address;
+    }    
+    return address
+}
+
 export function updateRuleTypesThenSave(
     updateRulesRootEntity: rscRules,
     _rules: ruleTypes,
@@ -593,12 +600,19 @@ export function updateRuleTypesThenSave(
     if(updateRulesRootEntity.rscType.length > 0){
         for(let i = 0; i < updateRulesRootEntity.rscType.length; i++){
             let _rule = getRuleEntity(_rules, i)
+
+            log.debug("chain0Token: {}, chain1Token: {}", [
+                updateRulesRootEntity.rscType[i].chain0Token.toHexString(),
+                updateRulesRootEntity.rscType[i].chain1Token.toHexString()])            
             _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
             _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
             _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
             _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()
-            _rule.chain0Token = Address.fromHexString(updateRulesRootEntity.rscType[i].chain0Token.toHexString())
-            _rule.chain1Token = Address.fromHexString(updateRulesRootEntity.rscType[i].chain1Token.toHexString())
+            log.debug("chain0Token: {}, chain1Token: {}", [
+                updateRulesRootEntity.rscType[i].chain0Token.toHexString(),
+                updateRulesRootEntity.rscType[i].chain1Token.toHexString()])     
+            _rule.chain0Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain0Token.toHexString()))
+            _rule.chain1Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain1Token.toHexString()))
             _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice
             _rule.chain0maxPrice = updateRulesRootEntity.rscType[i].chain0maxPrice
             _rule.chain1minPrice = updateRulesRootEntity.rscType[i].chain1minPrice
