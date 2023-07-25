@@ -37,7 +37,9 @@ export const ONE_BYTES = new Bytes(32);
 // function selectors
 export const func_updateRulesRoot =  "0x0abba903"//"0x5266dbda"
 export const func_updateRulesRootERC20 = "0x0e9601ae"//"0x16d38f5d"
+export const func_registerChains ="0xdeaddead"
 export const func_updateChainSpvs = "0xf0373f91"
+
 
 export const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint64[],uint256[])"//"(address,bytes,(bytes32,uint32),uint16[],uint256[])"
 export const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint64[],uint256[],address)"//"(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
@@ -308,9 +310,6 @@ export function saveRule2EBC(
     }
 }
 
-export function compareUpdateRulesRootSelector(selector: Bytes): updateRulesRootMode {
-    return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
-}
 
 export class rscRules {
     ebcAddress: Bytes;
@@ -473,11 +472,6 @@ export function parseRSC(rsc: Bytes): rscRuleType[] {
   return rscRules;
 }
 
-export function getFunctionSelector(data: Bytes): Bytes {
-    let _data = data.toHexString().slice(2, 10);
-    log.debug("selector: {}", [_data])
-    return Bytes.fromHexString(_data);
-}
 
 export function parseTransactionInputData(data: Bytes): rscRules {
     let func = compareUpdateRulesRootSelector(getFunctionSelector(data))
@@ -697,3 +691,15 @@ export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
   }
 
   
+export function getFunctionSelector(data: Bytes): Bytes {
+    let _data = data.toHexString().slice(2, 10);
+    log.debug("selector: {}", [_data])
+    return Bytes.fromHexString(_data);
+}
+
+export function compareUpdateRulesRootSelector(selector: Bytes): updateRulesRootMode {
+    return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
+}
+export function compareChainInfoUpdatedSelector(selector: Bytes): ChainInfoUpdatedMode {
+    return selector == Bytes.fromHexString(func_registerChains) ? ChainInfoUpdatedMode.registerChains : selector == Bytes.fromHexString(func_updateChainSpvs) ? ChainInfoUpdatedMode.updateChainSpvs : ChainInfoUpdatedMode.INV
+}

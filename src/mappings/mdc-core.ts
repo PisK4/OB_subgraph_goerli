@@ -35,7 +35,10 @@ import {
     getRulesEntity,
     ebcManagerUpdate,
     AddressFmtPadZero,
-    getChainInfoEntity
+    getChainInfoEntity,
+    getFunctionSelector,
+    ChainInfoUpdatedMode,
+    compareChainInfoUpdatedSelector
 } from "./helpers"
 import { 
     EBC, 
@@ -48,7 +51,8 @@ import {
   funcETHRootMockInput,
   funcERC20RootMockInput, 
   mockMdcAddr, 
-  funcETHRootMockInput2
+  funcETHRootMockInput2,
+  functionUpdateChainSpvsMockinput
 } from "./mock-data";
 import { ChainInfoUpdatedChainInfoStruct } from "../types/ORManager/ORManager";
 
@@ -190,15 +194,23 @@ export function handleChainInfoUpdatedEvent(
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
     let spvs = chainInfo.spvs
 
-
-    _chainInfo.batchLimit = batchLimit
-    _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
-    _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
-    _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
-    _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
-    let spvsBytes = new Array<Bytes>()
-    for(let i = 0; i < spvs.length; i++){
-      spvsBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes)
+    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionUpdateChainSpvsMockinput) as Bytes
+    const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata)) 
+    if(selector == ChainInfoUpdatedMode.registerChains){
+        log.info("{}", ["registerChains"])
+        _chainInfo.batchLimit = batchLimit
+        _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
+        _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
+        _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
+        _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
+        let spvsBytes = new Array<Bytes>()
+        for(let i = 0; i < spvs.length; i++){
+          spvsBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes)
+        }
+    }else if(selector == ChainInfoUpdatedMode.updateChainSpvs){
+      log.info("{}", ["updateChainSpvs"])
+    }else{
+      log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toString()])
     }
     _chainInfo.save()
 
