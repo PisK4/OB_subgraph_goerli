@@ -40,7 +40,8 @@ import {
     compareChainInfoUpdatedSelector,
     parseChainInfoUpdatedInputData,
     getChainTokenUpdatedEntity,
-    getColumnArrayUpdatedEntity
+    getColumnArrayUpdatedEntity,
+    getMDCBindEBCEntity
 } from "./helpers"
 import { 
     FactoryManger
@@ -72,55 +73,44 @@ export function handleupdateRulesRootEvent(
       const _mdcAddress = event.transaction.to
       ? ((event.transaction.to as Address).toHex()) as string
       : null;
-      
       const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
-      log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
-
+      // log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
+      let factoryAddress = Bytes.fromHexString(mdc.factory._id)
+      // log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
+      let factory = FactoryManger.load(factoryAddress)
 
-      if (mdc) {
-        let factoryAddress = Bytes.fromHexString(mdc.factory._id)
-        log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
-        let factory = FactoryManger.load(factoryAddress)
-
-        log.debug('inputdata decode: ebcaddress: {}, rsc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
-        [
-          ebcAddress,
-          "default",
-          updateRulesRootEntity.root.toHexString(),
-          updateRulesRootEntity.version.toString(),
-          updateRulesRootEntity.sourceChainIds.toString(),
-          updateRulesRootEntity.pledgeAmounts.toString(),
-          updateRulesRootEntity.tokenAddr.toHexString()
-        ])
-        
-        if(ebcAddress != null){
-          let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
+      log.info('inputdata decode: ebc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
+      [
+        ebcAddress,
+        updateRulesRootEntity.root.toHexString(),
+        updateRulesRootEntity.version.toString(),
+        updateRulesRootEntity.sourceChainIds.toString(),
+        updateRulesRootEntity.pledgeAmounts.toString(),
+        updateRulesRootEntity.tokenAddr.toHexString()
+      ])
       
-          // save ebcs ruletype
-          if(updateRulesRootEntity.rscType != null){
-            if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
-              let _rules = getRulesEntity(ebc, version)
-              if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)){
-                _rules.save()
-              }
-            }else{
-              log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
+      if(ebcAddress != null){
+        let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
+    
+        // save ebcs ruletype
+        if(updateRulesRootEntity.rscType != null){
+          if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
+            let _rules = getRulesEntity(ebc, version)
+            if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)){
+              _rules.save()
             }
+          }else{
+            log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
           }
-          // ebc.sourceChainIds = updateRulesRootEntity.sourceChainIds
-          // ebc.pledgeAmounts = updateRulesRootEntity.pledgeAmounts    
-          ebc.lastestUpdateHash = event.transaction.hash
-          ebcSave(ebc, mdc, event)
-        }        
-        mdc.lastestUpdatetransactionHash = event.transaction.hash
-        mdc.save()
-        if(factory){
-          factory.save()
-        }
-    }else{
-        log.error('MDC not exist', ['error'])
-    }
+        } 
+        ebcSave(ebc, mdc, event)
+      }        
+      mdc.save()
+      if(factory){
+        factory.save()
+      }
+
 
 }
 
@@ -206,7 +196,7 @@ export function handleChainInfoUpdatedEvent(
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
     let spvs = isProduction ? chainInfo.spvs : [Address.fromString(mockMdcAddr)]
 
-    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
+    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionUpdateChainSpvsMockinput) as Bytes
     const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata)) 
     if(selector == ChainInfoUpdatedMode.registerChains){
         log.info("registerChains", ["registerChains"])
@@ -216,17 +206,13 @@ export function handleChainInfoUpdatedEvent(
         _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
         for (let i = 0; i < spvs.length; i++) {
-          log.debug("spv1[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), spvs[i].toHexString()])
           _chainInfo.spv = _chainInfo.spv.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
           
-        }
-        for (let i = 0; i < spvs.length; i++) {
-          log.debug("spv2[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), _chainInfo.spv[i].toHexString()])
         }
 
     }else if(selector == ChainInfoUpdatedMode.updateChainSpvs){
       log.info("updateChainSpvs", ["updateChainSpvs"])
-      parseChainInfoUpdatedInputData(inputdata)
+      parseChainInfoUpdatedInputData(inputdata, _chainInfo)
 
     }else{
       log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toHexString()])
@@ -269,9 +255,23 @@ export function handleResponseMakersUpdatedEvent(
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
   let responseMakersBytes = new Array<Bytes>()
   for(let i = 0; i < responseMakers.length; i++){
-    // log.info('responseMakers: {}', [responseMakers[i].toString()])
+    log.info('responseMakers: {}', [responseMakers[i].toString()])
     responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
   }
   mdc.responseMakers = responseMakersBytes
   mdc.save()
+}
+
+export function handleSpvUpdatedEvent(
+  event: ethereum.Event,
+  impl: Bytes,
+  chainId: BigInt,
+  spv: Bytes
+): void{
+  let mdc = isProduction ? getMDCEntity(event.address, Address.fromString(ONE_ADDRESS), event) : getMDCEntity(Address.fromString(mockMdcAddr), Address.fromString(ONE_ADDRESS), event)
+  let _spv = getMDCBindEBCEntity(mdc, chainId)
+  _spv.spv = spv
+  _spv.save()
+  mdc.save()
+  log.info('update mdc:{}, chain:{}, spv:{}', [mdc.id, chainId.toString(), spv.toHexString()])
 }

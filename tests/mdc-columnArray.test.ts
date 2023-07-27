@@ -85,7 +85,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.fieldEquals(
       "MDC",
       mdcAddress.toLowerCase(),
-      "bindEBC",
+      "bindEBCs",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
     )
 

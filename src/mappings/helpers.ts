@@ -18,6 +18,7 @@ import {
     EBCManager, 
     MDC, 
     MDCBindEBC,
+    MDCBindSPV,
     rule,
     ruleTypes
 } from '../types/schema'
@@ -169,7 +170,8 @@ export function getMDCEntity(
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker
         mdc.columnArrayUpdated = []
-        mdc.bindEBC = []
+        mdc.bindEBCs = []
+        mdc.bindSPVs = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
         mdc.lastestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
@@ -329,6 +331,21 @@ export function getColumnArrayUpdatedEntity(
     return _columnArrayUpdated as ColumnArrayUpdated
 }
 
+export function getMDCBindEBCEntity(
+    mdc: MDC,
+    chainId: BigInt,
+): MDCBindSPV{
+    const id = mdc.id + "-" + chainId.toString()
+    let _MDCBindSPV = MDCBindSPV.load(id)
+    if(_MDCBindSPV == null){
+        _MDCBindSPV = new MDCBindSPV(id)
+        _MDCBindSPV.chainId = chainId
+        saveSPV2MDC(mdc, _MDCBindSPV)
+    }
+
+    return _MDCBindSPV as MDCBindSPV
+}
+
 function saveColumnArray2MDC(
     mdc: MDC,
     columnArray: ColumnArrayUpdated
@@ -355,10 +372,10 @@ function saveBindEBC2MDC(
     mdc : MDC,
     ebc_id : string,
 ) : void{
-    if (mdc.bindEBC == null) {
-        mdc.bindEBC = [ebc_id]
-    } else if(!mdc.bindEBC.includes(ebc_id)){
-        mdc.bindEBC = mdc.bindEBC.concat([ebc_id])
+    if (mdc.bindEBCs == null) {
+        mdc.bindEBCs = [ebc_id]
+    } else if(!mdc.bindEBCs.includes(ebc_id)){
+        mdc.bindEBCs = mdc.bindEBCs.concat([ebc_id])
     }  
 }
 
@@ -381,6 +398,17 @@ function saveRule2EBC(
         ebc.rulesWithRootVersion = [rule.id];
     } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
         ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
+    }
+}
+
+function saveSPV2MDC(
+    mdc: MDC,
+    spv: MDCBindSPV
+): void{
+    if (mdc.bindSPVs == null) {
+        mdc.bindSPVs = [spv.id];
+    } else if (!mdc.bindSPVs.includes(spv.id)) {
+        mdc.bindSPVs = mdc.bindSPVs.concat([spv.id])
     }
 }
 
@@ -505,7 +533,7 @@ export function parseRSC(rsc: Bytes): rscRuleType[] {
     log.error("Failed to decode transaction input data", ["error"])
   }
   let rscArray = rscDecode.toArray();
-  log.debug("rscArray length: {}", [rscArray.length.toString()])
+//   log.debug("rscArray length: {}", [rscArray.length.toString()])
 
   let rscRules: rscRuleType[] = [];
 
@@ -562,7 +590,10 @@ export function inputdataPrefix(data: Bytes): Bytes {
 }
 
 
-export function parseChainInfoUpdatedInputData(data: Bytes): void {
+export function parseChainInfoUpdatedInputData(
+    data: Bytes,
+    _chainInfoUpdated: ChainInfoUpdated
+): void {
     let dataUnderPrefix = inputdataPrefix(data)
     const decoded = ethereum.decode(
         func_updateChainSpvsSelector,
@@ -573,11 +604,13 @@ export function parseChainInfoUpdatedInputData(data: Bytes): void {
     }
     let tuple = decoded.toTuple();
 
-    log.debug("chainInfoUpdated kind[0]:{}, kind[1]:{}, kind[2]:{}", [
-        tuple[0].kind.toString(),
-        tuple[1].kind.toString(),
-        tuple[2].kind.toString()
-    ])
+    if(debugLog){
+        log.debug("chainInfoUpdated kind[0]:{}, kind[1]:{}, kind[2]:{}", [
+            tuple[0].kind.toString(),
+            tuple[1].kind.toString(),
+            tuple[2].kind.toString()
+        ])
+    }
 
     let id = ZERO_BI
     let spvs = new Array<Address>()
@@ -598,20 +631,58 @@ export function parseChainInfoUpdatedInputData(data: Bytes): void {
         spvs.length.toString(),
         indexs.length.toString()
     ])
-    // print spvs array
+    if(debugLog){
+        // print spvs array
+        for(let i = 0; i < spvs.length; i++){
+            log.debug("chainInfoUpdated spvs:[{}]{}", [
+                i.toString(),
+                spvs[i].toHexString(),
+            ])
+        }
+        // print indexs array
+        for(let i = 0; i < indexs.length; i++){
+            log.debug("chainInfoUpdated indexs[{}]:{}", [
+                i.toString(),
+                indexs[i].toString(),
+            ])
+        }
+    }
+    
     for(let i = 0; i < spvs.length; i++){
-        log.debug("chainInfoUpdated spvs:[{}]{}", [
-            i.toString(),
-            spvs[i].toHexString(),
-        ])
+        if(i < indexs.length){
+            let _spv = _chainInfoUpdated.spv;
+            if (indexs.length > 0) {
+                let spvBytes: Bytes[] = [];
+                for (let i = 0; i < indexs.length; i++) {
+                    let index = indexs[i].toI32();
+                    if(_spv.length == 0){
+                        spvBytes.push(Bytes.fromHexString(spvs[i].toHexString()));
+                    }else{
+                        if (index < _spv.length) {
+                            spvBytes.push(Bytes.fromHexString(spvs[i].toHexString()));
+                        }
+                    }
+                }
+                _chainInfoUpdated.spv = _spv.slice(0, indexs[0].toI32()).concat(spvBytes).concat(_spv.slice(indexs[indexs.length - 1].toI32() + 1));
+            } else {
+                let spvBytes: Bytes[] = [];
+                for (let i = 0; i < spvs.length; i++) {
+                    spvBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes);
+                }
+                _chainInfoUpdated.spv = _spv.concat(spvBytes);
+            }
+            _chainInfoUpdated.save();
+        }else{
+            let _chainInfoUpdated = getChainInfoEntity(id)
+            _chainInfoUpdated.spv = _chainInfoUpdated.spv.concat([Bytes.fromHexString(spvs[i].toHexString())])
+            _chainInfoUpdated.save()
+        }
     }
-    // print indexs array
-    for(let i = 0; i < indexs.length; i++){
-        log.debug("chainInfoUpdated indexs[{}]:{}", [
-            i.toString(),
-            indexs[i].toString(),
-        ])
+
+    for(let i = 0; i < _chainInfoUpdated.spv.length; i++){
+        log.debug("update new spv[{}/{}]:{}", [(i+1).toString(),_chainInfoUpdated.spv.length.toString(), _chainInfoUpdated.spv[i].toHexString()])
     }
+
 }
 
 

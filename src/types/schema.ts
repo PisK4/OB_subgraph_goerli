@@ -990,23 +990,6 @@ export class MDC extends Entity {
     }
   }
 
-  get spvs(): Array<Bytes> | null {
-    let value = this.get("spvs");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set spvs(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("spvs");
-    } else {
-      this.set("spvs", Value.fromBytesArray(<Array<Bytes>>value));
-    }
-  }
-
   get chainIds(): Array<BigInt> | null {
     let value = this.get("chainIds");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1041,8 +1024,8 @@ export class MDC extends Entity {
     }
   }
 
-  get bindEBC(): Array<string> {
-    let value = this.get("bindEBC");
+  get bindEBCs(): Array<string> {
+    let value = this.get("bindEBCs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1050,8 +1033,21 @@ export class MDC extends Entity {
     }
   }
 
-  set bindEBC(value: Array<string>) {
-    this.set("bindEBC", Value.fromStringArray(value));
+  set bindEBCs(value: Array<string>) {
+    this.set("bindEBCs", Value.fromStringArray(value));
+  }
+
+  get bindSPVs(): Array<string> {
+    let value = this.get("bindSPVs");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set bindSPVs(value: Array<string>) {
+    this.set("bindSPVs", Value.fromStringArray(value));
   }
 
   get columnArrayHash(): Bytes | null {
@@ -1545,6 +1541,84 @@ export class MDCBindEBC extends Entity {
 
   set lastestUpdateBlockNumber(value: BigInt) {
     this.set("lastestUpdateBlockNumber", Value.fromBigInt(value));
+  }
+}
+
+export class MDCBindSPV extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save MDCBindSPV entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type MDCBindSPV must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("MDCBindSPV", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): MDCBindSPV | null {
+    return changetype<MDCBindSPV | null>(store.get_in_block("MDCBindSPV", id));
+  }
+
+  static load(id: string): MDCBindSPV | null {
+    return changetype<MDCBindSPV | null>(store.get("MDCBindSPV", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get chainId(): BigInt | null {
+    let value = this.get("chainId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chainId(value: BigInt | null) {
+    if (!value) {
+      this.unset("chainId");
+    } else {
+      this.set("chainId", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get spv(): Bytes | null {
+    let value = this.get("spv");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set spv(value: Bytes | null) {
+    if (!value) {
+      this.unset("spv");
+    } else {
+      this.set("spv", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get mdc(): MDCLoader {
+    return new MDCLoader("MDCBindSPV", this.get("id")!.toString(), "mdc");
   }
 }
 

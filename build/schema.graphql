@@ -74,10 +74,11 @@ type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
   responseMakers: [Bytes!] # address[]
-  spvs: [Bytes!] # address[]
+  # spvs: [Bytes!] # address[]
   chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
-  bindEBC: [MDCBindEBC!]! # MDCBindEBC
+  bindEBCs: [MDCBindEBC!]! # MDCBindEBC
+  bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayHash: Bytes # bytes32
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
@@ -120,10 +121,17 @@ type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
   ebc: Bytes! # ebc address
   rulesWithRootVersion: [ruleTypes!]! 
-  mdc: MDC! @derivedFrom(field: "bindEBC") # MDC
+  mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
   lastestUpdateBlockNumber: BigInt!
+}
+
+type MDCBindSPV @entity{
+  id: ID! # mdc address - ChainId
+  chainId: BigInt # uint64
+  spv: Bytes # spv address
+  mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
 type EBC @entity {
