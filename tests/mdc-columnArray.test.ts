@@ -114,6 +114,13 @@ describe("Describe entity assertions", () => {
       getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc1))
     )
 
+    assert.fieldEquals(
+      "MDCBindEBC",
+      getBindEbcId(Address.fromString(mdcAddress), Address.fromString(ebc0)),
+      "ebc",
+      ebc0.toLowerCase()
+    )
+
   })
 
   test("EBC created and stored", () => {

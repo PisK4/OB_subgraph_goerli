@@ -10,7 +10,9 @@ import {
     crypto 
 } from '@graphprotocol/graph-ts'
 import { 
-    ChainInfo,
+    ChainInfoUpdated,
+    ChainTokenEBCManager,
+    ChainTokenUpdated,
     EBC, 
     EBCManager, 
     MDC, 
@@ -22,7 +24,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 
 export let ZERO_BI = BigInt.fromI32(0)
@@ -37,14 +39,14 @@ export const ONE_BYTES = new Bytes(32);
 // function selectors
 export const func_updateRulesRoot =  "0x0abba903"//"0x5266dbda"
 export const func_updateRulesRootERC20 = "0x0e9601ae"//"0x16d38f5d"
-export const func_registerChains ="0xdeaddead"
+export const func_registerChains ="0xba6051a5"
 export const func_updateChainSpvs = "0xf0373f91"
-
-
+// function selectors for decode
 export const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint64[],uint256[])"//"(address,bytes,(bytes32,uint32),uint16[],uint256[])"
 export const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint64[],uint256[],address)"//"(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
-// export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)"
+export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
 export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)[]"
+
 export enum updateRulesRootMode {
     ETH = 0,
     ERC20 = 1,
@@ -55,7 +57,9 @@ export enum ChainInfoUpdatedMode {
     updateChainSpvs = 1,
     INV = 2,
 }
+// define the ManagersIDs
 export const EBCManagerID = "EBCManagerID_101" as string
+export const superMangerID = "superMangerID_101" as string
 
 export function getONEBytes(): Bytes {
     if(ONE_BYTES.length == 0) {
@@ -195,7 +199,9 @@ export function ebcManagerUpdate(
         _EBCManager.ebcs = []
         _EBCManager.lastestUpdateHash = event.transaction.hash
         _EBCManager.lastestUpdateBlockNumber = event.block.number
-        _EBCManager.lastestUpdateTimestamp = event.block.timestamp           
+        _EBCManager.lastestUpdateTimestamp = event.block.timestamp  
+        
+        let superManager = ChainTokenEBCManager.load(superMangerID)
     }
     if(!_EBCManager.ebcs.includes(ebcId)){
         _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)  
@@ -244,8 +250,12 @@ export function getEBCEntity(
     let _MDCBindEBC = MDCBindEBC.load(bindID)
     if(_MDCBindEBC == null){
         _MDCBindEBC = new MDCBindEBC(bindID)
-        _MDCBindEBC.rules = []
-        log.info('create new MDCBindEBC, mdc: {}, ebc: {}', [mdcAddress.toHexString(), bindID])
+        _MDCBindEBC.ebc = ebcAddress
+        _MDCBindEBC.rulesWithRootVersion = []
+        log.info('create new MDCBindEBC, mdc: {}, ebcid: {}', 
+            [mdcAddress.toHexString(),
+            _MDCBindEBC.ebc.toHexString()]
+        )
     }
     _MDCBindEBC.lastestUpdateHash = event.transaction.hash
     _MDCBindEBC.lastestUpdateBlockNumber = event.block.number
@@ -256,14 +266,49 @@ export function getEBCEntity(
 
 export function getChainInfoEntity(
     _id: BigInt
-): ChainInfo {
+): ChainInfoUpdated {
     let id = _id.toString()
-    let _chainInfo = ChainInfo.load(id)
+    let _chainInfo = ChainInfoUpdated.load(id)
     if (_chainInfo == null) {
-        _chainInfo = new ChainInfo(id)
+        log.info('create new ChainInfo, id: {}', [id])
+        _chainInfo = new ChainInfoUpdated(id)
         _chainInfo.spv = []
     }
-    return _chainInfo as ChainInfo
+    return _chainInfo as ChainInfoUpdated
+}
+
+export function encode(values: Array<ethereum.Value>): Bytes {
+    return ethereum.encode(
+        // forcefully cast Value[] -> Tuple
+        ethereum.Value.fromTuple(changetype<ethereum.Tuple>(values))
+    )!;
+}
+
+function calChainTokkenId(
+    chainId: BigInt,
+    token: BigInt
+): string {
+    const tupleValue: Array<ethereum.Value> = [
+        ethereum.Value.fromUnsignedBigInt(chainId),
+        ethereum.Value.fromUnsignedBigInt(token)
+    ]
+    const encodeData = encode(tupleValue)
+    const key = crypto.keccak256(encodeData);
+    return key.toHexString();
+}
+
+export function getChainTokenUpdatedEntity(
+    id: BigInt,
+    token: BigInt
+): ChainTokenUpdated {
+    const key = calChainTokkenId(id, token)
+    let _chainTokenUpdated = ChainTokenUpdated.load(key)
+    if (_chainTokenUpdated == null) {
+        log.info('create new ChainTokenUpdated, id: {}', [key])
+        _chainTokenUpdated = new ChainTokenUpdated(key)
+    }
+
+    return _chainTokenUpdated as ChainTokenUpdated
 }
 
 function saveRules2Rules(
@@ -303,10 +348,10 @@ export function saveRule2EBC(
     ebc: MDCBindEBC,
     rule: ruleTypes
 ): void{
-    if (ebc.rules == null) {
-        ebc.rules = [rule.id];
-    } else if (!ebc.rules.includes(rule.id)) {
-        ebc.rules = ebc.rules.concat([rule.id])
+    if (ebc.rulesWithRootVersion == null) {
+        ebc.rulesWithRootVersion = [rule.id];
+    } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
+        ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
     }
 }
 
@@ -472,6 +517,74 @@ export function parseRSC(rsc: Bytes): rscRuleType[] {
   return rscRules;
 }
 
+export function inputdataPrefix(data: Bytes): Bytes {
+    const dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
+    const Prefix = ByteArray.fromHexString(tupleprefix);
+    const functionInputAsTuple = new Uint8Array(
+        Prefix.length + dataWithoutSelector.length
+    );
+    functionInputAsTuple.set(Prefix, 0);
+    functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
+    if (functionInputAsTuple.length < 32) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
+    return tupleInputBytes
+}
+
+
+export function parseChainInfoUpdatedInputData(data: Bytes): void {
+    let dataUnderPrefix = inputdataPrefix(data)
+    const decoded = ethereum.decode(
+        func_updateChainSpvsSelector,
+        dataUnderPrefix
+    ) as ethereum.Value;
+    if (!decoded) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    let tuple = decoded.toTuple();
+
+    log.debug("chainInfoUpdated kind[0]:{}, kind[1]:{}, kind[2]:{}", [
+        tuple[0].kind.toString(),
+        tuple[1].kind.toString(),
+        tuple[2].kind.toString()
+    ])
+
+    let id = ZERO_BI
+    let spvs = new Array<Address>()
+    let indexs = new Array<BigInt>()
+    if(tuple[0].kind == ethereum.ValueKind.UINT){
+        id = tuple[0].toBigInt()
+    }
+    if(tuple[1].kind == ethereum.ValueKind.ARRAY){
+        spvs = tuple[1].toAddressArray()
+    }
+    if(tuple[2].kind == ethereum.ValueKind.ARRAY){
+        indexs = tuple[2].toBigIntArray()
+    }
+
+    log.debug("chainInfoUpdated id:{}, spv.length:{}, indexs.length:{}", 
+    [
+        id.toString(),
+        spvs.length.toString(),
+        indexs.length.toString()
+    ])
+    // print spvs array
+    for(let i = 0; i < spvs.length; i++){
+        log.debug("chainInfoUpdated spvs:[{}]{}", [
+            i.toString(),
+            spvs[i].toHexString(),
+        ])
+    }
+    // print indexs array
+    for(let i = 0; i < indexs.length; i++){
+        log.debug("chainInfoUpdated indexs[{}]:{}", [
+            i.toString(),
+            indexs[i].toString(),
+        ])
+    }
+}
+
 
 export function parseTransactionInputData(data: Bytes): rscRules {
     let func = compareUpdateRulesRootSelector(getFunctionSelector(data))
@@ -483,21 +596,7 @@ export function parseTransactionInputData(data: Bytes): rscRules {
         selectorofFunc = func_updateRulesRootERC20Selector
     }
 
-    let dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
-    const Prefix = ByteArray.fromHexString(tupleprefix);
-    
-    const functionInputAsTuple = new Uint8Array(
-        Prefix.length + dataWithoutSelector.length
-    );
-    
-    functionInputAsTuple.set(Prefix, 0);
-    functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
-
-    if (functionInputAsTuple.length < 32) {
-        log.error("Failed to decode transaction input data", ["error"])
-    }
-    
-    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
+    const tupleInputBytes = inputdataPrefix(data)
 
     if (tupleInputBytes.length < 32) {
         log.error("Failed to decode transaction input data", ["error"])
@@ -605,15 +704,21 @@ export function updateRuleTypesThenSave(
     _rules: ruleTypes,
     root: Bytes,
     version: BigInt,
-): void {
+): boolean {
     _rules.root = updateRulesRootEntity.root
     // check if version is same
     if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
         _rules.version = updateRulesRootEntity.version
+    }else{
+        log.error('version not match, input version: {}, decoded version: {}', [version.toString(), updateRulesRootEntity.version.toString()])
+        return false
     }
 
     if(root == updateRulesRootEntity.root){
         _rules.root = updateRulesRootEntity.root
+    }else{
+        log.error('root not match, input root: {}, decoded root: {}', [root.toHexString(), updateRulesRootEntity.root.toHexString()])
+        return false
     }
 
     if(updateRulesRootEntity.rscType.length > 0){
@@ -639,29 +744,32 @@ export function updateRuleTypesThenSave(
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
             _rule.save()
 
-            log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
-                i.toString(),
-                _rule.chain0.toString(),
-                _rule.chain1.toString(),
-                _rule.chain0Status.toString(),
-                _rule.chain1Status.toString(),
-                _rule.chain0Token.toHexString(),
-                _rule.chain1Token.toHexString(),
-                _rule.chain0minPrice.toString(),
-                _rule.chain0maxPrice.toString(),
-                _rule.chain1minPrice.toString(),
-                _rule.chain1maxPrice.toString(),
-                _rule.chain0WithholdingFee.toString(),
-                _rule.chain1WithholdingFee.toString(),
-                _rule.chain0TradeFee.toString(),
-                _rule.chain1TradeFee.toString(),
-                _rule.chain0ResponseTime.toString(),
-                _rule.chain1ResponseTime.toString(),
-                _rule.chain0CompensationRatio.toString(),
-                _rule.chain1CompensationRatio.toString()
-            ])
+            if(debugLog){
+                log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
+                    i.toString(),
+                    _rule.chain0.toString(),
+                    _rule.chain1.toString(),
+                    _rule.chain0Status.toString(),
+                    _rule.chain1Status.toString(),
+                    _rule.chain0Token.toHexString(),
+                    _rule.chain1Token.toHexString(),
+                    _rule.chain0minPrice.toString(),
+                    _rule.chain0maxPrice.toString(),
+                    _rule.chain1minPrice.toString(),
+                    _rule.chain1maxPrice.toString(),
+                    _rule.chain0WithholdingFee.toString(),
+                    _rule.chain1WithholdingFee.toString(),
+                    _rule.chain0TradeFee.toString(),
+                    _rule.chain1TradeFee.toString(),
+                    _rule.chain0ResponseTime.toString(),
+                    _rule.chain1ResponseTime.toString(),
+                    _rule.chain0CompensationRatio.toString(),
+                    _rule.chain1CompensationRatio.toString()
+                ])
+            }
         }           
     }
+    return true
 }
 
 /**

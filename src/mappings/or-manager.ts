@@ -25,7 +25,7 @@ import {
   ProtocolFeeUpdated,
   SubmitterFeeUpdated
 } from "../types/schema"
-import { handleChainInfoUpdatedEvent, handleEbcsUpdatedEvent } from "./mdc-core"
+import { handleChainInfoUpdatedEvent, handleChainTokenUpdatedEvent, handleEbcsUpdatedEvent } from "./mdc-core"
 
 export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
   handleChainInfoUpdatedEvent(
@@ -36,19 +36,25 @@ export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
 }
 
 export function handleChainTokenUpdated(event: ChainTokenUpdatedEvent): void {
-  let entity = new ChainTokenUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  // let entity = new ChainTokenUpdated(
+  //   event.transaction.hash.concatI32(event.logIndex.toI32())
+  // )
+  // entity.inputId = event.params.id
+  // entity.token = event.params.tokenInfo.token
+  // entity.mainnetToken = event.params.tokenInfo.mainnetToken
+  // entity.decimals = event.params.tokenInfo.decimals
+
+  // entity.blockNumber = event.block.number
+  // entity.blockTimestamp = event.block.timestamp
+  // entity.transactionHash = event.transaction.hash
+
+  // entity.save()
+
+  handleChainTokenUpdatedEvent(
+    event,
+    event.params.id,
+    event.params.tokenInfo
   )
-  entity.ORManager_id = event.params.id
-  entity.tokenInfo_token = event.params.tokenInfo.token
-  entity.tokenInfo_mainnetToken = event.params.tokenInfo.mainnetToken
-  entity.tokenInfo_decimals = event.params.tokenInfo.decimals
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleChallengeUserRatioUpdated(

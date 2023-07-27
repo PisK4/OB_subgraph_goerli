@@ -38,7 +38,9 @@ import {
     getChainInfoEntity,
     getFunctionSelector,
     ChainInfoUpdatedMode,
-    compareChainInfoUpdatedSelector
+    compareChainInfoUpdatedSelector,
+    parseChainInfoUpdatedInputData,
+    getChainTokenUpdatedEntity
 } from "./helpers"
 import { 
     EBC, 
@@ -52,9 +54,10 @@ import {
   funcERC20RootMockInput, 
   mockMdcAddr, 
   funcETHRootMockInput2,
-  functionUpdateChainSpvsMockinput
+  functionUpdateChainSpvsMockinput,
+  functionRegisterChainMockinput
 } from "./mock-data";
-import { ChainInfoUpdatedChainInfoStruct } from "../types/ORManager/ORManager";
+import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
 
 
 
@@ -102,8 +105,9 @@ export function handleupdateRulesRootEvent(
           if(updateRulesRootEntity.rscType != null){
             if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
               let _rules = getRulesEntity(ebc, version)
-              updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)
-              _rules.save()
+              if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)){
+                _rules.save()
+              }
             }else{
               log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
             }
@@ -186,15 +190,16 @@ export function handleChainInfoUpdatedEvent(
     chainInfoId: BigInt,
     chainInfo: ChainInfoUpdatedChainInfoStruct
 ): void{
+  log.debug("handleChainInfoUpdated id:{}", [chainInfoId.toString()])
     let _chainInfo = getChainInfoEntity(chainInfoId)
     let batchLimit = chainInfo.batchLimit
     let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond
     let maxVerifyChallengeSourceTxSecond = chainInfo.maxVerifyChallengeSourceTxSecond
     let minVerifyChallengeDestTxSecond = chainInfo.minVerifyChallengeDestTxSecond
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
-    let spvs = chainInfo.spvs
+    let spvs = isProduction ? chainInfo.spvs : [Address.fromString(mockMdcAddr)]
 
-    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionUpdateChainSpvsMockinput) as Bytes
+    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
     const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata)) 
     if(selector == ChainInfoUpdatedMode.registerChains){
         log.info("{}", ["registerChains"])
@@ -203,16 +208,47 @@ export function handleChainInfoUpdatedEvent(
         _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
         _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
-        let spvsBytes = new Array<Bytes>()
-        for(let i = 0; i < spvs.length; i++){
-          spvsBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes)
+        for (let i = 0; i < spvs.length; i++) {
+          _chainInfo.spv = _chainInfo.spv.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
+          
         }
+        for (let i = 0; i < spvs.length; i++) {
+          log.debug("spv[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), _chainInfo.spv[i].toHexString()])
+        }
+
     }else if(selector == ChainInfoUpdatedMode.updateChainSpvs){
       log.info("{}", ["updateChainSpvs"])
+      parseChainInfoUpdatedInputData(inputdata)
+
     }else{
-      log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toString()])
+      log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toHexString()])
     }
     _chainInfo.save()
+
+}
+
+export function handleChainTokenUpdatedEvent(
+  event: ethereum.Event,
+  id: BigInt,
+  tokenInfo: ChainTokenUpdatedTokenInfoStruct
+): void {
+  let inputId = id
+  let token = tokenInfo.token
+  let mainnetToken = tokenInfo.mainnetToken
+  let decimals = tokenInfo.decimals
+
+  let chainToken = getChainTokenUpdatedEntity(inputId, token)
+
+  chainToken.inputId = id
+  chainToken.token = tokenInfo.token
+  chainToken.mainnetToken = tokenInfo.mainnetToken
+  chainToken.decimals = tokenInfo.decimals
+
+  chainToken.blockNumber = event.block.number
+  chainToken.blockTimestamp = event.block.timestamp
+  chainToken.transactionHash = event.transaction.hash
+
+  chainToken.save()  
 
 }
 

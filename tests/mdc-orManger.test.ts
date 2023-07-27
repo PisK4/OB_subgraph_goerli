@@ -32,8 +32,8 @@ import {
   getBindEbcId 
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "../src/mappings/mock-data"
-import { createChainInfoUpdatedEvent } from "./or-manager-utils"
-import { handleChainInfoUpdated } from "../src/mappings/or-manager"
+import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent } from "./or-manager-utils"
+import { handleChainInfoUpdated, handleChainTokenUpdated } from "../src/mappings/or-manager"
 
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
@@ -94,7 +94,10 @@ describe("Describe check ChainInfoUpdated Event", () => {
     let maxVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
     let minVerifyChallengeDestTxSecond = BigInt.fromI32(100)
     let maxVerifyChallengeDestTxSecond = BigInt.fromI32(100)
-    let spv = Bytes.fromHexString("0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb") as Bytes
+    let spv : Array<ethereum.Value> = [
+      ethereum.Value.fromAddress(Address.fromString("0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb")),
+    ] 
+   const spvTuple = changetype<ethereum.Tuple>(spv);
 
     const tupleArray: Array<ethereum.Value> = [
       ethereum.Value.fromUnsignedBigInt(id),
@@ -103,7 +106,7 @@ describe("Describe check ChainInfoUpdated Event", () => {
       ethereum.Value.fromUnsignedBigInt(maxVerifyChallengeSourceTxSecond),
       ethereum.Value.fromUnsignedBigInt(minVerifyChallengeDestTxSecond),
       ethereum.Value.fromUnsignedBigInt(maxVerifyChallengeDestTxSecond),
-      ethereum.Value.fromBytes(spv)
+      ethereum.Value.fromTuple(spvTuple)
     ]
     const chainInfo = changetype<ethereum.Tuple>(tupleArray);   
 
@@ -113,6 +116,40 @@ describe("Describe check ChainInfoUpdated Event", () => {
       chainInfo
     )
 
-    // handleChainInfoUpdated(newChainInfoUpdatedEvent)
+    handleChainInfoUpdated(newChainInfoUpdatedEvent)
   })
+})
+
+describe("Describe check ChainTokenUpdated Event", () => {
+    const mockToken = "196376302172346843968590065221485113559586934957"
+    const mockMainnetToken = "0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb"
+    beforeAll(() => {
+      let id = BigInt.fromString("1")
+      let token = BigInt.fromString(mockToken)
+      let mainnetToken = Address.fromString(mockMainnetToken)
+      let decimals = 18
+      const tupleArray: Array<ethereum.Value> = [
+        ethereum.Value.fromUnsignedBigInt(token),
+        ethereum.Value.fromAddress(mainnetToken),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(decimals))
+      ]
+      const tokenInfo = changetype<ethereum.Tuple>(tupleArray);   
+
+      const newChainTokenUpdatedEvent = createChainTokenUpdatedEvent(
+        id,
+        tokenInfo
+      )
+
+      handleChainTokenUpdated(newChainTokenUpdatedEvent)
+    })
+
+    afterAll(() => {
+      clearStore()
+    })
+
+    test("ChainTokenUpdated created and stored", () => {
+      assert.entityCount("ChainTokenUpdated", 1)
+    })
+
+
 })

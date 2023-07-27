@@ -70,7 +70,7 @@ type MDCCreated @entity(immutable: true) {
 
 
 type MDC @entity {
-  id: ID!
+  id: ID! # MDC ADDRESS
   owner: Bytes! # address
   columnArrayHash: Bytes # bytes32
   responseMakers: [Bytes!] # address[]
@@ -79,12 +79,19 @@ type MDC @entity {
   dealers: [Bytes!] # address[]
   bindEBC: [MDCBindEBC!]! # MDCBindEBC
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
+  ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC
   
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
   lastestUpdatetransactionHash: Bytes!
 
+}
+
+type DealerManager @entity{
+  id: ID! # dealer ID
+  dealers: [Bytes!]! # address[]
+  dealerCounts: BigInt!
 }
 
 type FactoryManger @entity{
@@ -100,6 +107,7 @@ type EBCManager @entity{
   id: ID! 
   ebcCounts: BigInt!
   ebcs: [EBC!]! # ebc entity
+  manger: ChainTokenEBCManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
@@ -108,7 +116,8 @@ type EBCManager @entity{
 
 type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
-  rules: [ruleTypes!]! # latest 30 ruleTypes
+  ebc: Bytes! # ebc address
+  rulesWithRootVersion: [ruleTypes!]! 
   mdc: MDC! @derivedFrom(field: "bindEBC") # MDC
   lastestUpdateHash: Bytes!
   lastestUpdateTimestamp: BigInt!
@@ -123,15 +132,15 @@ type EBC @entity {
   lastestUpdatetransactionHash: Bytes!
 }
 
-type ruleTypes @entity {
+type ruleTypes @entity {  #contain all rules
   id: ID!
   rules: [rule!]! # all rules   
-  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rules") # MDCBindEBC
+  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
   root: Bytes! # bytes32
   version: Int! # uint32  
 }
 
-type rule @entity {
+type rule @entity { # only one rule in ruleTypes
   id: ID!
   chain0: BigInt! # uint64
   chain1: BigInt! # uint64
@@ -154,7 +163,17 @@ type rule @entity {
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
 
-type ChainInfo @entity {
+# type ChainInfo @entity {
+#   id: ID!
+#   spv: [Bytes!]! # address[]
+#   batchLimit: BigInt # uint192
+#   minVerifyChallengeSourceTxSecond: BigInt # uint64
+#   maxVerifyChallengeSourceTxSecond: BigInt # uint64
+#   minVerifyChallengeDestTxSecond: BigInt # uint64
+#   maxVerifyChallengeDestTxSecond: BigInt # uint64
+# }
+
+type ChainInfoUpdated @entity{
   id: ID!
   spv: [Bytes!]! # address[]
   batchLimit: BigInt # uint192
@@ -162,32 +181,45 @@ type ChainInfo @entity {
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
+  manger: ChainTokenEBCManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
+  # id: Bytes!
+  # ORManager_id: BigInt! # uint64
+  # chainInfo_id: BigInt! # uint64
+  # chainInfo_batchLimit: BigInt! # uint192
+  # chainInfo_minVerifyChallengeSourceTxSecond: BigInt! # uint64
+  # chainInfo_maxVerifyChallengeSourceTxSecond: BigInt! # uint64
+  # chainInfo_minVerifyChallengeDestTxSecond: BigInt! # uint64
+  # chainInfo_maxVerifyChallengeDestTxSecond: BigInt! # uint64
+  # chainInfo_spvs: [Bytes!]! # address[]
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
+  # transactionHash: Bytes!
 }
 
-type ChainInfoUpdated @entity(immutable: true) {
-  id: Bytes!
-  ORManager_id: BigInt! # uint64
-  chainInfo_id: BigInt! # uint64
-  chainInfo_batchLimit: BigInt! # uint192
-  chainInfo_minVerifyChallengeSourceTxSecond: BigInt! # uint64
-  chainInfo_maxVerifyChallengeSourceTxSecond: BigInt! # uint64
-  chainInfo_minVerifyChallengeDestTxSecond: BigInt! # uint64
-  chainInfo_maxVerifyChallengeDestTxSecond: BigInt! # uint64
-  chainInfo_spvs: [Bytes!]! # address[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
 
+        # uint token; // uint160(address) will overflow in the token used for starknet
+        # address mainnetToken;
+        # uint8 decimals;
 type ChainTokenUpdated @entity(immutable: true) {
-  id: Bytes!
-  ORManager_id: BigInt! # uint64
-  tokenInfo_token: BigInt! # uint256
-  tokenInfo_mainnetToken: Bytes! # address
-  tokenInfo_decimals: Int! # uint8
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  id: ID!
+  inputId: BigInt # uint64
+  # tokenInfo_token: BigInt! # uint256
+  # tokenInfo_mainnetToken: Bytes! # address
+  # tokenInfo_decimals: Int! # uint8
+  token: BigInt # uint
+  mainnetToken: Bytes # address
+  decimals: Int # uint8
+  manager: ChainTokenEBCManager! @derivedFrom(field: "tokenManager") # ChainTokenEBCManager
+  blockNumber: BigInt
+  blockTimestamp: BigInt
+  transactionHash: Bytes
+}
+
+type ChainTokenEBCManager @entity{
+  id: ID!  #Manger address
+  chainInfoManager: ChainInfoUpdated! # ChainInfo
+  ebcManager: EBCManager! # EBCs
+  tokenManager: ChainTokenUpdated! # ChainToken
 }
 
 type ChallengeUserRatioUpdated @entity(immutable: true) {
