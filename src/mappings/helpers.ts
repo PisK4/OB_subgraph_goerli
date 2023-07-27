@@ -26,7 +26,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 
 export let ZERO_BI = BigInt.fromI32(0)
@@ -268,6 +268,7 @@ export function getEBCEntity(
 }
 
 export function getChainInfoEntity(
+    event: ethereum.Event,
     _id: BigInt
 ): ChainInfoUpdated {
     let id = _id.toString()
@@ -277,6 +278,9 @@ export function getChainInfoEntity(
         _chainInfo = new ChainInfoUpdated(id)
         _chainInfo.spv = []
     }
+    _chainInfo.lastestUpdateHash = event.transaction.hash
+    _chainInfo.lastestUpdateBlockNumber = event.block.number
+    _chainInfo.lastestUpdateTimestamp = event.block.timestamp
     return _chainInfo as ChainInfoUpdated
 }
 
@@ -673,7 +677,6 @@ export function parseChainInfoUpdatedInputData(
             }
             _chainInfoUpdated.save();
         }else{
-            let _chainInfoUpdated = getChainInfoEntity(id)
             _chainInfoUpdated.spv = _chainInfoUpdated.spv.concat([Bytes.fromHexString(spvs[i].toHexString())])
             _chainInfoUpdated.save()
         }

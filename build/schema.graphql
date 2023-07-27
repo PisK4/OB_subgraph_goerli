@@ -17,6 +17,8 @@ type ChallengeInfoUpdated @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+# using entity, binding in contract Event
 type ColumnArrayUpdated @entity(immutable: true) {
   id: ID!
   impl: Bytes # address
@@ -30,46 +32,50 @@ type ColumnArrayUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+# unused entity, but it's binding in contract Event, so we need to define it
 type ResponseMakersUpdated @entity(immutable: true) {
   id: Bytes!
-  impl: Bytes! # address
-  responseMakers: [BigInt!] # uint256[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  # impl: Bytes! # address
+  # responseMakers: [BigInt!] # uint256[]
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
+  # transactionHash: Bytes!
 }
 
+# unused entity, but it's binding in contract Event, so we need to define it
 type RulesRootUpdated @entity(immutable: true) {
   id: Bytes!
-  impl: Bytes! # address
-  ebc: Bytes! # address
-  rootWithVersion_root: Bytes! # bytes32
-  rootWithVersion_version: BigInt! # uint32
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-  input: Bytes!
+  # impl: Bytes! # address
+  # ebc: Bytes! # address
+  # rootWithVersion_root: Bytes! # bytes32
+  # rootWithVersion_version: BigInt! # uint32
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
+  # transactionHash: Bytes!
+  # input: Bytes!
 }
 
+# unused entity, but it's binding in contract Event, so we need to define it
 type SpvUpdated @entity(immutable: true) {
   id: Bytes!
-  impl: Bytes! # address
-  chainId: BigInt! # uint64
-  spv: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  # impl: Bytes! # address
+  # chainId: BigInt! # uint64
+  # spv: Bytes! # address
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
+  # transactionHash: Bytes!
 }
 
+# unused entity, but it's binding in contract Event, so we need to define it
 type MDCCreated @entity(immutable: true) {
   id: Bytes!
-  maker: Bytes! # address
-  mdc: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
+  # maker: Bytes! # address
+  # mdc: Bytes! # address
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
 }
 
-
+# customed using entity
 type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
@@ -91,12 +97,14 @@ type MDC @entity {
 
 }
 
+# customed using entity
 type DealerManager @entity{
   id: ID! # dealer ID
   dealers: [Bytes!]! # address[]
   dealerCounts: BigInt!
 }
 
+# customed using entity
 type FactoryManger @entity{
   id: Bytes!  # factory address
   mdcs: [MDC!]! # MDC[]
@@ -106,6 +114,7 @@ type FactoryManger @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
+# customed using entity
 type EBCManager @entity{
   id: ID! 
   ebcCounts: BigInt!
@@ -117,6 +126,7 @@ type EBCManager @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
+# customed using entity
 type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
   ebc: Bytes! # ebc address
@@ -127,6 +137,7 @@ type MDCBindEBC @entity{
   lastestUpdateBlockNumber: BigInt!
 }
 
+# customed using entity
 type MDCBindSPV @entity{
   id: ID! # mdc address - ChainId
   chainId: BigInt # uint64
@@ -134,6 +145,7 @@ type MDCBindSPV @entity{
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
+# customed using entity
 type EBC @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
@@ -142,6 +154,7 @@ type EBC @entity {
   lastestUpdatetransactionHash: Bytes!
 }
 
+# customed using entity
 type ruleTypes @entity {  #contain all rules
   id: ID!
   rules: [rule!]! # all rules   
@@ -150,6 +163,7 @@ type ruleTypes @entity {  #contain all rules
   version: Int! # uint32  
 }
 
+# customed using entitys
 type rule @entity { # only one rule in ruleTypes
   id: ID!
   chain0: BigInt! # uint64
@@ -183,6 +197,7 @@ type rule @entity { # only one rule in ruleTypes
 #   maxVerifyChallengeDestTxSecond: BigInt # uint64
 # }
 
+# using entity, binding in contract Event
 type ChainInfoUpdated @entity{
   id: ID!
   spv: [Bytes!]! # address[]
@@ -192,24 +207,11 @@ type ChainInfoUpdated @entity{
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
   manger: ChainTokenEBCManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
-  # id: Bytes!
-  # ORManager_id: BigInt! # uint64
-  # chainInfo_id: BigInt! # uint64
-  # chainInfo_batchLimit: BigInt! # uint192
-  # chainInfo_minVerifyChallengeSourceTxSecond: BigInt! # uint64
-  # chainInfo_maxVerifyChallengeSourceTxSecond: BigInt! # uint64
-  # chainInfo_minVerifyChallengeDestTxSecond: BigInt! # uint64
-  # chainInfo_maxVerifyChallengeDestTxSecond: BigInt! # uint64
-  # chainInfo_spvs: [Bytes!]! # address[]
-  # blockNumber: BigInt!
-  # blockTimestamp: BigInt!
-  # transactionHash: Bytes!
+  lastestUpdateBlockNumber: BigInt!
+  lastestUpdateTimestamp: BigInt!
+  lastestUpdateHash: Bytes!
 }
 
-
-        # uint token; // uint160(address) will overflow in the token used for starknet
-        # address mainnetToken;
-        # uint8 decimals;
 type ChainTokenUpdated @entity(immutable: true) {
   id: ID!
   inputId: BigInt # uint64

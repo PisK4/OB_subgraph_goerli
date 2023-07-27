@@ -484,75 +484,6 @@ export class ResponseMakersUpdated extends Entity {
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
   }
-
-  get impl(): Bytes {
-    let value = this.get("impl");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set impl(value: Bytes) {
-    this.set("impl", Value.fromBytes(value));
-  }
-
-  get responseMakers(): Array<BigInt> | null {
-    let value = this.get("responseMakers");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set responseMakers(value: Array<BigInt> | null) {
-    if (!value) {
-      this.unset("responseMakers");
-    } else {
-      this.set("responseMakers", Value.fromBigIntArray(<Array<BigInt>>value));
-    }
-  }
-
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
-  }
-
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-
-  get transactionHash(): Bytes {
-    let value = this.get("transactionHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set transactionHash(value: Bytes) {
-    this.set("transactionHash", Value.fromBytes(value));
-  }
 }
 
 export class RulesRootUpdated extends Entity {
@@ -596,110 +527,6 @@ export class RulesRootUpdated extends Entity {
 
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
-  }
-
-  get impl(): Bytes {
-    let value = this.get("impl");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set impl(value: Bytes) {
-    this.set("impl", Value.fromBytes(value));
-  }
-
-  get ebc(): Bytes {
-    let value = this.get("ebc");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set ebc(value: Bytes) {
-    this.set("ebc", Value.fromBytes(value));
-  }
-
-  get rootWithVersion_root(): Bytes {
-    let value = this.get("rootWithVersion_root");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set rootWithVersion_root(value: Bytes) {
-    this.set("rootWithVersion_root", Value.fromBytes(value));
-  }
-
-  get rootWithVersion_version(): BigInt {
-    let value = this.get("rootWithVersion_version");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set rootWithVersion_version(value: BigInt) {
-    this.set("rootWithVersion_version", Value.fromBigInt(value));
-  }
-
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
-  }
-
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-
-  get transactionHash(): Bytes {
-    let value = this.get("transactionHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set transactionHash(value: Bytes) {
-    this.set("transactionHash", Value.fromBytes(value));
-  }
-
-  get input(): Bytes {
-    let value = this.get("input");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set input(value: Bytes) {
-    this.set("input", Value.fromBytes(value));
   }
 }
 
@@ -745,84 +572,6 @@ export class SpvUpdated extends Entity {
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
   }
-
-  get impl(): Bytes {
-    let value = this.get("impl");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set impl(value: Bytes) {
-    this.set("impl", Value.fromBytes(value));
-  }
-
-  get chainId(): BigInt {
-    let value = this.get("chainId");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set chainId(value: BigInt) {
-    this.set("chainId", Value.fromBigInt(value));
-  }
-
-  get spv(): Bytes {
-    let value = this.get("spv");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set spv(value: Bytes) {
-    this.set("spv", Value.fromBytes(value));
-  }
-
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
-  }
-
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-
-  get transactionHash(): Bytes {
-    let value = this.get("transactionHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set transactionHash(value: Bytes) {
-    this.set("transactionHash", Value.fromBytes(value));
-  }
 }
 
 export class MDCCreated extends Entity {
@@ -866,58 +615,6 @@ export class MDCCreated extends Entity {
 
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
-  }
-
-  get maker(): Bytes {
-    let value = this.get("maker");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set maker(value: Bytes) {
-    this.set("maker", Value.fromBytes(value));
-  }
-
-  get mdc(): Bytes {
-    let value = this.get("mdc");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set mdc(value: Bytes) {
-    this.set("mdc", Value.fromBytes(value));
-  }
-
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
-  }
-
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
   }
 }
 
@@ -2233,6 +1930,45 @@ export class ChainInfoUpdated extends Entity {
       this.get("id")!.toString(),
       "manger"
     );
+  }
+
+  get lastestUpdateBlockNumber(): BigInt {
+    let value = this.get("lastestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastestUpdateBlockNumber(value: BigInt) {
+    this.set("lastestUpdateBlockNumber", Value.fromBigInt(value));
+  }
+
+  get lastestUpdateTimestamp(): BigInt {
+    let value = this.get("lastestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastestUpdateTimestamp(value: BigInt) {
+    this.set("lastestUpdateTimestamp", Value.fromBigInt(value));
+  }
+
+  get lastestUpdateHash(): Bytes {
+    let value = this.get("lastestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lastestUpdateHash(value: Bytes) {
+    this.set("lastestUpdateHash", Value.fromBytes(value));
   }
 }
 

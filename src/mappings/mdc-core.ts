@@ -110,8 +110,6 @@ export function handleupdateRulesRootEvent(
       if(factory){
         factory.save()
       }
-
-
 }
 
 export function handleColumnArrayUpdatedEvent (
@@ -188,7 +186,7 @@ export function handleChainInfoUpdatedEvent(
     chainInfo: ChainInfoUpdatedChainInfoStruct
 ): void{
   log.debug("handleChainInfoUpdated id:{}", [chainInfoId.toString()])
-    let _chainInfo = getChainInfoEntity(chainInfoId)
+    let _chainInfo = getChainInfoEntity(event, chainInfoId)
     let batchLimit = chainInfo.batchLimit
     let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond
     let maxVerifyChallengeSourceTxSecond = chainInfo.maxVerifyChallengeSourceTxSecond
