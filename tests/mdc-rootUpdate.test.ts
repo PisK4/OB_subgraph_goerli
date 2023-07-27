@@ -14,7 +14,7 @@ import { handleColumnArrayUpdated, handleRulesRootUpdated } from "../src/mapping
 import { createColumnArrayUpdatedEvent, createRulesRootUpdatedEvent } from "./mdc-utils"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
-import { funcERC20RootMockInput, mockMdcAddr } from "../src/mappings/mock-data"
+import { funcERC20RootMockInput, mockMdcAddr } from "./mock-data"
 
 describe("Describe event RulesRootUpdated", () => {
   const ebcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"

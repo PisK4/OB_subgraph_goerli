@@ -6,11 +6,9 @@ const dataArray = [];
 axios.post('https://api.studio.thegraph.com/query/49058/obcabin/version/latest',{
   query: `
   {
-    mdcs {
-      id
-      bindEBC(first: 1) {
-        id
-        rules {
+    mdcs(where: {id: "0x09b9c0422e62b9efdbb686e6e1afe1ea7126f304"}) {
+      bindEBC(where: {ebc: "0x23aab544e2f2e83d9cd8ece21508f067fcbedd76"}) {
+        rulesWithRootVersion(first: 1, orderBy: version, orderDirection: desc) {
           root
           version
           rules {
@@ -19,19 +17,6 @@ axios.post('https://api.studio.thegraph.com/query/49058/obcabin/version/latest',
             chain0ResponseTime
             chain0Status
             chain0Token
-            chain0TradeFee
-            chain0WithholdingFee
-            chain0maxPrice
-            chain0minPrice
-            chain1
-            chain1CompensationRatio
-            chain1ResponseTime
-            chain1Status
-            chain1Token
-            chain1TradeFee
-            chain1WithholdingFee
-            chain1maxPrice
-            chain1minPrice
           }
         }
       }

@@ -13,6 +13,7 @@ import {
     ChainInfoUpdated,
     ChainTokenEBCManager,
     ChainTokenUpdated,
+    ColumnArrayUpdated,
     EBC, 
     EBCManager, 
     MDC, 
@@ -167,7 +168,7 @@ export function getMDCEntity(
         log.info('create new MDC, maker: {}, mdc: {}', [maker.toHexString(), mdcAddress.toHexString()])
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker
-        // mdc.ebc = []
+        mdc.columnArrayUpdated = []
         mdc.bindEBC = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
@@ -311,6 +312,34 @@ export function getChainTokenUpdatedEntity(
     return _chainTokenUpdated as ChainTokenUpdated
 }
 
+export function getColumnArrayUpdatedEntity(
+    event: ethereum.Event,
+    mdc: MDC
+): ColumnArrayUpdated {
+    let _columnArrayUpdated = ColumnArrayUpdated.load(createEventID(event))
+    if (_columnArrayUpdated == null) {
+        log.info('create new ColumnArrayUpdated, id: {}', [createEventID(event)])
+        _columnArrayUpdated = new ColumnArrayUpdated(createEventID(event))
+        _columnArrayUpdated.blockNumber = event.block.number
+        _columnArrayUpdated.blockTimestamp = event.block.timestamp
+        _columnArrayUpdated.transactionHash = event.transaction.hash
+        saveColumnArray2MDC(mdc, _columnArrayUpdated)
+    }
+
+    return _columnArrayUpdated as ColumnArrayUpdated
+}
+
+function saveColumnArray2MDC(
+    mdc: MDC,
+    columnArray: ColumnArrayUpdated
+): void {
+    if (mdc.columnArrayUpdated == null) {
+        mdc.columnArrayUpdated = [columnArray.id];
+    } else if (!mdc.columnArrayUpdated.includes(columnArray.id)) {
+        mdc.columnArrayUpdated = mdc.columnArrayUpdated.concat([columnArray.id])
+    }
+}
+
 function saveRules2Rules(
     _rules: ruleTypes,
     rule: rule
@@ -322,7 +351,7 @@ function saveRules2Rules(
     }
 }
 
-export function saveBindEBC2MDC(
+function saveBindEBC2MDC(
     mdc : MDC,
     ebc_id : string,
 ) : void{
@@ -333,7 +362,7 @@ export function saveBindEBC2MDC(
     }  
 }
 
-export function saveMDC2EBC(
+function saveMDC2EBC(
     ebc: EBC, 
     mdc: MDC
 ): void {
@@ -344,7 +373,7 @@ export function saveMDC2EBC(
     }
 }
 
-export function saveRule2EBC(
+function saveRule2EBC(
     ebc: MDCBindEBC,
     rule: ruleTypes
 ): void{
@@ -808,6 +837,17 @@ export function getFunctionSelector(data: Bytes): Bytes {
 export function compareUpdateRulesRootSelector(selector: Bytes): updateRulesRootMode {
     return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
 }
+
 export function compareChainInfoUpdatedSelector(selector: Bytes): ChainInfoUpdatedMode {
     return selector == Bytes.fromHexString(func_registerChains) ? ChainInfoUpdatedMode.registerChains : selector == Bytes.fromHexString(func_updateChainSpvs) ? ChainInfoUpdatedMode.updateChainSpvs : ChainInfoUpdatedMode.INV
+}
+
+export function createEventID(
+    event: ethereum.Event
+): string {
+    return (
+        event.transaction.hash.toHexString() +
+        "-" +
+        event.logIndex.toString()
+    );
 }

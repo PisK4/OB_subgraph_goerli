@@ -18,12 +18,13 @@ type ChallengeInfoUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 type ColumnArrayUpdated @entity(immutable: true) {
-  id: Bytes!
-  impl: Bytes! # address
-  columnArrayHash: Bytes! # bytes32
+  id: ID!
+  impl: Bytes # address
+  columnArrayHash: Bytes # bytes32
   dealers: [Bytes!] # address[]
   ebcs: [Bytes!] # address[]
   chainIds: [BigInt!] # uint64[]
+  mdc: MDC! @derivedFrom(field: "columnArrayUpdated") # MDC
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -72,12 +73,13 @@ type MDCCreated @entity(immutable: true) {
 type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
-  columnArrayHash: Bytes # bytes32
   responseMakers: [Bytes!] # address[]
   spvs: [Bytes!] # address[]
   chainIds: [BigInt!] # uint64[]
   dealers: [Bytes!] # address[]
   bindEBC: [MDCBindEBC!]! # MDCBindEBC
+  columnArrayHash: Bytes # bytes32
+  columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC
   

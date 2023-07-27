@@ -30,7 +30,7 @@ import {
   getBindEbcId 
 } from "../src/mappings/helpers"
 
-describe("Describe entity assertions", () => {
+describe("Describe ColumnArrayUpdated assertions", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"
   const dealers = 
@@ -156,22 +156,9 @@ describe("Describe entity assertions", () => {
 
   })
 
-  // test("EBC manager created and stored", () => {
-  //   assert.entityCount("EBCManager", 1)
+  test("ColumnArrayUpdated created and stored", () => {
+    assert.entityCount("ColumnArrayUpdated", 1) 
 
-  //   assert.fieldEquals(
-  //     "EBCManager",
-  //     EBCManagerID,
-  //     "ebcCounts",
-  //     "2"
-  //   )
-
-  //   assert.fieldEquals(
-  //     "EBCManager",
-  //     EBCManagerID,
-  //     "ebcs",
-  //     "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
-  //   )
-  // })
+  })
 
 })

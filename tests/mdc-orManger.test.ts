@@ -31,7 +31,7 @@ import {
   EBCManagerID,
   getBindEbcId 
 } from "../src/mappings/helpers"
-import { mockMdcAddr } from "../src/mappings/mock-data"
+import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent } from "./or-manager-utils"
 import { handleChainInfoUpdated, handleChainTokenUpdated } from "../src/mappings/or-manager"
 

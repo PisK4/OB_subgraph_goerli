@@ -22,7 +22,6 @@ import {
     getONEBytes,
     tupleprefix,
     updateRulesRootMode,
-    saveBindEBC2MDC,
     isProduction,
     ebcSave,
     debugLog,
@@ -40,14 +39,11 @@ import {
     ChainInfoUpdatedMode,
     compareChainInfoUpdatedSelector,
     parseChainInfoUpdatedInputData,
-    getChainTokenUpdatedEntity
+    getChainTokenUpdatedEntity,
+    getColumnArrayUpdatedEntity
 } from "./helpers"
 import { 
-    EBC, 
-    FactoryManger, 
-    MDC, 
-    RulesRootUpdated, 
-    ruleTypes 
+    FactoryManger
 } from "../types/schema";
 import { 
   funcETHRootMockInput,
@@ -56,7 +52,7 @@ import {
   funcETHRootMockInput2,
   functionUpdateChainSpvsMockinput,
   functionRegisterChainMockinput
-} from "./mock-data";
+} from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
 
 
@@ -128,7 +124,6 @@ export function handleupdateRulesRootEvent(
 
 }
 
-
 export function handleColumnArrayUpdatedEvent (
     event: ethereum.Event,
     impl : Bytes,
@@ -140,8 +135,6 @@ export function handleColumnArrayUpdatedEvent (
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
     if(mdc){
-        mdc.columnArrayHash = columnArrayHash
-
         // process dealers
         let dealersBytes = new Array<Bytes>()
         for(let i = 0; i < dealers.length; i++){
@@ -157,8 +150,22 @@ export function handleColumnArrayUpdatedEvent (
                 ebcSave(ebc, mdc, event)
               }
         }
+        // process ebcs
+        let ebcsBytes = new Array<Bytes>()
+        for(let i = 0; i < ebcs.length; i++){
+          ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
+        }        
 
-        mdc.lastestUpdatetransactionHash = event.transaction.hash
+        // process ColumnArray
+        let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
+        columnArrayUpdated.impl = impl
+        columnArrayUpdated.columnArrayHash = columnArrayHash
+        columnArrayUpdated.dealers = dealersBytes
+        columnArrayUpdated.ebcs = ebcsBytes
+        columnArrayUpdated.chainIds = chainIds
+        columnArrayUpdated.save()
+
+        mdc.columnArrayHash = columnArrayHash
         mdc.save()
         
     }else{
@@ -202,22 +209,23 @@ export function handleChainInfoUpdatedEvent(
     const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
     const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata)) 
     if(selector == ChainInfoUpdatedMode.registerChains){
-        log.info("{}", ["registerChains"])
+        log.info("registerChains", ["registerChains"])
         _chainInfo.batchLimit = batchLimit
         _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
         _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
         _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
         for (let i = 0; i < spvs.length; i++) {
+          log.debug("spv1[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), spvs[i].toHexString()])
           _chainInfo.spv = _chainInfo.spv.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
           
         }
         for (let i = 0; i < spvs.length; i++) {
-          log.debug("spv[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), _chainInfo.spv[i].toHexString()])
+          log.debug("spv2[{}/{}]:{}", [(i+1).toString(),spvs.length.toString(), _chainInfo.spv[i].toHexString()])
         }
 
     }else if(selector == ChainInfoUpdatedMode.updateChainSpvs){
-      log.info("{}", ["updateChainSpvs"])
+      log.info("updateChainSpvs", ["updateChainSpvs"])
       parseChainInfoUpdatedInputData(inputdata)
 
     }else{

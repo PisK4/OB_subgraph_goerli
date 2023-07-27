@@ -264,9 +264,9 @@ export class ChallengeInfoUpdated extends Entity {
 }
 
 export class ColumnArrayUpdated extends Entity {
-  constructor(id: Bytes) {
+  constructor(id: string) {
     super();
-    this.set("id", Value.fromBytes(id));
+    this.set("id", Value.fromString(id));
   }
 
   save(): void {
@@ -274,62 +274,70 @@ export class ColumnArrayUpdated extends Entity {
     assert(id != null, "Cannot save ColumnArrayUpdated entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type ColumnArrayUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        id.kind == ValueKind.STRING,
+        `Entities of type ColumnArrayUpdated must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ColumnArrayUpdated", id.toBytes().toHexString(), this);
+      store.set("ColumnArrayUpdated", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: Bytes): ColumnArrayUpdated | null {
+  static loadInBlock(id: string): ColumnArrayUpdated | null {
     return changetype<ColumnArrayUpdated | null>(
-      store.get_in_block("ColumnArrayUpdated", id.toHexString())
+      store.get_in_block("ColumnArrayUpdated", id)
     );
   }
 
-  static load(id: Bytes): ColumnArrayUpdated | null {
+  static load(id: string): ColumnArrayUpdated | null {
     return changetype<ColumnArrayUpdated | null>(
-      store.get("ColumnArrayUpdated", id.toHexString())
+      store.get("ColumnArrayUpdated", id)
     );
   }
 
-  get id(): Bytes {
+  get id(): string {
     let value = this.get("id");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 
-  get impl(): Bytes {
+  get impl(): Bytes | null {
     let value = this.get("impl");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBytes();
     }
   }
 
-  set impl(value: Bytes) {
-    this.set("impl", Value.fromBytes(value));
+  set impl(value: Bytes | null) {
+    if (!value) {
+      this.unset("impl");
+    } else {
+      this.set("impl", Value.fromBytes(<Bytes>value));
+    }
   }
 
-  get columnArrayHash(): Bytes {
+  get columnArrayHash(): Bytes | null {
     let value = this.get("columnArrayHash");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toBytes();
     }
   }
 
-  set columnArrayHash(value: Bytes) {
-    this.set("columnArrayHash", Value.fromBytes(value));
+  set columnArrayHash(value: Bytes | null) {
+    if (!value) {
+      this.unset("columnArrayHash");
+    } else {
+      this.set("columnArrayHash", Value.fromBytes(<Bytes>value));
+    }
   }
 
   get dealers(): Array<Bytes> | null {
@@ -381,6 +389,14 @@ export class ColumnArrayUpdated extends Entity {
     } else {
       this.set("chainIds", Value.fromBigIntArray(<Array<BigInt>>value));
     }
+  }
+
+  get mdc(): MDCLoader {
+    return new MDCLoader(
+      "ColumnArrayUpdated",
+      this.get("id")!.toString(),
+      "mdc"
+    );
   }
 
   get blockNumber(): BigInt {
@@ -957,23 +973,6 @@ export class MDC extends Entity {
     this.set("owner", Value.fromBytes(value));
   }
 
-  get columnArrayHash(): Bytes | null {
-    let value = this.get("columnArrayHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set columnArrayHash(value: Bytes | null) {
-    if (!value) {
-      this.unset("columnArrayHash");
-    } else {
-      this.set("columnArrayHash", Value.fromBytes(<Bytes>value));
-    }
-  }
-
   get responseMakers(): Array<Bytes> | null {
     let value = this.get("responseMakers");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1053,6 +1052,36 @@ export class MDC extends Entity {
 
   set bindEBC(value: Array<string>) {
     this.set("bindEBC", Value.fromStringArray(value));
+  }
+
+  get columnArrayHash(): Bytes | null {
+    let value = this.get("columnArrayHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set columnArrayHash(value: Bytes | null) {
+    if (!value) {
+      this.unset("columnArrayHash");
+    } else {
+      this.set("columnArrayHash", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get columnArrayUpdated(): Array<string> {
+    let value = this.get("columnArrayUpdated");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set columnArrayUpdated(value: Array<string>) {
+    this.set("columnArrayUpdated", Value.fromStringArray(value));
   }
 
   get factory(): FactoryMangerLoader {
@@ -3289,6 +3318,24 @@ export class SubmitterFeeUpdated extends Entity {
   }
 }
 
+export class MDCLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): MDC[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<MDC[]>(value);
+  }
+}
+
 export class FactoryMangerLoader extends Entity {
   _entity: string;
   _field: string;
@@ -3340,24 +3387,6 @@ export class ChainTokenEBCManagerLoader extends Entity {
   load(): ChainTokenEBCManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ChainTokenEBCManager[]>(value);
-  }
-}
-
-export class MDCLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): MDC[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<MDC[]>(value);
   }
 }
 
