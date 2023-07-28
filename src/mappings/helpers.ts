@@ -26,14 +26,14 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 
-export let ZERO_BI = BigInt.fromI32(0)
-export let ONE_BI = BigInt.fromI32(1)
-export let ZERO_BD = BigDecimal.fromString('0')
-export let ONE_BD = BigDecimal.fromString('1')
-export let BI_18 = BigInt.fromI32(18)
+export const ZERO_BI = BigInt.fromI32(0)
+export const ONE_BI = BigInt.fromI32(1)
+export const ZERO_BD = BigDecimal.fromString('0')
+export const ONE_BD = BigDecimal.fromString('1')
+export const BI_18 = BigInt.fromI32(18)
 export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
 export const ONE_NUM = 0xffffffff
 export const tupleprefix = "0x0000000000000000000000000000000000000000000000000000000000000020"
@@ -165,6 +165,9 @@ export function initRulesEntity(
 ): void {
     _rules.root = getONEBytes()
     _rules.version = 0
+    _rules.pledgeAmounts = []
+    _rules.sourceChainIds = []
+    _rules.token = Address.fromHexString(ONE_ADDRESS)
 }
 
 export function initRuleEntity(

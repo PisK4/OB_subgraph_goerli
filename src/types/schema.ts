@@ -1474,6 +1474,45 @@ export class ruleTypes extends Entity {
   set version(value: i32) {
     this.set("version", Value.fromI32(value));
   }
+
+  get sourceChainIds(): Array<BigInt> {
+    let value = this.get("sourceChainIds");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set sourceChainIds(value: Array<BigInt>) {
+    this.set("sourceChainIds", Value.fromBigIntArray(value));
+  }
+
+  get pledgeAmounts(): Array<BigInt> {
+    let value = this.get("pledgeAmounts");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set pledgeAmounts(value: Array<BigInt>) {
+    this.set("pledgeAmounts", Value.fromBigIntArray(value));
+  }
+
+  get token(): Bytes {
+    let value = this.get("token");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set token(value: Bytes) {
+    this.set("token", Value.fromBytes(value));
+  }
 }
 
 export class rule extends Entity {

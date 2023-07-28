@@ -140,8 +140,8 @@ type MDCBindEBC @entity{
 # customed using entity
 type MDCBindSPV @entity{
   id: ID! # mdc address - ChainId
-  chainId: BigInt # uint64
-  spv: Bytes # spv address
+  chainId: BigInt # uint64 - the index of state varible "_spvs[]" in MDC contract
+  spv: Bytes # spv address - the value of state varible "_spvs[]" in MDC contract
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
@@ -161,6 +161,9 @@ type ruleTypes @entity {  #contain all rules
   mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
   root: Bytes! # bytes32
   version: Int! # uint32  
+  sourceChainIds: [BigInt!]! # uint64[]
+  pledgeAmounts: [BigInt!]! # uint[]
+  token: Bytes! # address
 }
 
 # customed using entitys

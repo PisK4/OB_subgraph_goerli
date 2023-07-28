@@ -96,6 +96,13 @@ export function handleupdateRulesRootEvent(
           if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
             let _rules = getRulesEntity(ebc, version)
             if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)){
+              if(updateRulesRootEntity.pledgeAmounts != null){
+                _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
+              }
+              if(updateRulesRootEntity.sourceChainIds != null){
+                _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
+              }
+              _rules.token = updateRulesRootEntity.tokenAddr
               _rules.save()
             }
           }else{
@@ -120,38 +127,38 @@ export function handleColumnArrayUpdatedEvent (
 ): void{
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
-      // process dealers
-      let dealersBytes = new Array<Bytes>()
-      for(let i = 0; i < dealers.length; i++){
-        dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
-      }
-      mdc.dealers = dealersBytes
+    // process dealers
+    let dealersBytes = new Array<Bytes>()
+    for(let i = 0; i < dealers.length; i++){
+      dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
+    }
+    mdc.dealers = dealersBytes
 
-      // process ebcs
-      let uniqueEbcs = removeDuplicates(ebcs)
-      if(uniqueEbcs.length > 0){
-          for(let i = 0; i < uniqueEbcs.length; i++){
-              let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
-              ebcSave(ebc, mdc, event)
-            }
-      }
-      // process ebcs
-      let ebcsBytes = new Array<Bytes>()
-      for(let i = 0; i < ebcs.length; i++){
-        ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
-      }        
+    // process ebcs
+    let uniqueEbcs = removeDuplicates(ebcs)
+    if(uniqueEbcs.length > 0){
+        for(let i = 0; i < uniqueEbcs.length; i++){
+            let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
+            ebcSave(ebc, mdc, event)
+          }
+    }
+    // process ebcs
+    let ebcsBytes = new Array<Bytes>()
+    for(let i = 0; i < ebcs.length; i++){
+      ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
+    }        
 
-      // process ColumnArray
-      let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
-      columnArrayUpdated.impl = impl
-      columnArrayUpdated.columnArrayHash = columnArrayHash
-      columnArrayUpdated.dealers = dealersBytes
-      columnArrayUpdated.ebcs = ebcsBytes
-      columnArrayUpdated.chainIds = chainIds
-      columnArrayUpdated.save()
+    // process ColumnArray
+    let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
+    columnArrayUpdated.impl = impl
+    columnArrayUpdated.columnArrayHash = columnArrayHash
+    columnArrayUpdated.dealers = dealersBytes
+    columnArrayUpdated.ebcs = ebcsBytes
+    columnArrayUpdated.chainIds = chainIds
+    columnArrayUpdated.save()
 
-      // mdc.columnArrayHash = columnArrayHash
-      mdc.save()
+    // mdc.columnArrayHash = columnArrayHash
+    mdc.save()
 }
 
 export function handleEbcsUpdatedEvent(
@@ -246,7 +253,7 @@ export function handleResponseMakersUpdatedEvent(
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
   let responseMakersBytes = new Array<Bytes>()
   for(let i = 0; i < responseMakers.length; i++){
-    log.info('responseMakers: {}', [responseMakers[i].toString()])
+    // log.info('mdc{} update responseMakers: {}', [mdcAddress.toHexString(), responseMakers[i].toString()])
     responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
   }
   mdc.responseMakers = responseMakersBytes
@@ -264,5 +271,5 @@ export function handleSpvUpdatedEvent(
   _spv.spv = spv
   _spv.save()
   mdc.save()
-  log.info('update mdc:{}, chain:{}, spv:{}', [mdc.id, chainId.toString(), spv.toHexString()])
+  log.info('mdc {} update:  _spv[{}] = {}', [mdc.id, chainId.toString(), spv.toHexString()])
 }
