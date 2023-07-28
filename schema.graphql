@@ -85,7 +85,7 @@ type MDC @entity {
   dealers: [Bytes!] # address[]
   bindEBCs: [MDCBindEBC!]! # MDCBindEBC
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
-  columnArrayHash: Bytes # bytes32
+  # columnArrayHash: Bytes # bytes32
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC

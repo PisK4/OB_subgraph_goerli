@@ -19,8 +19,8 @@ import { funcERC20RootMockInput, mockMdcAddr } from "./mock-data"
 describe("Describe event RulesRootUpdated", () => {
   const ebcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
   // must exctly match the root and version in the mock data
-  const root = "0x4a4155a98ab9b915a3e9b3e22e5a3906246065228e9f9cad5c7308c3e9348dd8"
-  const version = "1"
+  const root = "0x7ebe77ed7c81615de84605e86617f45dfc2330be20892b1a6b2679068a40352a"
+  const version = "2"
   beforeAll(() => {
     let maker = Address.fromString("0xF2BE509057855b055f0515CCD0223BEf84D19ad4")
     let mdc = Address.fromString(mockMdcAddr)

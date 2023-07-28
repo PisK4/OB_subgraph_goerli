@@ -65,15 +65,13 @@ export function handleupdateRulesRootEvent(
     root : Bytes,
     version : BigInt
 ): void{
+      const _mdcAddress = event.address.toHexString()
+      const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
       let updateRulesRootEntity = isProduction ? 
-      parseTransactionInputData(event.transaction.input) :
-      parseTransactionInputData(Bytes.fromHexString(funcETHRootMockInput2) as Bytes)
+      parseTransactionInputData(event.transaction.input, mdcAddress) :
+      parseTransactionInputData(Bytes.fromHexString(funcERC20RootMockInput) as Bytes, mdcAddress)
       
       const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
-      const _mdcAddress = event.transaction.to
-      ? ((event.transaction.to as Address).toHex()) as string
-      : null;
-      const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
       // log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
       let factoryAddress = Bytes.fromHexString(mdc.factory._id)
@@ -122,43 +120,38 @@ export function handleColumnArrayUpdatedEvent (
 ): void{
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
-    if(mdc){
-        // process dealers
-        let dealersBytes = new Array<Bytes>()
-        for(let i = 0; i < dealers.length; i++){
-          dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
-        }
-        mdc.dealers = dealersBytes
+      // process dealers
+      let dealersBytes = new Array<Bytes>()
+      for(let i = 0; i < dealers.length; i++){
+        dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
+      }
+      mdc.dealers = dealersBytes
 
-        // process ebcs
-        let uniqueEbcs = removeDuplicates(ebcs)
-        if(uniqueEbcs.length > 0){
-            for(let i = 0; i < uniqueEbcs.length; i++){
-                let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
-                ebcSave(ebc, mdc, event)
-              }
-        }
-        // process ebcs
-        let ebcsBytes = new Array<Bytes>()
-        for(let i = 0; i < ebcs.length; i++){
-          ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
-        }        
+      // process ebcs
+      let uniqueEbcs = removeDuplicates(ebcs)
+      if(uniqueEbcs.length > 0){
+          for(let i = 0; i < uniqueEbcs.length; i++){
+              let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
+              ebcSave(ebc, mdc, event)
+            }
+      }
+      // process ebcs
+      let ebcsBytes = new Array<Bytes>()
+      for(let i = 0; i < ebcs.length; i++){
+        ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
+      }        
 
-        // process ColumnArray
-        let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
-        columnArrayUpdated.impl = impl
-        columnArrayUpdated.columnArrayHash = columnArrayHash
-        columnArrayUpdated.dealers = dealersBytes
-        columnArrayUpdated.ebcs = ebcsBytes
-        columnArrayUpdated.chainIds = chainIds
-        columnArrayUpdated.save()
+      // process ColumnArray
+      let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
+      columnArrayUpdated.impl = impl
+      columnArrayUpdated.columnArrayHash = columnArrayHash
+      columnArrayUpdated.dealers = dealersBytes
+      columnArrayUpdated.ebcs = ebcsBytes
+      columnArrayUpdated.chainIds = chainIds
+      columnArrayUpdated.save()
 
-        mdc.columnArrayHash = columnArrayHash
-        mdc.save()
-        
-    }else{
-        log.error('MDC not exist', ['error'])
-    }
+      // mdc.columnArrayHash = columnArrayHash
+      mdc.save()
 }
 
 export function handleEbcsUpdatedEvent(

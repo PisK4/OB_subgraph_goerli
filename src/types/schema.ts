@@ -747,23 +747,6 @@ export class MDC extends Entity {
     this.set("bindSPVs", Value.fromStringArray(value));
   }
 
-  get columnArrayHash(): Bytes | null {
-    let value = this.get("columnArrayHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set columnArrayHash(value: Bytes | null) {
-    if (!value) {
-      this.unset("columnArrayHash");
-    } else {
-      this.set("columnArrayHash", Value.fromBytes(<Bytes>value));
-    }
-  }
-
   get columnArrayUpdated(): Array<string> {
     let value = this.get("columnArrayUpdated");
     if (!value || value.kind == ValueKind.NULL) {

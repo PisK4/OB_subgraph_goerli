@@ -85,7 +85,7 @@ type MDC @entity {
   dealers: [Bytes!] # address[]
   bindEBCs: [MDCBindEBC!]! # MDCBindEBC
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
-  columnArrayHash: Bytes # bytes32
+  # columnArrayHash: Bytes # bytes32
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC
@@ -212,12 +212,10 @@ type ChainInfoUpdated @entity{
   lastestUpdateHash: Bytes!
 }
 
+# using entity, binding in contract Event
 type ChainTokenUpdated @entity(immutable: true) {
   id: ID!
   inputId: BigInt # uint64
-  # tokenInfo_token: BigInt! # uint256
-  # tokenInfo_mainnetToken: Bytes! # address
-  # tokenInfo_decimals: Int! # uint8
   token: BigInt # uint
   mainnetToken: Bytes # address
   decimals: Int # uint8
@@ -227,8 +225,9 @@ type ChainTokenUpdated @entity(immutable: true) {
   transactionHash: Bytes
 }
 
+# customed using entity
 type ChainTokenEBCManager @entity{
-  id: ID!  #Manger address
+  id: ID!  # Manger ID
   chainInfoManager: ChainInfoUpdated! # ChainInfo
   ebcManager: EBCManager! # EBCs
   tokenManager: ChainTokenUpdated! # ChainToken
