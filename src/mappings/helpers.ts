@@ -26,7 +26,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 
 export let ZERO_BI = BigInt.fromI32(0)
@@ -612,42 +612,42 @@ export function parseRSC(
         if (checkifRSCRuleTypeExist(rscTuple[1].toBigInt())) {
             _rscRuleType.chain1 = rscTuple[1].toBigInt();
         }
-        if (checkifRSCRuleTypeExist(rscTuple[2].toBigInt())) {
+        // if (checkifRSCRuleTypeExist(rscTuple[2].toBigInt())) {
             _rscRuleType.chain0Status = rscTuple[2].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[3].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[3].toBigInt())) {
             _rscRuleType.chain1Status = rscTuple[3].toBigInt();
-        }
+        // }
         if (checkifRSCRuleTypeExist(rscTuple[4].toBigInt())) {
             _rscRuleType.chain0Token = rscTuple[4].toBigInt();
         }
         if (checkifRSCRuleTypeExist(rscTuple[5].toBigInt())) {
             _rscRuleType.chain1Token = rscTuple[5].toBigInt();
         }
-        if (checkifRSCRuleTypeExist(rscTuple[6].toBigInt())) {
+        // if (checkifRSCRuleTypeExist(rscTuple[6].toBigInt())) {
             _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[7].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[7].toBigInt())) {
             _rscRuleType.chain0maxPrice = rscTuple[7].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[8].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[8].toBigInt())) {
             _rscRuleType.chain1minPrice = rscTuple[8].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[9].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[9].toBigInt())) {
             _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[10].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[10].toBigInt())) {
             _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[11].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[11].toBigInt())) {
             _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[12].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[12].toBigInt())) {
             _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
-        }
-        if (checkifRSCRuleTypeExist(rscTuple[13].toBigInt())) {
+        // }
+        // if (checkifRSCRuleTypeExist(rscTuple[13].toBigInt())) {
             _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
-        }
+        // }
         if (checkifRSCRuleTypeExist(rscTuple[14].toBigInt())) {
             _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
         }

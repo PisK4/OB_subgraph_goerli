@@ -187,16 +187,6 @@ type rule @entity { # only one rule in ruleTypes
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
 
-# type ChainInfo @entity {
-#   id: ID!
-#   spv: [Bytes!]! # address[]
-#   batchLimit: BigInt # uint192
-#   minVerifyChallengeSourceTxSecond: BigInt # uint64
-#   maxVerifyChallengeSourceTxSecond: BigInt # uint64
-#   minVerifyChallengeDestTxSecond: BigInt # uint64
-#   maxVerifyChallengeDestTxSecond: BigInt # uint64
-# }
-
 # using entity, binding in contract Event
 type ChainInfoUpdated @entity{
   id: ID!
@@ -241,13 +231,14 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+# unused entity, but it's binding in contract Event, so we need to define it
 type EbcsUpdated @entity(immutable: true) {
   id: Bytes!
-  ebcs: [Bytes!]! # address[]
-  statuses: [Boolean!]! # bool[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  # ebcs: [Bytes!]! # address[]
+  # statuses: [Boolean!]! # bool[]
+  # blockNumber: BigInt!
+  # blockTimestamp: BigInt!
+  # transactionHash: Bytes!
 }
 
 type FeeChallengeSecondUpdated @entity(immutable: true) {
