@@ -130,6 +130,7 @@ type EBCManager @entity{
 type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
   ebc: Bytes! # ebc address
+  latestRule: [latestRule!]! 
   rulesWithRootVersion: [ruleTypes!]! 
   mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
   lastestUpdateHash: Bytes!
@@ -155,7 +156,7 @@ type EBC @entity {
 }
 
 # customed using entity
-type ruleTypes @entity {  #contain all rules
+type ruleTypes @entity {  #contain all rules snapshot
   id: ID!
   rules: [rule!]! # all rules   
   mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
@@ -168,7 +169,7 @@ type ruleTypes @entity {  #contain all rules
 
 # customed using entitys
 type rule @entity { # only one rule in ruleTypes
-  id: ID!
+  id: ID! #chain0-chain1
   chain0: BigInt! # uint64
   chain1: BigInt! # uint64
   chain0Status: Int! # uint8
@@ -188,6 +189,34 @@ type rule @entity { # only one rule in ruleTypes
   chain0CompensationRatio: Int! # uint32
   chain1CompensationRatio: Int! # uint32
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
+}
+
+# customed using entitys
+type latestRule @entity { # only one rule in ruleTypes
+  id: ID! #chain0-chain1
+  mdc: Bytes # mdc address
+  chain0: BigInt # uint64
+  chain1: BigInt # uint64
+  chain0Status: Int # uint8
+  chain1Status: Int # uint8
+  chain0Token: Bytes # Address
+  chain1Token: Bytes # Address
+  chain0minPrice: BigInt # uint128
+  chain1minPrice: BigInt # uint128
+  chain0maxPrice: BigInt # uint128
+  chain1maxPrice: BigInt # uint128
+  chain0WithholdingFee: BigInt # uint128
+  chain1WithholdingFee: BigInt # uint128
+  chain0TradeFee: Int # uint16
+  chain1TradeFee: Int # uint16
+  chain0ResponseTime: Int # uint32
+  chain1ResponseTime: Int # uint32
+  chain0CompensationRatio: Int # uint32
+  chain1CompensationRatio: Int # uint32
+  lastestUpdateVersion: Int # uint32
+  lastestUpdateTimestamp: BigInt
+  # ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
+  ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
 }
 
 # using entity, binding in contract Event

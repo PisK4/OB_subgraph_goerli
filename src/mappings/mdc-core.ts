@@ -41,7 +41,7 @@ import {
     parseChainInfoUpdatedInputData,
     getChainTokenUpdatedEntity,
     getColumnArrayUpdatedEntity,
-    getMDCBindEBCEntity
+    getMDCBindSPVEntity
 } from "./helpers"
 import { 
     FactoryManger
@@ -93,21 +93,21 @@ export function handleupdateRulesRootEvent(
     
         // save ebcs ruletype
         if(updateRulesRootEntity.rscType != null){
-          if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
+          // if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
             let _rules = getRulesEntity(ebc, version)
-            if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version)){
-              if(updateRulesRootEntity.pledgeAmounts != null){
-                _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
-              }
-              if(updateRulesRootEntity.sourceChainIds != null){
-                _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
-              }
-              _rules.token = updateRulesRootEntity.tokenAddr
-              _rules.save()
+            if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version, event, mdc, ebc)){
+                if(updateRulesRootEntity.pledgeAmounts != null){
+                  _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
+                }
+                if(updateRulesRootEntity.sourceChainIds != null){
+                  _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
+                }
+                _rules.token = updateRulesRootEntity.tokenAddr
+                _rules.save()
             }
-          }else{
-            log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
-          }
+          // }else{
+          //   log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
+          // }
         } 
         ebcSave(ebc, mdc, event)
       }        
@@ -128,9 +128,10 @@ export function handleColumnArrayUpdatedEvent (
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
     // process dealers
+    let uniqueDealers = removeDuplicates(dealers)
     let dealersBytes = new Array<Bytes>()
-    for(let i = 0; i < dealers.length; i++){
-      dealersBytes.push(Address.fromHexString(dealers[i].toHexString()) as Bytes)
+    for(let i = 0; i < uniqueDealers.length; i++){
+      dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
     mdc.dealers = dealersBytes
 
@@ -267,7 +268,7 @@ export function handleSpvUpdatedEvent(
   spv: Bytes
 ): void{
   let mdc = isProduction ? getMDCEntity(event.address, Address.fromString(ONE_ADDRESS), event) : getMDCEntity(Address.fromString(mockMdcAddr), Address.fromString(ONE_ADDRESS), event)
-  let _spv = getMDCBindEBCEntity(mdc, chainId)
+  let _spv = getMDCBindSPVEntity(mdc, chainId)
   _spv.spv = spv
   _spv.save()
   mdc.save()

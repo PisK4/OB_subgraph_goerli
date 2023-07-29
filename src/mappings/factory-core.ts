@@ -34,9 +34,9 @@ export function factoryCreateMDC(
                 factory.mdcs = []
             }
             
-            factory.lastestUpdateHash  = event.transaction.hash
-            factory.lastestUpdateBlockNumber = event.block.number
-            factory.lastestUpdateTimestamp = event.block.timestamp
+            factory.latestUpdateHash  = event.transaction.hash
+            factory.latestUpdateBlockNumber = event.block.number
+            factory.latestUpdateTimestamp = event.block.timestamp
             factory.mdcCounts = factory.mdcCounts.plus(BigInt.fromI32(1))
 
             let mdcNew = getMDCEntity(mdc, maker, event)

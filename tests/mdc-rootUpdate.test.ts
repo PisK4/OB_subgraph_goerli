@@ -80,9 +80,36 @@ describe("Describe event RulesRootUpdated", () => {
     
   })
 
-  test("rule created and stored", () => {
-    // assert.entityCount("rule", 1)
-    
+  test("latestRule created and stored", () => {
+    // assert.entityCount("latestRule", 1)
+
+    assert.fieldEquals(
+      "latestRule",
+      "1-2",
+      "id",
+      "1-2"
+    )
+
+    assert.fieldEquals(
+      "latestRule",
+      "1-2",
+      "mdc",
+      mockMdcAddr.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "latestRule",
+      "324-1",
+      "id",
+      "324-1"
+    )
+
+    assert.fieldEquals(
+      "latestRule",
+      "324-1",
+      "mdc",
+      mockMdcAddr.toLowerCase()
+    )    
   })
 
 })

@@ -19,6 +19,7 @@ import {
     MDC, 
     MDCBindEBC,
     MDCBindSPV,
+    latestRule,
     rule,
     ruleTypes
 } from '../types/schema'
@@ -111,16 +112,16 @@ export function ebcManagerUpdate(
         ebc.mdcList = []
     }    
     ebc.statuses = status
-    ebc.lastestUpdatetransactionHash = event.transaction.hash
+    ebc.latestUpdatetransactionHash = event.transaction.hash
     
     let _EBCManager = EBCManager.load(EBCManagerID)
     if(_EBCManager == null){
         _EBCManager = new EBCManager(EBCManagerID)
         _EBCManager.ebcCounts = BigInt.fromI32(0)
         _EBCManager.ebcs = []
-        _EBCManager.lastestUpdateHash = event.transaction.hash
-        _EBCManager.lastestUpdateBlockNumber = event.block.number
-        _EBCManager.lastestUpdateTimestamp = event.block.timestamp  
+        _EBCManager.latestUpdateHash = event.transaction.hash
+        _EBCManager.latestUpdateBlockNumber = event.block.number
+        _EBCManager.latestUpdateTimestamp = event.block.timestamp  
         
         let superManager = ChainTokenEBCManager.load(superMangerID)
     }
@@ -131,9 +132,9 @@ export function ebcManagerUpdate(
         } else {
             _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
         }   
-        _EBCManager.lastestUpdateHash = event.transaction.hash
-        _EBCManager.lastestUpdateBlockNumber = event.block.number
-        _EBCManager.lastestUpdateTimestamp = event.block.timestamp    
+        _EBCManager.latestUpdateHash = event.transaction.hash
+        _EBCManager.latestUpdateBlockNumber = event.block.number
+        _EBCManager.latestUpdateTimestamp = event.block.timestamp    
     }
     ebc.save()
     _EBCManager.save() 
@@ -153,7 +154,7 @@ export function ebcSave(
         ebc.statuses = true
         ebc.mdcList = []
     }
-    ebc.lastestUpdatetransactionHash = event.transaction.hash
+    ebc.latestUpdatetransactionHash = event.transaction.hash
     saveMDC2EBC(ebc, mdc)
     ebc.save()
     // ebcManagerUpdate(Address.fromString(ebcId), event)
@@ -239,9 +240,9 @@ export function getMDCEntity(
         mdc.bindSPVs = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
-        mdc.lastestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
+        mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
     }
-    mdc.lastestUpdatetransactionHash = event.transaction.hash
+    mdc.latestUpdatetransactionHash = event.transaction.hash
     return mdc as MDC
 }
 
@@ -258,14 +259,15 @@ export function getEBCEntity(
         _MDCBindEBC = new MDCBindEBC(bindID)
         _MDCBindEBC.ebc = ebcAddress
         _MDCBindEBC.rulesWithRootVersion = []
+        _MDCBindEBC.latestRule = []
         log.info('create new MDCBindEBC, mdc: {}, ebcid: {}', 
             [mdcAddress.toHexString(),
             _MDCBindEBC.ebc.toHexString()]
         )
     }
-    _MDCBindEBC.lastestUpdateHash = event.transaction.hash
-    _MDCBindEBC.lastestUpdateBlockNumber = event.block.number
-    _MDCBindEBC.lastestUpdateTimestamp = event.block.timestamp
+    _MDCBindEBC.latestUpdateHash = event.transaction.hash
+    _MDCBindEBC.latestUpdateBlockNumber = event.block.number
+    _MDCBindEBC.latestUpdateTimestamp = event.block.timestamp
     saveBindEBC2MDC(mdc, bindID)    
     return _MDCBindEBC as MDCBindEBC
 }
@@ -281,9 +283,9 @@ export function getChainInfoEntity(
         _chainInfo = new ChainInfoUpdated(id)
         _chainInfo.spv = []
     }
-    _chainInfo.lastestUpdateHash = event.transaction.hash
-    _chainInfo.lastestUpdateBlockNumber = event.block.number
-    _chainInfo.lastestUpdateTimestamp = event.block.timestamp
+    _chainInfo.latestUpdateHash = event.transaction.hash
+    _chainInfo.latestUpdateBlockNumber = event.block.number
+    _chainInfo.latestUpdateTimestamp = event.block.timestamp
     return _chainInfo as ChainInfoUpdated
 }
 
@@ -338,7 +340,7 @@ export function getColumnArrayUpdatedEntity(
     return _columnArrayUpdated as ColumnArrayUpdated
 }
 
-export function getMDCBindEBCEntity(
+export function getMDCBindSPVEntity(
     mdc: MDC,
     chainId: BigInt,
 ): MDCBindSPV{
@@ -405,6 +407,17 @@ function saveRule2EBC(
         ebc.rulesWithRootVersion = [rule.id];
     } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
         ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
+    }
+}
+
+function saveLatestRule2EBC(
+    ebc: MDCBindEBC,
+    rule: latestRule
+): void{
+    if (ebc.latestRule == null) {
+        ebc.latestRule = [rule.id];
+    } else if (!ebc.latestRule.includes(rule.id)) {
+        ebc.latestRule = ebc.latestRule.concat([rule.id])
     }
 }
 
@@ -898,11 +911,54 @@ export function AddressFmtPadZero(address: string): string {
     return address
 }
 
+function updateLatestRules( 
+    rsc: rscRuleType,
+    event: ethereum.Event,
+    version: BigInt,
+    mdc: MDC,
+    ebc: MDCBindEBC
+):void{
+    let id = rsc.chain0.toString() + "-" + rsc.chain1.toString()
+    let _rule = latestRule.load(id)
+    if(_rule == null){
+        _rule = new latestRule(id)
+    }
+    _rule.mdc = Bytes.fromHexString(AddressFmtPadZero(mdc.id))
+    _rule.chain0 = rsc.chain0
+    _rule.chain1 = rsc.chain1
+    _rule.chain0Status = rsc.chain0Status.toI32()
+    _rule.chain1Status = rsc.chain1Status.toI32()
+    _rule.chain0Token = Address.fromHexString(AddressFmtPadZero(rsc.chain0Token.toHexString()))
+    _rule.chain1Token = Address.fromHexString(AddressFmtPadZero(rsc.chain1Token.toHexString()))
+    _rule.chain0minPrice = rsc.chain0minPrice
+    _rule.chain0maxPrice = rsc.chain0maxPrice
+    _rule.chain1minPrice = rsc.chain1minPrice
+    _rule.chain1maxPrice = rsc.chain1maxPrice
+    _rule.chain0WithholdingFee = rsc.chain0WithholdingFee
+    _rule.chain1WithholdingFee = rsc.chain1WithholdingFee
+    _rule.chain0TradeFee = rsc.chain0TradeFee.toI32()
+    _rule.chain1TradeFee = rsc.chain1TradeFee.toI32()
+    _rule.chain0ResponseTime = rsc.chain0ResponseTime.toI32()
+    _rule.chain1ResponseTime = rsc.chain1ResponseTime.toI32()
+    _rule.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32()
+    _rule.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32()
+    _rule.latestUpdateTimestamp = event.block.timestamp
+    _rule.latestUpdateBlockNumber = event.block.number
+    _rule.latestUpdateHash = event.transaction.hash
+    _rule.latestUpdateVersion = version.toI32()
+    saveLatestRule2EBC(ebc, _rule)
+    _rule.save()
+    log.info("update latest rule id: {}", [id])
+}
+
 export function updateRuleTypesThenSave(
     updateRulesRootEntity: rscRules,
     _rules: ruleTypes,
     root: Bytes,
     version: BigInt,
+    event: ethereum.Event,
+    mdc: MDC,
+    ebc: MDCBindEBC
 ): boolean {
     _rules.root = updateRulesRootEntity.root
     // check if version is same
@@ -942,7 +998,13 @@ export function updateRuleTypesThenSave(
             _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
             _rule.save()
-
+            updateLatestRules(
+                updateRulesRootEntity.rscType[i],
+                event,
+                version,
+                mdc,
+                ebc
+            )
             if(debugLog){
                 log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}', [
                     i.toString(),
