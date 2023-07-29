@@ -721,17 +721,21 @@ export class MDC extends Entity {
     }
   }
 
-  get bindEBCs(): Array<string> {
+  get bindEBCs(): string | null {
     let value = this.get("bindEBCs");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set bindEBCs(value: Array<string>) {
-    this.set("bindEBCs", Value.fromStringArray(value));
+  set bindEBCs(value: string | null) {
+    if (!value) {
+      this.unset("bindEBCs");
+    } else {
+      this.set("bindEBCs", Value.fromString(<string>value));
+    }
   }
 
   get bindSPVs(): Array<string> {
@@ -1115,6 +1119,78 @@ export class EBCManager extends Entity {
   }
 }
 
+export class MDCBindEBCAll extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save MDCBindEBCAll entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type MDCBindEBCAll must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("MDCBindEBCAll", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): MDCBindEBCAll | null {
+    return changetype<MDCBindEBCAll | null>(
+      store.get_in_block("MDCBindEBCAll", id)
+    );
+  }
+
+  static load(id: string): MDCBindEBCAll | null {
+    return changetype<MDCBindEBCAll | null>(store.get("MDCBindEBCAll", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get ebcList(): Array<Bytes> {
+    let value = this.get("ebcList");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set ebcList(value: Array<Bytes>) {
+    this.set("ebcList", Value.fromBytesArray(value));
+  }
+
+  get ebcs(): Array<string> {
+    let value = this.get("ebcs");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ebcs(value: Array<string>) {
+    this.set("ebcs", Value.fromStringArray(value));
+  }
+
+  get mdc(): MDCLoader {
+    return new MDCLoader("MDCBindEBCAll", this.get("id")!.toString(), "mdc");
+  }
+}
+
 export class MDCBindEBC extends Entity {
   constructor(id: string) {
     super();
@@ -1193,8 +1269,12 @@ export class MDCBindEBC extends Entity {
     this.set("rulesWithRootVersion", Value.fromStringArray(value));
   }
 
-  get mdc(): MDCLoader {
-    return new MDCLoader("MDCBindEBC", this.get("id")!.toString(), "mdc");
+  get ebcAll(): MDCBindEBCAllLoader {
+    return new MDCBindEBCAllLoader(
+      "MDCBindEBC",
+      this.get("id")!.toString(),
+      "ebcAll"
+    );
   }
 
   get latestUpdateHash(): Bytes {
@@ -3790,6 +3870,24 @@ export class ChainTokenEBCManagerLoader extends Entity {
   load(): ChainTokenEBCManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ChainTokenEBCManager[]>(value);
+  }
+}
+
+export class MDCBindEBCAllLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): MDCBindEBCAll[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<MDCBindEBCAll[]>(value);
   }
 }
 

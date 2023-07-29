@@ -87,7 +87,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "MDC",
       mdcAddress.toLowerCase(),
       "bindEBCs",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
+      mdcAddress.toLowerCase()
     )
 
     assert.fieldEquals(
@@ -198,6 +198,31 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "[123, 456, 789\]"
     )
 
+  })
+
+  test("MDCBindEBCAll created and stored", () => {
+    assert.entityCount("MDCBindEBCAll", 1)
+
+    assert.fieldEquals(
+      "MDCBindEBCAll",
+      mdcAddress.toLowerCase(),
+      "id",
+      mdcAddress.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "MDCBindEBCAll",
+      mdcAddress.toLowerCase(),
+      "ebcList",
+      "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
+    )
+
+    assert.fieldEquals(
+      "MDCBindEBCAll",
+      mdcAddress.toLowerCase(),
+      "ebcs",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
+    )
   })
 
 

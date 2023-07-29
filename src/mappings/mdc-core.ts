@@ -44,7 +44,10 @@ import {
     getMDCBindSPVEntity,
     getMDCBindDealerEntity,
     removeDuplicatesBigInt,
-    getMDCBindChainIdEntity
+    getMDCBindChainIdEntity,
+    getMDCBindEBCAllEntity,
+    mdcReBindEBC,
+    saveBindEBC2All
 } from "./helpers"
 import { 
     FactoryManger
@@ -135,7 +138,7 @@ export function handleColumnArrayUpdatedEvent (
     let uniqueDealers = removeDuplicates(dealers)
     let dealersBytes = new Array<Bytes>()
     for(let i = 0; i < uniqueDealers.length; i++){
-      dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
+        dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
     let _dealers = getMDCBindDealerEntity(mdc,dealersBytes)
     _dealers.save()
@@ -146,18 +149,19 @@ export function handleColumnArrayUpdatedEvent (
     _chainIds.save()
 
     // process ebcs
+    mdcReBindEBC(mdc)
     let uniqueEbcs = removeDuplicates(ebcs)
-    if(uniqueEbcs.length > 0){
-        for(let i = 0; i < uniqueEbcs.length; i++){
-            let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
-            ebcSave(ebc, mdc, event)
-          }
-    }
-    // process ebcs
+    let _MDCBindEBCAll = getMDCBindEBCAllEntity(mdc)
     let ebcsBytes = new Array<Bytes>()
-    for(let i = 0; i < ebcs.length; i++){
-      ebcsBytes.push(Address.fromHexString(ebcs[i].toHexString()) as Bytes)
-    }        
+    for(let i = 0; i < uniqueEbcs.length; i++){
+        let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
+        ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
+        saveBindEBC2All(_MDCBindEBCAll, ebc.id)
+        ebcSave(ebc, mdc, event)
+    }
+    _MDCBindEBCAll.ebcList = ebcsBytes
+    _MDCBindEBCAll.save() 
+    
 
     // process ColumnArray
     let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
@@ -168,7 +172,6 @@ export function handleColumnArrayUpdatedEvent (
     columnArrayUpdated.chainIds = chainIds
     columnArrayUpdated.save()
 
-    // mdc.columnArrayHash = columnArrayHash
     mdc.save()
 }
 

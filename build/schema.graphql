@@ -82,7 +82,7 @@ type MDC @entity {
   responseMakers: [Bytes!] # address[]
   bindDealers: MDCBindDealer
   bindChainIds: MDCBindChainId
-  bindEBCs: [MDCBindEBC!]! # MDCBindEBC
+  bindEBCs: MDCBindEBCAll
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
@@ -125,13 +125,20 @@ type EBCManager @entity{
   latestUpdateBlockNumber: BigInt!
 }
 
+type MDCBindEBCAll @entity{
+  id: ID! # mdc address
+  ebcList: [Bytes!]! # ebc address array
+  ebcs: [MDCBindEBC!]! # MDCBindEBC
+  mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
+}
+
 # customed using entity
 type MDCBindEBC @entity{
   id: ID! # mdc address - ebc address
   ebc: Bytes! # ebc address
   latestRule: [latestRule!]! 
   rulesWithRootVersion: [ruleTypes!]! 
-  mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
+  ebcAll: MDCBindEBCAll! @derivedFrom(field: "ebcs") # MDCBindEBCAll
   latestUpdateHash: Bytes!
   latestUpdateTimestamp: BigInt!
   latestUpdateBlockNumber: BigInt!
@@ -145,6 +152,7 @@ type MDCBindSPV @entity{
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
+# customed using entity
 type MDCBindDealer @entity{
   id: ID! # mdc address
   dealers: [Bytes!]! # dealer address array
@@ -154,9 +162,10 @@ type MDCBindDealer @entity{
   latestUpdateBlockNumber: BigInt
 }
 
+# customed using entity
 type MDCBindChainId @entity{
   id: ID! # mdc address
-  chainId: [BigInt!]! # chainId array
+  chainIds: [BigInt!]! # chainId array
   mdc: MDC! @derivedFrom(field: "bindChainIds") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt

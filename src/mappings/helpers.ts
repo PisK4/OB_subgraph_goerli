@@ -20,6 +20,7 @@ import {
     MDCBindChainId, 
     MDCBindDealer, 
     MDCBindEBC,
+    MDCBindEBCAll,
     MDCBindSPV,
     latestRule,
     rule,
@@ -29,7 +30,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 
 export const ZERO_BI = BigInt.fromI32(0)
@@ -238,7 +239,7 @@ export function getMDCEntity(
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker
         mdc.columnArrayUpdated = []
-        mdc.bindEBCs = []
+        // mdc.bindEBCs = []
         mdc.bindSPVs = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
@@ -248,8 +249,20 @@ export function getMDCEntity(
     return mdc as MDC
 }
 
+export function getMDCBindEBCAllEntity(
+    mdc: MDC
+): MDCBindEBCAll{
+    let _MDCBindEBCAll = MDCBindEBCAll.load(mdc.id)
+    if(_MDCBindEBCAll == null){
+        _MDCBindEBCAll = new MDCBindEBCAll(mdc.id)
+        _MDCBindEBCAll.ebcs = []
+        _MDCBindEBCAll.ebcList = []
+        mdc.bindEBCs = _MDCBindEBCAll.id
+    }
+    return _MDCBindEBCAll as MDCBindEBCAll
+}
+
 export function getEBCEntity(
-    // mdcAddress: Address,
     mdc: MDC,
     ebcAddress: Address,
     event: ethereum.Event
@@ -262,7 +275,7 @@ export function getEBCEntity(
         _MDCBindEBC.ebc = ebcAddress
         _MDCBindEBC.rulesWithRootVersion = []
         _MDCBindEBC.latestRule = []
-        log.info('create new MDCBindEBC, mdc: {}, ebcid: {}', 
+        log.info('create new MDCBindEBC, mdc: {}, ebc: {}', 
             [mdcAddress.toHexString(),
             _MDCBindEBC.ebc.toHexString()]
         )
@@ -270,7 +283,7 @@ export function getEBCEntity(
     _MDCBindEBC.latestUpdateHash = event.transaction.hash
     _MDCBindEBC.latestUpdateBlockNumber = event.block.number
     _MDCBindEBC.latestUpdateTimestamp = event.block.timestamp
-    saveBindEBC2MDC(mdc, bindID)    
+    // saveBindEBC2MDC(mdc, bindID)    
     return _MDCBindEBC as MDCBindEBC
 }
 
@@ -385,6 +398,28 @@ export function getMDCBindChainIdEntity(
 
     return chainIdEntity as MDCBindChainId
 }
+export function mdcReBindEBC(
+    mdc: MDC
+): void{
+    let _MDCBindEBCAll = getMDCBindEBCAllEntity(mdc)
+    let currentEBCs = _MDCBindEBCAll.ebcList
+    for(let i = 0; i < currentEBCs.length; i++){
+        let ebc = EBC.load(currentEBCs[i].toHexString())
+        if(ebc != null){
+            let allMDCs = ebc.mdcList
+            // remove the mdc from ebc.mdcList
+            let index = allMDCs.indexOf(mdc.id)
+            if (index > -1) {
+                allMDCs.splice(index, 1);
+            }
+            ebc.mdcList = allMDCs
+            ebc.save()
+        }
+    }
+    _MDCBindEBCAll.ebcList = []
+    _MDCBindEBCAll.ebcs = []
+    _MDCBindEBCAll.save()
+}
 
 
 function saveColumnArray2MDC(
@@ -409,15 +444,15 @@ function saveRules2Rules(
     }
 }
 
-function saveBindEBC2MDC(
-    mdc : MDC,
+export function saveBindEBC2All(
+    ebcAll: MDCBindEBCAll,
     ebc_id : string,
 ) : void{
-    if (mdc.bindEBCs == null) {
-        mdc.bindEBCs = [ebc_id]
-    } else if(!mdc.bindEBCs.includes(ebc_id)){
-        mdc.bindEBCs = mdc.bindEBCs.concat([ebc_id])
-    }  
+    if (ebcAll.ebcs == null) {
+        ebcAll.ebcs = [ebc_id];
+    } else if (!ebcAll.ebcs.includes(ebc_id)) {
+        ebcAll.ebcs = ebcAll.ebcs.concat([ebc_id])
+    }
 }
 
 function saveMDC2EBC(
