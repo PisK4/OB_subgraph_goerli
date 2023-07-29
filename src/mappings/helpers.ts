@@ -17,6 +17,8 @@ import {
     EBC, 
     EBCManager, 
     MDC, 
+    MDCBindChainId, 
+    MDCBindDealer, 
     MDCBindEBC,
     MDCBindSPV,
     latestRule,
@@ -355,6 +357,36 @@ export function getMDCBindSPVEntity(
     return _MDCBindSPV as MDCBindSPV
 }
 
+export function getMDCBindDealerEntity(
+    mdc: MDC,
+    dealersBytes: Bytes[],
+): MDCBindDealer{
+    let dealer = MDCBindDealer.load(mdc.id)
+    if(dealer == null){
+        dealer = new MDCBindDealer(mdc.id)
+        dealer.dealers = []
+        mdc.bindDealers = dealer.id
+    }
+    dealer.dealers = dealersBytes
+    return dealer as MDCBindDealer
+}
+
+export function getMDCBindChainIdEntity(
+    mdc: MDC,
+    chainIds: BigInt[],
+): MDCBindChainId{
+    let chainIdEntity = MDCBindChainId.load(mdc.id)
+    if(chainIdEntity == null){
+        chainIdEntity = new MDCBindChainId(mdc.id)
+        chainIdEntity.chainIds = []
+        mdc.bindChainIds = chainIdEntity.id
+    }
+    chainIdEntity.chainIds = chainIds
+
+    return chainIdEntity as MDCBindChainId
+}
+
+
 function saveColumnArray2MDC(
     mdc: MDC,
     columnArray: ColumnArrayUpdated
@@ -431,7 +463,6 @@ function saveSPV2MDC(
         mdc.bindSPVs = mdc.bindSPVs.concat([spv.id])
     }
 }
-
 
 export class rscRules {
     ebcAddress: Bytes;
@@ -1033,31 +1064,39 @@ export function updateRuleTypesThenSave(
     return true
 }
 
-/**
- * @param {Array<Address>} ebcs
- * @returns {Array<Address>} uniqueEbcs
- */
-export function removeDuplicates(ebcs: Array<Address>): Array<Address> {
-    const uniqueEbcs = new Array<Address>();
-    for (let i = 0; i < ebcs.length; i++) {
+export function removeDuplicates(data: Array<Address>): Array<Address> {
+    const uniques = new Array<Address>();
+    for (let i = 0; i < data.length; i++) {
       let isDuplicate = false;
-      for (let j = 0; j < uniqueEbcs.length; j++) {
-        if (ebcs[i].equals(uniqueEbcs[j])) {
+      for (let j = 0; j < uniques.length; j++) {
+        if (data[i].equals(uniques[j])) {
           isDuplicate = true;
           break;
         }
       }
       if (!isDuplicate) {
-        uniqueEbcs.push(ebcs[i]);
+        uniques.push(data[i]);
       }
     }
-  
-    // for(let i = 0; i < uniqueEbcs.length; i++){
-    //   log.debug('ebcs: {}', [uniqueEbcs[i].toHexString()])
-    // } 
-  
-    return uniqueEbcs;
-  }
+    return uniques;
+}
+
+export function removeDuplicatesBigInt(data: Array<BigInt>): Array<BigInt> {
+    const uniques = new Array<BigInt>();
+    for (let i = 0; i < data.length; i++) {
+      let isDuplicate = false;
+      for (let j = 0; j < uniques.length; j++) {
+        if (data[i].equals(uniques[j])) {
+          isDuplicate = true;
+          break;
+        }
+      }
+      if (!isDuplicate) {
+        uniques.push(data[i]);
+      }
+    }
+    return uniques;
+}
 
   
 export function getFunctionSelector(data: Bytes): Bytes {

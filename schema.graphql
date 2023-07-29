@@ -80,8 +80,8 @@ type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
   responseMakers: [Bytes!] # address[]
-  dealers: MDCBindDealer
-  chainIds: MDCBindChainId
+  bindDealers: MDCBindDealer
+  bindChainIds: MDCBindChainId
   bindEBCs: [MDCBindEBC!]! # MDCBindEBC
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
@@ -96,7 +96,8 @@ type MDC @entity {
 }
 
 # customed using entity
-type DealerManager @entity{
+# TODO: dealer should register in feeManger contract, wait for the contract
+type DealerManger @entity{
   id: ID! # dealer ID
   dealers: [Bytes!]! # address[]
   dealerCounts: BigInt!
@@ -144,19 +145,21 @@ type MDCBindSPV @entity{
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
+# customed using entity
 type MDCBindDealer @entity{
   id: ID! # mdc address
-  dealer: [Bytes!] # dealer address array
-  mdc: MDC! @derivedFrom(field: "dealers") # MDC
+  dealers: [Bytes!]! # dealer address array
+  mdc: MDC! @derivedFrom(field: "bindDealers") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
   latestUpdateBlockNumber: BigInt
 }
 
+# customed using entity
 type MDCBindChainId @entity{
   id: ID! # mdc address
-  chainId: [BigInt!] # chainId array
-  mdc: MDC! @derivedFrom(field: "chainIds") # MDC
+  chainIds: [BigInt!]! # chainId array
+  mdc: MDC! @derivedFrom(field: "bindChainIds") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
   latestUpdateBlockNumber: BigInt

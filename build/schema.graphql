@@ -80,12 +80,10 @@ type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
   responseMakers: [Bytes!] # address[]
-  # spvs: [Bytes!] # address[]
-  chainIds: [BigInt!] # uint64[]
-  dealers: [Bytes!] # address[]
+  bindDealers: MDCBindDealer
+  bindChainIds: MDCBindChainId
   bindEBCs: [MDCBindEBC!]! # MDCBindEBC
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
-  # columnArrayHash: Bytes # bytes32
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
   ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC
@@ -93,12 +91,13 @@ type MDC @entity {
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: Bytes!
-  lastestUpdatetransactionHash: Bytes!
+  latestUpdatetransactionHash: Bytes!
 
 }
 
 # customed using entity
-type DealerManager @entity{
+# TODO: dealer should register in feeManger contract, wait for the contract
+type DealerManger @entity{
   id: ID! # dealer ID
   dealers: [Bytes!]! # address[]
   dealerCounts: BigInt!
@@ -109,9 +108,9 @@ type FactoryManger @entity{
   id: Bytes!  # factory address
   mdcs: [MDC!]! # MDC[]
   mdcCounts: BigInt!
-  lastestUpdateHash: Bytes!
-  lastestUpdateTimestamp: BigInt!
-  lastestUpdateBlockNumber: BigInt!
+  latestUpdateHash: Bytes!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateBlockNumber: BigInt!
 }
 
 # customed using entity
@@ -121,9 +120,9 @@ type EBCManager @entity{
   ebcs: [EBC!]! # ebc entity
   manger: ChainTokenEBCManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   
-  lastestUpdateHash: Bytes!
-  lastestUpdateTimestamp: BigInt!
-  lastestUpdateBlockNumber: BigInt!
+  latestUpdateHash: Bytes!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateBlockNumber: BigInt!
 }
 
 # customed using entity
@@ -133,9 +132,9 @@ type MDCBindEBC @entity{
   latestRule: [latestRule!]! 
   rulesWithRootVersion: [ruleTypes!]! 
   mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
-  lastestUpdateHash: Bytes!
-  lastestUpdateTimestamp: BigInt!
-  lastestUpdateBlockNumber: BigInt!
+  latestUpdateHash: Bytes!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateBlockNumber: BigInt!
 }
 
 # customed using entity
@@ -146,13 +145,31 @@ type MDCBindSPV @entity{
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
+type MDCBindDealer @entity{
+  id: ID! # mdc address
+  dealers: [Bytes!]! # dealer address array
+  mdc: MDC! @derivedFrom(field: "bindDealers") # MDC
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+type MDCBindChainId @entity{
+  id: ID! # mdc address
+  chainId: [BigInt!]! # chainId array
+  mdc: MDC! @derivedFrom(field: "bindChainIds") # MDC
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
 # customed using entity
 type EBC @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
   statuses: Boolean!
   ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
-  lastestUpdatetransactionHash: Bytes!
+  latestUpdatetransactionHash: Bytes!
 }
 
 # customed using entity
@@ -213,8 +230,10 @@ type latestRule @entity { # only one rule in ruleTypes
   chain1ResponseTime: Int # uint32
   chain0CompensationRatio: Int # uint32
   chain1CompensationRatio: Int # uint32
-  lastestUpdateVersion: Int # uint32
-  lastestUpdateTimestamp: BigInt
+  latestUpdateVersion: Int # uint32
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+  latestUpdateHash: Bytes
   # ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
   ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
 }
@@ -229,9 +248,9 @@ type ChainInfoUpdated @entity{
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
   manger: ChainTokenEBCManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
-  lastestUpdateBlockNumber: BigInt!
-  lastestUpdateTimestamp: BigInt!
-  lastestUpdateHash: Bytes!
+  latestUpdateBlockNumber: BigInt!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateHash: Bytes!
 }
 
 # using entity, binding in contract Event

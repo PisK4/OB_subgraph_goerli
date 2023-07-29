@@ -33,8 +33,8 @@ import {
 describe("Describe ColumnArrayUpdated assertions", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"
-  const dealers = 
-    "0xA1AE843d71Ef6843137F70d6E93c5d143C1843E4"
+  const dealers = "0xA1AE843d71Ef6843137F70d6E93c5d143C1843E4"
+  const dealer1 = "0x230B33bDcBD07f10FfAa8251fC843ed293495fEb"
   const ebc0 = "0xB6fF6F7b0CD1633348877043Ae92302139796686"
   const ebc1 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
   const ebc2 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
@@ -48,12 +48,13 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     handleMDCCreated(newMDCCreatedEvent)
 
     let dealersAddr = Address.fromString(dealers) 
-    let chainIds = [123, 456, 789]
+    let dealersAddr1 = Address.fromString(dealer1)
+    let chainIds = [123, 456, 789, 123, 123]
     let ebcs = [Address.fromString(ebc0), Address.fromString(ebc1), Address.fromString(ebc2)]
     const newColumnArrayUpdatedEvent = createColumnArrayUpdatedEvent(
       Address.fromString(impl),
       Bytes.fromHexString(columnArrayHash) as Bytes,
-      [dealersAddr],
+      [dealersAddr,dealersAddr1,dealersAddr1],
       ebcs,
       chainIds
     )
@@ -92,8 +93,8 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.fieldEquals(
       "MDC",
       mdcAddress.toLowerCase(),
-      "dealers",
-      "[0xa1ae843d71ef6843137f70d6e93c5d143c1843e4\]"
+      "bindDealers",
+      mdcAddress.toLowerCase(),
     )
   })
 
@@ -160,5 +161,45 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.entityCount("ColumnArrayUpdated", 1) 
 
   })
+
+  test("MDCBindDealer created and stored", () => {
+    assert.entityCount("MDCBindDealer", 1)
+
+    assert.fieldEquals(
+      "MDCBindDealer",
+      mdcAddress.toLowerCase(),
+      "id",
+      mdcAddress.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "MDCBindDealer",
+      mdcAddress.toLowerCase(),
+      "dealers",
+      "[0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+
+  })
+
+  test("MDCBindChainId created and stored", () => {
+    assert.entityCount("MDCBindChainId", 1)
+
+    assert.fieldEquals(
+      "MDCBindChainId",
+      mdcAddress.toLowerCase(),
+      "id",
+      mdcAddress.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "MDCBindChainId",
+      mdcAddress.toLowerCase(),
+      "chainIds",
+      "[123, 456, 789\]"
+    )
+
+  })
+
+
 
 })

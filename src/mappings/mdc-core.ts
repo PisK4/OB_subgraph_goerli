@@ -41,7 +41,10 @@ import {
     parseChainInfoUpdatedInputData,
     getChainTokenUpdatedEntity,
     getColumnArrayUpdatedEntity,
-    getMDCBindSPVEntity
+    getMDCBindSPVEntity,
+    getMDCBindDealerEntity,
+    removeDuplicatesBigInt,
+    getMDCBindChainIdEntity
 } from "./helpers"
 import { 
     FactoryManger
@@ -127,13 +130,20 @@ export function handleColumnArrayUpdatedEvent (
 ): void{
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
+    
     // process dealers
     let uniqueDealers = removeDuplicates(dealers)
     let dealersBytes = new Array<Bytes>()
     for(let i = 0; i < uniqueDealers.length; i++){
       dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
-    mdc.dealers = dealersBytes
+    let _dealers = getMDCBindDealerEntity(mdc,dealersBytes)
+    _dealers.save()
+
+    // process chainIds
+    let uniqueChainIds = removeDuplicatesBigInt(chainIds)
+    let _chainIds = getMDCBindChainIdEntity(mdc, uniqueChainIds)
+    _chainIds.save()
 
     // process ebcs
     let uniqueEbcs = removeDuplicates(ebcs)

@@ -687,8 +687,8 @@ export class MDC extends Entity {
     }
   }
 
-  get dealers(): string | null {
-    let value = this.get("dealers");
+  get bindDealers(): string | null {
+    let value = this.get("bindDealers");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -696,16 +696,16 @@ export class MDC extends Entity {
     }
   }
 
-  set dealers(value: string | null) {
+  set bindDealers(value: string | null) {
     if (!value) {
-      this.unset("dealers");
+      this.unset("bindDealers");
     } else {
-      this.set("dealers", Value.fromString(<string>value));
+      this.set("bindDealers", Value.fromString(<string>value));
     }
   }
 
-  get chainIds(): string | null {
-    let value = this.get("chainIds");
+  get bindChainIds(): string | null {
+    let value = this.get("bindChainIds");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -713,11 +713,11 @@ export class MDC extends Entity {
     }
   }
 
-  set chainIds(value: string | null) {
+  set bindChainIds(value: string | null) {
     if (!value) {
-      this.unset("chainIds");
+      this.unset("bindChainIds");
     } else {
-      this.set("chainIds", Value.fromString(<string>value));
+      this.set("bindChainIds", Value.fromString(<string>value));
     }
   }
 
@@ -825,7 +825,7 @@ export class MDC extends Entity {
   }
 }
 
-export class DealerManager extends Entity {
+export class DealerManger extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -833,24 +833,24 @@ export class DealerManager extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save DealerManager entity without an ID");
+    assert(id != null, "Cannot save DealerManger entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type DealerManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type DealerManger must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("DealerManager", id.toString(), this);
+      store.set("DealerManger", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): DealerManager | null {
-    return changetype<DealerManager | null>(
-      store.get_in_block("DealerManager", id)
+  static loadInBlock(id: string): DealerManger | null {
+    return changetype<DealerManger | null>(
+      store.get_in_block("DealerManger", id)
     );
   }
 
-  static load(id: string): DealerManager | null {
-    return changetype<DealerManager | null>(store.get("DealerManager", id));
+  static load(id: string): DealerManger | null {
+    return changetype<DealerManger | null>(store.get("DealerManger", id));
   }
 
   get id(): string {
@@ -1356,21 +1356,17 @@ export class MDCBindDealer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get dealer(): Array<Bytes> | null {
-    let value = this.get("dealer");
+  get dealers(): Array<Bytes> {
+    let value = this.get("dealers");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytesArray();
     }
   }
 
-  set dealer(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("dealer");
-    } else {
-      this.set("dealer", Value.fromBytesArray(<Array<Bytes>>value));
-    }
+  set dealers(value: Array<Bytes>) {
+    this.set("dealers", Value.fromBytesArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -1470,21 +1466,17 @@ export class MDCBindChainId extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get chainId(): Array<BigInt> | null {
-    let value = this.get("chainId");
+  get chainIds(): Array<BigInt> {
+    let value = this.get("chainIds");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigIntArray();
     }
   }
 
-  set chainId(value: Array<BigInt> | null) {
-    if (!value) {
-      this.unset("chainId");
-    } else {
-      this.set("chainId", Value.fromBigIntArray(<Array<BigInt>>value));
-    }
+  set chainIds(value: Array<BigInt>) {
+    this.set("chainIds", Value.fromBigIntArray(value));
   }
 
   get mdc(): MDCLoader {
