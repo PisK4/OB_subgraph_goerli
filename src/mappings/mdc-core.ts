@@ -48,7 +48,9 @@ import {
     getMDCBindEBCAllEntity,
     mdcReBindEBC,
     saveBindEBC2All,
-    mdcStoreEBCNewMapping
+    mdcStoreEBCNewMapping,
+    mdcStoreDealerNewMapping,
+    mdcStoreChainIdNewMapping
 } from "./helpers"
 import { 
     FactoryManger
@@ -142,11 +144,13 @@ export function handleColumnArrayUpdatedEvent (
         dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
     let _dealers = getMDCBindDealerEntity(mdc,dealersBytes)
+    mdcStoreDealerNewMapping(mdc, _dealers, dealersBytes, event)
     _dealers.save()
 
     // process chainIds
     let uniqueChainIds = removeDuplicatesBigInt(chainIds)
     let _chainIds = getMDCBindChainIdEntity(mdc, uniqueChainIds)
+    mdcStoreChainIdNewMapping(mdc, _chainIds, uniqueChainIds, event)
     _chainIds.save()
 
     // process ebcs
@@ -160,7 +164,7 @@ export function handleColumnArrayUpdatedEvent (
         saveBindEBC2All(_MDCBindEBCAll, ebc.id)
         ebcSave(ebc, mdc, event)
     }
-    mdcStoreEBCNewMapping(mdc, _MDCBindEBCAll, ebcsBytes)
+    mdcStoreEBCNewMapping(mdc, _MDCBindEBCAll, ebcsBytes, event)
     _MDCBindEBCAll.save() 
     
 

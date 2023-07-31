@@ -175,7 +175,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.fieldEquals(
       "MDCBindDealer",
       mdcAddress.toLowerCase(),
-      "dealers",
+      "dealerList",
       "[0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
@@ -194,7 +194,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.fieldEquals(
       "MDCBindChainId",
       mdcAddress.toLowerCase(),
-      "chainIds",
+      "chainIdList",
       "[123, 456, 789\]"
     )
 
@@ -236,6 +236,26 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )
   })
 
+  test("DealerMapping created and stored", () => {
+    assert.entityCount("DealerMapping", 2)
 
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4",
+      "dealerAddr",
+      "0xa1ae843d71ef6843137f70d6e93c5d143c1843e4"
+    )
+  })
+
+  test("ChainIdMapping created and stored", () => {
+    assert.entityCount("chainIdMapping", 3)
+
+    assert.fieldEquals(
+      "chainIdMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-123",
+      "chainId",
+      "123"
+    )
+  })
 
 })

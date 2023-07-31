@@ -619,8 +619,10 @@ export class UpdateRulesRootCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get rsc(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
+  get rules(): Array<UpdateRulesRootCallRulesStruct> {
+    return this._call.inputValues[1].value.toTupleArray<
+      UpdateRulesRootCallRulesStruct
+    >();
   }
 
   get rootWithVersion(): UpdateRulesRootCallRootWithVersionStruct {
@@ -643,6 +645,84 @@ export class UpdateRulesRootCall__Outputs {
 
   constructor(call: UpdateRulesRootCall) {
     this._call = call;
+  }
+}
+
+export class UpdateRulesRootCallRulesStruct extends ethereum.Tuple {
+  get chainId0(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get chainId1(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get status0(): i32 {
+    return this[2].toI32();
+  }
+
+  get status1(): i32 {
+    return this[3].toI32();
+  }
+
+  get token0(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get token1(): BigInt {
+    return this[5].toBigInt();
+  }
+
+  get minPrice0(): BigInt {
+    return this[6].toBigInt();
+  }
+
+  get minPrice1(): BigInt {
+    return this[7].toBigInt();
+  }
+
+  get maxPrice0(): BigInt {
+    return this[8].toBigInt();
+  }
+
+  get maxPrice1(): BigInt {
+    return this[9].toBigInt();
+  }
+
+  get withholdingFee0(): BigInt {
+    return this[10].toBigInt();
+  }
+
+  get withholdingFee1(): BigInt {
+    return this[11].toBigInt();
+  }
+
+  get tradingFee0(): i32 {
+    return this[12].toI32();
+  }
+
+  get tradingFee1(): i32 {
+    return this[13].toI32();
+  }
+
+  get responseTime0(): BigInt {
+    return this[14].toBigInt();
+  }
+
+  get responseTime1(): BigInt {
+    return this[15].toBigInt();
+  }
+
+  get compensationRatio0(): BigInt {
+    return this[16].toBigInt();
+  }
+
+  get compensationRatio1(): BigInt {
+    return this[17].toBigInt();
+  }
+
+  get enableBlockNumber(): BigInt {
+    return this[18].toBigInt();
   }
 }
 
@@ -677,8 +757,10 @@ export class UpdateRulesRootERC20Call__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get rsc(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
+  get rules(): Array<UpdateRulesRootERC20CallRulesStruct> {
+    return this._call.inputValues[1].value.toTupleArray<
+      UpdateRulesRootERC20CallRulesStruct
+    >();
   }
 
   get rootWithVersion(): UpdateRulesRootERC20CallRootWithVersionStruct {
@@ -705,6 +787,84 @@ export class UpdateRulesRootERC20Call__Outputs {
 
   constructor(call: UpdateRulesRootERC20Call) {
     this._call = call;
+  }
+}
+
+export class UpdateRulesRootERC20CallRulesStruct extends ethereum.Tuple {
+  get chainId0(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get chainId1(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get status0(): i32 {
+    return this[2].toI32();
+  }
+
+  get status1(): i32 {
+    return this[3].toI32();
+  }
+
+  get token0(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get token1(): BigInt {
+    return this[5].toBigInt();
+  }
+
+  get minPrice0(): BigInt {
+    return this[6].toBigInt();
+  }
+
+  get minPrice1(): BigInt {
+    return this[7].toBigInt();
+  }
+
+  get maxPrice0(): BigInt {
+    return this[8].toBigInt();
+  }
+
+  get maxPrice1(): BigInt {
+    return this[9].toBigInt();
+  }
+
+  get withholdingFee0(): BigInt {
+    return this[10].toBigInt();
+  }
+
+  get withholdingFee1(): BigInt {
+    return this[11].toBigInt();
+  }
+
+  get tradingFee0(): i32 {
+    return this[12].toI32();
+  }
+
+  get tradingFee1(): i32 {
+    return this[13].toI32();
+  }
+
+  get responseTime0(): BigInt {
+    return this[14].toBigInt();
+  }
+
+  get responseTime1(): BigInt {
+    return this[15].toBigInt();
+  }
+
+  get compensationRatio0(): BigInt {
+    return this[16].toBigInt();
+  }
+
+  get compensationRatio1(): BigInt {
+    return this[17].toBigInt();
+  }
+
+  get enableBlockNumber(): BigInt {
+    return this[18].toBigInt();
   }
 }
 

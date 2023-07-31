@@ -125,6 +125,7 @@ type EBCManager @entity{
   latestUpdateBlockNumber: BigInt!
 }
 
+# customed using entity
 type MDCBindEBCAll @entity{
   id: ID! # mdc address
   ebcList: [Bytes!]! # ebc address array
@@ -133,6 +134,7 @@ type MDCBindEBCAll @entity{
   mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
 }
 
+# customed using entity
 type ebcMapping @entity{
   id: ID! # mdc address - ebc address
   ebcAddr: Bytes # ebc address
@@ -166,7 +168,8 @@ type MDCBindSPV @entity{
 # customed using entity
 type MDCBindDealer @entity{
   id: ID! # mdc address
-  dealers: [Bytes!]! # dealer address array
+  dealerList: [Bytes!]! # dealer address array
+  dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
   mdc: MDC! @derivedFrom(field: "bindDealers") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
@@ -174,13 +177,36 @@ type MDCBindDealer @entity{
 }
 
 # customed using entity
+type DealerMapping @entity{
+  id: ID! # mdc address - dealer address
+  dealerAddr: Bytes # dealer address
+  dealerIndex: BigInt # uint64
+  latestUpdateBlockNumber: BigInt
+  latestUpdateTimestamp: BigInt
+  latestUpdateHash: Bytes
+  MDCBindDealer: MDCBindDealer! @derivedFrom(field: "dealerMapping") # MDCBindDealer
+}
+
+# customed using entity
 type MDCBindChainId @entity{
   id: ID! # mdc address
-  chainIds: [BigInt!]! # chainId array
+  chainIdList: [BigInt!]! # chainId array
+  chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
   mdc: MDC! @derivedFrom(field: "bindChainIds") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
   latestUpdateBlockNumber: BigInt
+}
+
+# customed using entity
+type chainIdMapping @entity{
+  id: ID! # mdc address - chainId
+  chainId: BigInt # chainId
+  chainIdIndex: BigInt # uint64
+  latestUpdateBlockNumber: BigInt
+  latestUpdateTimestamp: BigInt
+  latestUpdateHash: Bytes
+  MDCBindChainId: MDCBindChainId! @derivedFrom(field: "chainIdMapping") # MDCBindChainId
 }
 
 # customed using entity
@@ -225,6 +251,7 @@ type rule @entity { # only one rule in ruleTypes
   chain1ResponseTime: Int! # uint32
   chain0CompensationRatio: Int! # uint32
   chain1CompensationRatio: Int! # uint32
+  enableTimestamp: BigInt! # uint64
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
 
@@ -250,11 +277,12 @@ type latestRule @entity { # only one rule in ruleTypes
   chain1ResponseTime: Int # uint32
   chain0CompensationRatio: Int # uint32
   chain1CompensationRatio: Int # uint32
+  enableTimestamp: BigInt # uint64
   latestUpdateVersion: Int # uint32
   latestUpdateTimestamp: BigInt
   latestUpdateBlockNumber: BigInt
   latestUpdateHash: Bytes
-  # ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
+  ruleValidation: Boolean!
   ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
 }
 

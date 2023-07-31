@@ -463,9 +463,106 @@
         "type": "address"
       },
       {
-        "internalType": "bytes",
-        "name": "rsc",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "chainId0",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "chainId1",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "status0",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "status1",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "token0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "token1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint128",
+            "name": "minPrice0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "minPrice1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "maxPrice0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "maxPrice1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "withholdingFee0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "withholdingFee1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint16",
+            "name": "tradingFee0",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "tradingFee1",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "responseTime0",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "responseTime1",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "compensationRatio0",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "compensationRatio1",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "enableBlockNumber",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct RuleLib.Rule[]",
+        "name": "rules",
+        "type": "tuple[]"
       },
       {
         "components": [
@@ -508,9 +605,106 @@
         "type": "address"
       },
       {
-        "internalType": "bytes",
-        "name": "rsc",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "chainId0",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "chainId1",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "status0",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "status1",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "token0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "token1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint128",
+            "name": "minPrice0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "minPrice1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "maxPrice0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "maxPrice1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "withholdingFee0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "withholdingFee1",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint16",
+            "name": "tradingFee0",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "tradingFee1",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "responseTime0",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "responseTime1",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "compensationRatio0",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "compensationRatio1",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "enableBlockNumber",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct RuleLib.Rule[]",
+        "name": "rules",
+        "type": "tuple[]"
       },
       {
         "components": [

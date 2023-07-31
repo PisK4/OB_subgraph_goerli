@@ -19,7 +19,7 @@ import { funcERC20RootMockInput, mockMdcAddr } from "./mock-data"
 describe("Describe event RulesRootUpdated", () => {
   const ebcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
   // must exctly match the root and version in the mock data
-  const root = "0x7ebe77ed7c81615de84605e86617f45dfc2330be20892b1a6b2679068a40352a"
+  const root = "0xb3f19effe9df83a268c66c65808ee2828b0ec6c43cb400b31126f2682cf7c5c7"
   const version = "2"
   beforeAll(() => {
     let maker = Address.fromString("0xF2BE509057855b055f0515CCD0223BEf84D19ad4")
@@ -76,28 +76,28 @@ describe("Describe event RulesRootUpdated", () => {
   test("latestRule created and stored", () => {
     assert.fieldEquals(
       "latestRule",
-      "1-2",
+      "324-10",
       "id",
-      "1-2"
+      "324-10"
     )
 
     assert.fieldEquals(
       "latestRule",
-      "1-2",
+      "324-10",
       "mdc",
       mockMdcAddr.toLowerCase()
     )
 
     assert.fieldEquals(
       "latestRule",
-      "324-1",
+      "1-42161",
       "id",
-      "324-1"
+      "1-42161"
     )
 
     assert.fieldEquals(
       "latestRule",
-      "324-1",
+      "1-42161",
       "mdc",
       mockMdcAddr.toLowerCase()
     )    
