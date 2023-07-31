@@ -128,8 +128,16 @@ type EBCManager @entity{
 type MDCBindEBCAll @entity{
   id: ID! # mdc address
   ebcList: [Bytes!]! # ebc address array
+  ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
   ebcs: [MDCBindEBC!]! # MDCBindEBC
   mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
+}
+
+type ebcMapping @entity{
+  id: ID! # mdc address - ebc address
+  ebcAddr: Bytes # ebc address
+  ebcIndex: BigInt # uint64
+  MDCBindEBCAll: MDCBindEBCAll! @derivedFrom(field: "ebcMapping") # MDCBindEBCAll
 }
 
 # customed using entity

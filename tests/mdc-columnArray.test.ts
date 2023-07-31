@@ -225,6 +225,17 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )
   })
 
+  test("ebcMapping created and stored", () => {
+    assert.entityCount("ebcMapping", 2)
+
+    assert.fieldEquals(
+      "ebcMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb6ff6f7b0cd1633348877043ae92302139796686",
+      "ebcAddr",
+      "0xb6ff6f7b0cd1633348877043ae92302139796686"
+    )
+  })
+
 
 
 })

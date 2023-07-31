@@ -47,7 +47,8 @@ import {
     getMDCBindChainIdEntity,
     getMDCBindEBCAllEntity,
     mdcReBindEBC,
-    saveBindEBC2All
+    saveBindEBC2All,
+    mdcStoreEBCNewMapping
 } from "./helpers"
 import { 
     FactoryManger
@@ -159,7 +160,7 @@ export function handleColumnArrayUpdatedEvent (
         saveBindEBC2All(_MDCBindEBCAll, ebc.id)
         ebcSave(ebc, mdc, event)
     }
-    _MDCBindEBCAll.ebcList = ebcsBytes
+    mdcStoreEBCNewMapping(mdc, _MDCBindEBCAll, ebcsBytes)
     _MDCBindEBCAll.save() 
     
 

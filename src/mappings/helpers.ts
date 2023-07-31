@@ -22,6 +22,7 @@ import {
     MDCBindEBC,
     MDCBindEBCAll,
     MDCBindSPV,
+    ebcMapping,
     latestRule,
     rule,
     ruleTypes
@@ -30,7 +31,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 
 export const ZERO_BI = BigInt.fromI32(0)
@@ -403,7 +404,8 @@ export function mdcReBindEBC(
 ): void{
     let _MDCBindEBCAll = getMDCBindEBCAllEntity(mdc)
     let currentEBCs = _MDCBindEBCAll.ebcList
-    for(let i = 0; i < currentEBCs.length; i++){
+    _MDCBindEBCAll.ebcMapping = []
+    for(let i = 0; i < _MDCBindEBCAll.ebcList.length; i++){
         let ebc = EBC.load(currentEBCs[i].toHexString())
         if(ebc != null){
             let allMDCs = ebc.mdcList
@@ -421,6 +423,30 @@ export function mdcReBindEBC(
     _MDCBindEBCAll.save()
 }
 
+export function mdcStoreEBCNewMapping(
+    mdc: MDC,
+    _MDCBindEBCAll: MDCBindEBCAll,
+    newEBCs: Bytes[]
+): void{
+    _MDCBindEBCAll.ebcList = newEBCs
+    _MDCBindEBCAll.ebcMapping = []
+    for(let mappingIndex = 0 ; mappingIndex < newEBCs.length; mappingIndex++){
+        const id = getBindEbcId(
+            Address.fromString(mdc.id), 
+            Address.fromBytes(_MDCBindEBCAll.ebcList[mappingIndex])
+        )
+        let _ebcMapping = ebcMapping.load(id)
+        if(_ebcMapping == null){
+            _ebcMapping = new ebcMapping(id)
+        }   
+        log.info('update ebcMapping, id: {}', [id])
+        _ebcMapping.ebcAddr = _MDCBindEBCAll.ebcList[mappingIndex]
+        _ebcMapping.ebcIndex = BigInt.fromI32(mappingIndex)
+        _MDCBindEBCAll.ebcMapping = _MDCBindEBCAll.ebcMapping.concat([_ebcMapping.id])
+        _ebcMapping.save()
+    }
+
+}
 
 function saveColumnArray2MDC(
     mdc: MDC,

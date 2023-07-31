@@ -1173,6 +1173,19 @@ export class MDCBindEBCAll extends Entity {
     this.set("ebcList", Value.fromBytesArray(value));
   }
 
+  get ebcMapping(): Array<string> {
+    let value = this.get("ebcMapping");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ebcMapping(value: Array<string>) {
+    this.set("ebcMapping", Value.fromStringArray(value));
+  }
+
   get ebcs(): Array<string> {
     let value = this.get("ebcs");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1188,6 +1201,88 @@ export class MDCBindEBCAll extends Entity {
 
   get mdc(): MDCLoader {
     return new MDCLoader("MDCBindEBCAll", this.get("id")!.toString(), "mdc");
+  }
+}
+
+export class ebcMapping extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ebcMapping entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ebcMapping must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("ebcMapping", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ebcMapping | null {
+    return changetype<ebcMapping | null>(store.get_in_block("ebcMapping", id));
+  }
+
+  static load(id: string): ebcMapping | null {
+    return changetype<ebcMapping | null>(store.get("ebcMapping", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get ebcAddr(): Bytes | null {
+    let value = this.get("ebcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set ebcAddr(value: Bytes | null) {
+    if (!value) {
+      this.unset("ebcAddr");
+    } else {
+      this.set("ebcAddr", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get ebcIndex(): BigInt | null {
+    let value = this.get("ebcIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set ebcIndex(value: BigInt | null) {
+    if (!value) {
+      this.unset("ebcIndex");
+    } else {
+      this.set("ebcIndex", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get MDCBindEBCAll(): MDCBindEBCAllLoader {
+    return new MDCBindEBCAllLoader(
+      "ebcMapping",
+      this.get("id")!.toString(),
+      "MDCBindEBCAll"
+    );
   }
 }
 
