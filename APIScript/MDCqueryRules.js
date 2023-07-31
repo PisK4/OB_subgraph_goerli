@@ -6,14 +6,11 @@ const dataArray = [];
 axios.post('https://api.studio.thegraph.com/query/49058/cabin/version/latest',{
   query: `
   {
-    mdcs(where: {id: "0x09b9c0422e62b9efdbb686e6e1afe1ea7126f304"}) {
+    mdcs {
       id
       bindEBCs {
         id
-        ebcList
-        ebcs(
-          where: {id: "0x09b9c0422e62b9efdbb686e6e1afe1ea7126f304-0x23aab544e2f2e83d9cd8ece21508f067fcbedd76"}
-        ) {
+        ebcs(where: {ebc: "0x422ce07aff721b109490f4d7a5a92f16aef8ad7a"}) {
           id
           latestRule {
             chain0
