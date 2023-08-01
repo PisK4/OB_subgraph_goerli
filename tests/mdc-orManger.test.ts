@@ -80,6 +80,17 @@ describe("Describe check responseMakers Event", () => {
       "MDC",
       mockMdcAddr.toLowerCase(),
       "responseMakers",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+  })
+
+  test("ResponseMakersUpdated created and stored", () => {
+    assert.entityCount("ResponseMakersUpdated", 1)
+
+    assert.fieldEquals(
+      "ResponseMakersUpdated",
+      mockMdcAddr.toLowerCase(),
+      "responseMakerList",
       "[0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb, 0x9eabd8a598857fc4238899d6edd42d6158ab23b8\]"
     )
   })

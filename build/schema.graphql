@@ -34,12 +34,12 @@ type ColumnArrayUpdated @entity(immutable: true) {
 
 # unused entity, but it's binding in contract Event, so we need to define it
 type ResponseMakersUpdated @entity(immutable: true) {
-  id: Bytes!
-  # impl: Bytes! # address
-  # responseMakers: [BigInt!] # uint256[]
-  # blockNumber: BigInt!
-  # blockTimestamp: BigInt!
-  # transactionHash: Bytes!
+  id: ID! # mdc address
+  responseMakerList: [Bytes!]! # responseMaker address array
+  mdc: MDC! @derivedFrom(field: "responseMakers") # MDC
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
 }
 
 # unused entity, but it's binding in contract Event, so we need to define it
@@ -79,7 +79,7 @@ type MDCCreated @entity(immutable: true) {
 type MDC @entity {
   id: ID! # MDC ADDRESS
   owner: Bytes! # address
-  responseMakers: [Bytes!] # address[]
+  responseMakers: [ResponseMakersUpdated!]!
   bindDealers: MDCBindDealer
   bindChainIds: MDCBindChainId
   bindEBCs: MDCBindEBCAll
@@ -93,6 +93,15 @@ type MDC @entity {
   createtransactionHash: Bytes!
   latestUpdatetransactionHash: Bytes!
 
+}
+# customed using entity
+type MDCBindResponseMaker @entity{
+  id: ID! # mdc address
+  # responseMakerList: [Bytes!]! # responseMaker address array
+  # mdc: MDC! @derivedFrom(field: "responseMakers") # MDC
+  # latestUpdateHash: Bytes
+  # latestUpdateTimestamp: BigInt
+  # latestUpdateBlockNumber: BigInt
 }
 
 # customed using entity
@@ -256,8 +265,8 @@ type rule @entity { # only one rule in ruleTypes
 }
 
 # customed using entitys
-type latestRule @entity { # only one rule in ruleTypes
-  id: ID! #chain0-chain1
+type latestRule @entity { # latest rule in MDCBindEBC
+  id: ID! # mdc-ebc-chain0-chain1
   mdc: Bytes # mdc address
   chain0: BigInt # uint64
   chain1: BigInt # uint64

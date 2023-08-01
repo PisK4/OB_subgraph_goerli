@@ -22,7 +22,9 @@ import {
     MDCBindDealer, 
     MDCBindEBC,
     MDCBindEBCAll,
+    MDCBindResponseMaker,
     MDCBindSPV,
+    ResponseMakersUpdated,
     chainIdMapping,
     ebcMapping,
     latestRule,
@@ -51,9 +53,7 @@ export const func_updateRulesRootERC20 = "0xcbfed2d6"//"0x0e9601ae"//"0x16d38f5d
 export const func_registerChains ="0xba6051a5"
 export const func_updateChainSpvs = "0xf0373f91"
 // function selectors for decode
-// export const func_updateRulesRootSelector = "(address,bytes,(bytes32,uint32),uint64[],uint256[])"//"(address,bytes,(bytes32,uint32),uint16[],uint256[])"
 export const func_updateRulesRootSelector ="(address,(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32,uint64)[],(bytes32,uint32),uint64[],uint256[])"
-// export const func_updateRulesRootERC20Selector = "(address,bytes,(bytes32,uint32),uint64[],uint256[],address)"//"(address,bytes,(bytes32,uint32),uint16[],uint256[],address)"
 export const func_updateRulesRootERC20Selector ="(address,(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32,uint64)[],(bytes32,uint32),uint64[],uint256[],address)"
 export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
 export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)[]"
@@ -244,7 +244,7 @@ export function getMDCEntity(
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker
         mdc.columnArrayUpdated = []
-        // mdc.bindEBCs = []
+        mdc.responseMakers = []
         mdc.bindSPVs = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
@@ -506,7 +506,24 @@ export function mdcStoreChainIdNewMapping(
         _chainIdMapping.save()
     }
 }
-        
+
+export function mdcStoreResponseMaker(
+    mdc: MDC,
+    responseMakersBytes: Bytes[],
+    event: ethereum.Event
+): void{
+    let responseMakers = ResponseMakersUpdated.load(mdc.id)
+    if(responseMakers == null){
+        responseMakers = new ResponseMakersUpdated(mdc.id)
+        responseMakers.responseMakerList = []
+        mdc.responseMakers = mdc.responseMakers.concat([responseMakers.id])
+    }
+    responseMakers.responseMakerList = responseMakersBytes
+    responseMakers.latestUpdateBlockNumber = event.block.number
+    responseMakers.latestUpdateTimestamp = event.block.timestamp
+    responseMakers.latestUpdateHash = event.transaction.hash
+    responseMakers.save()
+}    
 
 function saveColumnArray2MDC(
     mdc: MDC,
@@ -1146,7 +1163,7 @@ function updateLatestRules(
     mdc: MDC,
     ebc: MDCBindEBC
 ):void{
-    let id = rsc.chain0.toString() + "-" + rsc.chain1.toString()
+    let id = ebc.id + "-" + rsc.chain0.toString() + "-" + rsc.chain1.toString()
     let _rule = latestRule.load(id)
     if(_rule == null){
         _rule = new latestRule(id)

@@ -74,30 +74,31 @@ describe("Describe event RulesRootUpdated", () => {
   })
 
   test("latestRule created and stored", () => {
+    // id: mdc + ebc + chain0 + chain1
     assert.fieldEquals(
       "latestRule",
-      "324-10",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-324-10",
       "id",
-      "324-10"
+      mockMdcAddr.toLowerCase() + "-" + "0xb3d1b704dd7f7acf9fddcee2868388838f859e0f" + "-324-10"
     )
 
     assert.fieldEquals(
       "latestRule",
-      "324-10",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-324-10",
       "mdc",
       mockMdcAddr.toLowerCase()
     )
 
     assert.fieldEquals(
       "latestRule",
-      "1-42161",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-1-42161",
       "id",
-      "1-42161"
+      mockMdcAddr.toLowerCase() + "-" + "0xb3d1b704dd7f7acf9fddcee2868388838f859e0f" + "-1-42161"
     )
 
     assert.fieldEquals(
       "latestRule",
-      "1-42161",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-1-42161",
       "mdc",
       mockMdcAddr.toLowerCase()
     )    

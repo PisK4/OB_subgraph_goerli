@@ -50,7 +50,8 @@ import {
     saveBindEBC2All,
     mdcStoreEBCNewMapping,
     mdcStoreDealerNewMapping,
-    mdcStoreChainIdNewMapping
+    mdcStoreChainIdNewMapping,
+    mdcStoreResponseMaker
 } from "./helpers"
 import { 
     FactoryManger
@@ -275,7 +276,7 @@ export function handleResponseMakersUpdatedEvent(
     // log.info('mdc{} update responseMakers: {}', [mdcAddress.toHexString(), responseMakers[i].toString()])
     responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
   }
-  mdc.responseMakers = responseMakersBytes
+  mdcStoreResponseMaker(mdc, responseMakersBytes, event)
   mdc.save()
 }
 
