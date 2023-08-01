@@ -15,6 +15,7 @@ import { createColumnArrayUpdatedEvent, createRulesRootUpdatedEvent } from "./md
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { funcERC20RootMockInput, mockMdcAddr } from "./mock-data"
+import { ORMangerID, EBCManagerID } from "../src/mappings/helpers"
 
 describe("Describe event RulesRootUpdated", () => {
   const ebcAddress = "0x28c2a37ff5f74fe17d9c30c15a1234ad48dd9929"
@@ -103,5 +104,4 @@ describe("Describe event RulesRootUpdated", () => {
       mockMdcAddr.toLowerCase()
     )    
   })
-
 })

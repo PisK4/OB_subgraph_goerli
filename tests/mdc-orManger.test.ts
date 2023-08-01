@@ -29,6 +29,7 @@ import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
   EBCManagerID,
+  ORMangerID,
   getBindEbcId 
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "./mock-data"
@@ -188,6 +189,4 @@ describe("Describe check ChainTokenUpdated Event", () => {
         mockToken
       )
     })
-
-
 })

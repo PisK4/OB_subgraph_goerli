@@ -3497,30 +3497,34 @@ export class ORManager extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get chainInfoManager(): string {
+  get chainInfoManager(): Array<string> {
     let value = this.get("chainInfoManager");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toString();
+      return value.toStringArray();
     }
   }
 
-  set chainInfoManager(value: string) {
-    this.set("chainInfoManager", Value.fromString(value));
+  set chainInfoManager(value: Array<string>) {
+    this.set("chainInfoManager", Value.fromStringArray(value));
   }
 
-  get ebcManager(): string {
+  get ebcManager(): string | null {
     let value = this.get("ebcManager");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set ebcManager(value: string) {
-    this.set("ebcManager", Value.fromString(value));
+  set ebcManager(value: string | null) {
+    if (!value) {
+      this.unset("ebcManager");
+    } else {
+      this.set("ebcManager", Value.fromString(<string>value));
+    }
   }
 }
 

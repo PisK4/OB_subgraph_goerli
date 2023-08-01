@@ -153,8 +153,26 @@ function saveEBCMgr2ORMgr(
     let _ORManger = ORManager.load(ORMangerID)
     if(_ORManger == null){
         _ORManger = new ORManager(ORMangerID)
+        _ORManger.chainInfoManager = []
     }
     _ORManger.ebcManager = _EBCManager.id
+    _ORManger.save()
+}
+
+function saveChainInfoMgr2ORMgr(
+    _ChainInfoMgr: ChainInfoUpdated
+): void{
+    let _ORManger = ORManager.load(ORMangerID)
+    if(_ORManger == null){
+        _ORManger = new ORManager(ORMangerID)
+        _ORManger.chainInfoManager = []
+    }
+    if(_ORManger.chainInfoManager == null){
+        _ORManger.chainInfoManager = [_ChainInfoMgr.id]
+    }else if(!_ORManger.chainInfoManager.includes(_ChainInfoMgr.id)){
+        _ORManger.chainInfoManager = _ORManger.chainInfoManager.concat([_ChainInfoMgr.id])
+    }
+    _ORManger.save()
 }
 
 
@@ -175,6 +193,7 @@ export function ebcSave(
     ebc.latestUpdateHash = event.transaction.hash
     saveMDC2EBC(ebc, mdc)
     ebc.save()
+    // ebc may not registered in EBCManager, so we don't update EBCManager here
     // ebcManagerUpdate(Address.fromString(ebcId), event)
     MDCBindEBC.save()
 }
@@ -313,6 +332,7 @@ export function getChainInfoEntity(
         _chainInfo = new ChainInfoUpdated(id)
         _chainInfo.token = []
         _chainInfo.spv = []
+        saveChainInfoMgr2ORMgr(_chainInfo)
     }
     _chainInfo.latestUpdateHash = event.transaction.hash
     _chainInfo.latestUpdateBlockNumber = event.block.number
