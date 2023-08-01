@@ -11,7 +11,6 @@ import {
 } from '@graphprotocol/graph-ts'
 import { 
     ChainInfoUpdated,
-    ChainTokenEBCManager,
     ChainTokenUpdated,
     ColumnArrayUpdated,
     DealerMapping,
@@ -24,6 +23,7 @@ import {
     MDCBindEBCAll,
     MDCBindResponseMaker,
     MDCBindSPV,
+    ORManager,
     ResponseMakersUpdated,
     chainIdMapping,
     ebcMapping,
@@ -70,7 +70,7 @@ export enum ChainInfoUpdatedMode {
 }
 // define the ManagersIDs
 export const EBCManagerID = "EBCManagerID_101" as string
-export const superMangerID = "superMangerID_101" as string
+export const ORMangerID = "ORMangerID_101" as string
 
 export function getONEBytes(): Bytes {
     if(ONE_BYTES.length == 0) {
@@ -120,7 +120,7 @@ export function ebcManagerUpdate(
         ebc.mdcList = []
     }    
     ebc.statuses = status
-    ebc.latestUpdatetransactionHash = event.transaction.hash
+    ebc.latestUpdateHash = event.transaction.hash
     
     let _EBCManager = EBCManager.load(EBCManagerID)
     if(_EBCManager == null){
@@ -130,8 +130,7 @@ export function ebcManagerUpdate(
         _EBCManager.latestUpdateHash = event.transaction.hash
         _EBCManager.latestUpdateBlockNumber = event.block.number
         _EBCManager.latestUpdateTimestamp = event.block.timestamp  
-        
-        let superManager = ChainTokenEBCManager.load(superMangerID)
+        saveEBCMgr2ORMgr(_EBCManager)
     }
     if(!_EBCManager.ebcs.includes(ebcId)){
         _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)  
@@ -148,6 +147,17 @@ export function ebcManagerUpdate(
     _EBCManager.save() 
 }
 
+function saveEBCMgr2ORMgr(
+    _EBCManager: EBCManager
+): void{
+    let _ORManger = ORManager.load(ORMangerID)
+    if(_ORManger == null){
+        _ORManger = new ORManager(ORMangerID)
+    }
+    _ORManger.ebcManager = _EBCManager.id
+}
+
+
 export function ebcSave(
     MDCBindEBC: MDCBindEBC,
     mdc: MDC,
@@ -162,7 +172,7 @@ export function ebcSave(
         ebc.statuses = true
         ebc.mdcList = []
     }
-    ebc.latestUpdatetransactionHash = event.transaction.hash
+    ebc.latestUpdateHash = event.transaction.hash
     saveMDC2EBC(ebc, mdc)
     ebc.save()
     // ebcManagerUpdate(Address.fromString(ebcId), event)
@@ -301,6 +311,7 @@ export function getChainInfoEntity(
     if (_chainInfo == null) {
         log.info('create new ChainInfo, id: {}', [id])
         _chainInfo = new ChainInfoUpdated(id)
+        _chainInfo.token = []
         _chainInfo.spv = []
     }
     _chainInfo.latestUpdateHash = event.transaction.hash
@@ -331,16 +342,22 @@ function calChainTokkenId(
 
 export function getChainTokenUpdatedEntity(
     id: BigInt,
-    token: BigInt
+    token: BigInt,
+    event: ethereum.Event
 ): ChainTokenUpdated {
-    const key = calChainTokkenId(id, token)
-    let _chainTokenUpdated = ChainTokenUpdated.load(key)
-    if (_chainTokenUpdated == null) {
-        log.info('create new ChainTokenUpdated, id: {}', [key])
-        _chainTokenUpdated = new ChainTokenUpdated(key)
+    let tokenId = id.toString() + "-" + token.toString()
+    let chainInfo = getChainInfoEntity(event, id)
+    let tokenInfo = ChainTokenUpdated.load(tokenId)
+    if (tokenInfo == null) {
+        log.info('create new ChainTokenUpdated, id: {}', [tokenId])
+        tokenInfo = new ChainTokenUpdated(tokenId)
+        saveTokenInfo2ChainInfo(chainInfo, tokenId)
+        chainInfo.save()
     }
-
-    return _chainTokenUpdated as ChainTokenUpdated
+    tokenInfo.latestUpdateBlockNumber = event.block.number
+    tokenInfo.latestUpdateTimestamp = event.block.timestamp
+    tokenInfo.latestUpdateHash = event.transaction.hash
+    return tokenInfo as ChainTokenUpdated
 }
 
 export function getColumnArrayUpdatedEntity(
@@ -533,6 +550,17 @@ function saveColumnArray2MDC(
         mdc.columnArrayUpdated = [columnArray.id];
     } else if (!mdc.columnArrayUpdated.includes(columnArray.id)) {
         mdc.columnArrayUpdated = mdc.columnArrayUpdated.concat([columnArray.id])
+    }
+}
+
+function saveTokenInfo2ChainInfo(
+    chainInfo: ChainInfoUpdated,
+    tokenId: string
+): void {
+    if (chainInfo.token == null) {
+        chainInfo.token = [tokenId];
+    } else if (!chainInfo.token.includes(tokenId)) {
+        chainInfo.token = chainInfo.token.concat([tokenId])
     }
 }
 

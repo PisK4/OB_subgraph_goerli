@@ -127,7 +127,7 @@ type EBCManager @entity{
   id: ID! 
   ebcCounts: BigInt!
   ebcs: [EBC!]! # ebc entity
-  manger: ChainTokenEBCManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
+  manger: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   
   latestUpdateHash: Bytes!
   latestUpdateTimestamp: BigInt!
@@ -224,7 +224,7 @@ type EBC @entity {
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
   statuses: Boolean!
   ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
-  latestUpdatetransactionHash: Bytes!
+  latestUpdateHash: Bytes!
 }
 
 # customed using entity
@@ -297,14 +297,15 @@ type latestRule @entity { # latest rule in MDCBindEBC
 
 # using entity, binding in contract Event
 type ChainInfoUpdated @entity{
-  id: ID!
+  id: ID! # chainId
+  token: [ChainTokenUpdated!]! # ChainToken
   spv: [Bytes!]! # address[]
   batchLimit: BigInt # uint192
   minVerifyChallengeSourceTxSecond: BigInt # uint64
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
-  manger: ChainTokenEBCManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
+  manger: ORManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: Bytes!
@@ -312,23 +313,22 @@ type ChainInfoUpdated @entity{
 
 # using entity, binding in contract Event
 type ChainTokenUpdated @entity(immutable: true) {
-  id: ID!
-  inputId: BigInt # uint64
+  id: ID! # chainId - token
+  # inputId: BigInt # uint64
   token: BigInt # uint
   mainnetToken: Bytes # address
   decimals: Int # uint8
-  manager: ChainTokenEBCManager! @derivedFrom(field: "tokenManager") # ChainTokenEBCManager
-  blockNumber: BigInt
-  blockTimestamp: BigInt
-  transactionHash: Bytes
+  chain: ChainInfoUpdated! @derivedFrom(field: "token") # ChainInfo
+  latestUpdateBlockNumber: BigInt!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateHash: Bytes!
 }
 
 # customed using entity
-type ChainTokenEBCManager @entity{
+type ORManager @entity{
   id: ID!  # Manger ID
   chainInfoManager: ChainInfoUpdated! # ChainInfo
   ebcManager: EBCManager! # EBCs
-  tokenManager: ChainTokenUpdated! # ChainToken
 }
 
 type ChallengeUserRatioUpdated @entity(immutable: true) {

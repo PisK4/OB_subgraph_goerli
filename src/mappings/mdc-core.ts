@@ -241,25 +241,16 @@ export function handleChainInfoUpdatedEvent(
 
 export function handleChainTokenUpdatedEvent(
   event: ethereum.Event,
-  id: BigInt,
+  chainId: BigInt,
   tokenInfo: ChainTokenUpdatedTokenInfoStruct
 ): void {
-  let inputId = id
   let token = tokenInfo.token
   let mainnetToken = tokenInfo.mainnetToken
   let decimals = tokenInfo.decimals
-
-  let chainToken = getChainTokenUpdatedEntity(inputId, token)
-
-  chainToken.inputId = id
-  chainToken.token = tokenInfo.token
-  chainToken.mainnetToken = tokenInfo.mainnetToken
-  chainToken.decimals = tokenInfo.decimals
-
-  chainToken.blockNumber = event.block.number
-  chainToken.blockTimestamp = event.block.timestamp
-  chainToken.transactionHash = event.transaction.hash
-
+  let chainToken = getChainTokenUpdatedEntity(chainId, token, event)
+  chainToken.token = token
+  chainToken.mainnetToken = mainnetToken
+  chainToken.decimals = decimals
   chainToken.save()  
 
 }

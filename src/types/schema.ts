@@ -1183,8 +1183,8 @@ export class EBCManager extends Entity {
     this.set("ebcs", Value.fromStringArray(value));
   }
 
-  get manger(): ChainTokenEBCManagerLoader {
-    return new ChainTokenEBCManagerLoader(
+  get manger(): ORManagerLoader {
+    return new ORManagerLoader(
       "EBCManager",
       this.get("id")!.toString(),
       "manger"
@@ -2242,8 +2242,8 @@ export class EBC extends Entity {
     );
   }
 
-  get latestUpdatetransactionHash(): Bytes {
-    let value = this.get("latestUpdatetransactionHash");
+  get latestUpdateHash(): Bytes {
+    let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -2251,8 +2251,8 @@ export class EBC extends Entity {
     }
   }
 
-  set latestUpdatetransactionHash(value: Bytes) {
-    this.set("latestUpdatetransactionHash", Value.fromBytes(value));
+  set latestUpdateHash(value: Bytes) {
+    this.set("latestUpdateHash", Value.fromBytes(value));
   }
 }
 
@@ -3149,6 +3149,19 @@ export class ChainInfoUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get token(): Array<string> {
+    let value = this.get("token");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set token(value: Array<string>) {
+    this.set("token", Value.fromStringArray(value));
+  }
+
   get spv(): Array<Bytes> {
     let value = this.get("spv");
     if (!value || value.kind == ValueKind.NULL) {
@@ -3259,8 +3272,8 @@ export class ChainInfoUpdated extends Entity {
     }
   }
 
-  get manger(): ChainTokenEBCManagerLoader {
-    return new ChainTokenEBCManagerLoader(
+  get manger(): ORManagerLoader {
+    return new ORManagerLoader(
       "ChainInfoUpdated",
       this.get("id")!.toString(),
       "manger"
@@ -3350,23 +3363,6 @@ export class ChainTokenUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get inputId(): BigInt | null {
-    let value = this.get("inputId");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set inputId(value: BigInt | null) {
-    if (!value) {
-      this.unset("inputId");
-    } else {
-      this.set("inputId", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
   get token(): BigInt | null {
     let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
@@ -3414,67 +3410,55 @@ export class ChainTokenUpdated extends Entity {
     this.set("decimals", Value.fromI32(value));
   }
 
-  get manager(): ChainTokenEBCManagerLoader {
-    return new ChainTokenEBCManagerLoader(
+  get chain(): ChainInfoUpdatedLoader {
+    return new ChainInfoUpdatedLoader(
       "ChainTokenUpdated",
       this.get("id")!.toString(),
-      "manager"
+      "chain"
     );
   }
 
-  get blockNumber(): BigInt | null {
-    let value = this.get("blockNumber");
+  get latestUpdateBlockNumber(): BigInt {
+    let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set blockNumber(value: BigInt | null) {
-    if (!value) {
-      this.unset("blockNumber");
-    } else {
-      this.set("blockNumber", Value.fromBigInt(<BigInt>value));
-    }
+  set latestUpdateBlockNumber(value: BigInt) {
+    this.set("latestUpdateBlockNumber", Value.fromBigInt(value));
   }
 
-  get blockTimestamp(): BigInt | null {
-    let value = this.get("blockTimestamp");
+  get latestUpdateTimestamp(): BigInt {
+    let value = this.get("latestUpdateTimestamp");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set blockTimestamp(value: BigInt | null) {
-    if (!value) {
-      this.unset("blockTimestamp");
-    } else {
-      this.set("blockTimestamp", Value.fromBigInt(<BigInt>value));
-    }
+  set latestUpdateTimestamp(value: BigInt) {
+    this.set("latestUpdateTimestamp", Value.fromBigInt(value));
   }
 
-  get transactionHash(): Bytes | null {
-    let value = this.get("transactionHash");
+  get latestUpdateHash(): Bytes {
+    let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytes();
     }
   }
 
-  set transactionHash(value: Bytes | null) {
-    if (!value) {
-      this.unset("transactionHash");
-    } else {
-      this.set("transactionHash", Value.fromBytes(<Bytes>value));
-    }
+  set latestUpdateHash(value: Bytes) {
+    this.set("latestUpdateHash", Value.fromBytes(value));
   }
 }
 
-export class ChainTokenEBCManager extends Entity {
+export class ORManager extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -3482,26 +3466,22 @@ export class ChainTokenEBCManager extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save ChainTokenEBCManager entity without an ID");
+    assert(id != null, "Cannot save ORManager entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type ChainTokenEBCManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ORManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ChainTokenEBCManager", id.toString(), this);
+      store.set("ORManager", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ChainTokenEBCManager | null {
-    return changetype<ChainTokenEBCManager | null>(
-      store.get_in_block("ChainTokenEBCManager", id)
-    );
+  static loadInBlock(id: string): ORManager | null {
+    return changetype<ORManager | null>(store.get_in_block("ORManager", id));
   }
 
-  static load(id: string): ChainTokenEBCManager | null {
-    return changetype<ChainTokenEBCManager | null>(
-      store.get("ChainTokenEBCManager", id)
-    );
+  static load(id: string): ORManager | null {
+    return changetype<ORManager | null>(store.get("ORManager", id));
   }
 
   get id(): string {
@@ -3541,19 +3521,6 @@ export class ChainTokenEBCManager extends Entity {
 
   set ebcManager(value: string) {
     this.set("ebcManager", Value.fromString(value));
-  }
-
-  get tokenManager(): string {
-    let value = this.get("tokenManager");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set tokenManager(value: string) {
-    this.set("tokenManager", Value.fromString(value));
   }
 }
 
@@ -4452,7 +4419,7 @@ export class EBCLoader extends Entity {
   }
 }
 
-export class ChainTokenEBCManagerLoader extends Entity {
+export class ORManagerLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -4464,9 +4431,9 @@ export class ChainTokenEBCManagerLoader extends Entity {
     this._field = field;
   }
 
-  load(): ChainTokenEBCManager[] {
+  load(): ORManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<ChainTokenEBCManager[]>(value);
+    return changetype<ORManager[]>(value);
   }
 }
 
@@ -4575,5 +4542,23 @@ export class ruleTypesLoader extends Entity {
   load(): ruleTypes[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ruleTypes[]>(value);
+  }
+}
+
+export class ChainInfoUpdatedLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ChainInfoUpdated[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ChainInfoUpdated[]>(value);
   }
 }

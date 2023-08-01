@@ -99,7 +99,7 @@ describe("Describe check responseMakers Event", () => {
 
 describe("Describe check ChainInfoUpdated Event", () => {
   beforeAll(() => {
-    let id = BigInt.fromString("1")
+    let id = BigInt.fromString("985")
     let batchLimit = BigInt.fromI32(100)
     let minVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
     let maxVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
@@ -134,8 +134,9 @@ describe("Describe check ChainInfoUpdated Event", () => {
 describe("Describe check ChainTokenUpdated Event", () => {
     const mockToken = "196376302172346843968590065221485113559586934957"
     const mockMainnetToken = "0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb"
+    const Chainid = "985"
     beforeAll(() => {
-      let id = BigInt.fromString("1")
+      let _chainId = BigInt.fromString(Chainid)
       let token = BigInt.fromString(mockToken)
       let mainnetToken = Address.fromString(mockMainnetToken)
       let decimals = 18
@@ -147,7 +148,7 @@ describe("Describe check ChainTokenUpdated Event", () => {
       const tokenInfo = changetype<ethereum.Tuple>(tupleArray);   
 
       const newChainTokenUpdatedEvent = createChainTokenUpdatedEvent(
-        id,
+        _chainId,
         tokenInfo
       )
 
@@ -158,8 +159,34 @@ describe("Describe check ChainTokenUpdated Event", () => {
       clearStore()
     })
 
+    test("ChainInfoUpdated created and stored", () => {
+      assert.entityCount("ChainInfoUpdated", 1)
+
+      assert.fieldEquals(
+        "ChainInfoUpdated",
+        Chainid.toString(),
+        "token",
+        "[985-196376302172346843968590065221485113559586934957\]"
+      )
+
+    })
+
     test("ChainTokenUpdated created and stored", () => {
       assert.entityCount("ChainTokenUpdated", 1)
+
+      assert.fieldEquals(
+        "ChainTokenUpdated",
+        Chainid.toString() + "-" + mockToken,
+        "id",
+        Chainid.toString() + "-" + mockToken
+      )
+
+      assert.fieldEquals(
+        "ChainTokenUpdated",
+        Chainid.toString() + "-" + mockToken,
+        "token",
+        mockToken
+      )
     })
 
 
