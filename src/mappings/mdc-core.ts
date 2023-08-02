@@ -144,7 +144,7 @@ export function handleColumnArrayUpdatedEvent (
     for(let i = 0; i < uniqueDealers.length; i++){
         dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
-    let _dealers = getMDCBindDealerEntity(mdc,dealersBytes)
+    let _dealers = getMDCBindDealerEntity(mdc, event)
     mdcStoreDealerNewMapping(mdc, _dealers, dealersBytes, event)
     _dealers.save()
 

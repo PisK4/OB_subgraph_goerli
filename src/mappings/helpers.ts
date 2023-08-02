@@ -13,6 +13,7 @@ import {
     ChainInfoUpdated,
     ChainTokenUpdated,
     ColumnArrayUpdated,
+    Dealer,
     DealerMapping,
     EbcsUpdated, 
     MDC, 
@@ -21,6 +22,7 @@ import {
     MDCBindEBC,
     MDCBindEBCAll,
     MDCBindSPV,
+    MDCMapping,
     ORManger,
     ResponseMakersUpdated,
     chainIdMapping,
@@ -280,6 +282,7 @@ export function getMDCEntity(
         mdc.columnArrayUpdated = []
         mdc.responseMakers = []
         mdc.bindSPVs = []
+        mdc.bindDealers = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
         mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
@@ -351,6 +354,23 @@ export function encode(values: Array<ethereum.Value>): Bytes {
     )!;
 }
 
+export function getMDCMappingEntity(
+    mdc: MDC,
+    event: ethereum.Event
+): MDCMapping {
+    let _MDCMapping = MDCMapping.load(mdc.id)
+    if(_MDCMapping == null){
+        _MDCMapping = new MDCMapping(mdc.id)
+        _MDCMapping.dealerMapping = []
+        _MDCMapping.ebcMapping = []
+        _MDCMapping.chainIdMapping = []
+    }
+    _MDCMapping.latestUpdateBlockNumber = event.block.number
+    _MDCMapping.latestUpdateTimestamp = event.block.timestamp
+    _MDCMapping.latestUpdateHash = event.transaction.hash
+    return _MDCMapping as MDCMapping
+}
+
 function calChainTokkenId(
     chainId: BigInt,
     token: BigInt
@@ -418,18 +438,24 @@ export function getMDCBindSPVEntity(
 
 export function getMDCBindDealerEntity(
     mdc: MDC,
-    dealersBytes: Bytes[],
+    event: ethereum.Event
 ): MDCBindDealer{
-    let dealer = MDCBindDealer.load(mdc.id)
+    const id = createEventID(event)
+    let dealer = MDCBindDealer.load(id)
     if(dealer == null){
-        dealer = new MDCBindDealer(mdc.id)
+        log.info('create new MDCBindDealer, id: {}', [id])
+        dealer = new MDCBindDealer(id)
         dealer.dealerList = []
         dealer.dealerMapping = []
-        mdc.bindDealers = dealer.id
+        dealer.latestUpdateBlockNumber = event.block.number
+        dealer.latestUpdateTimestamp = event.block.timestamp
+        dealer.latestUpdateHash = event.transaction.hash
+        mdc.bindDealers = mdc.bindDealers.concat([dealer.id])
     }
-    dealer.dealerList = dealersBytes
     return dealer as MDCBindDealer
 }
+
+
 
 export function getMDCBindChainIdEntity(
     mdc: MDC,
@@ -498,29 +524,100 @@ export function mdcStoreEBCNewMapping(
     }
 }
 
+function removeMDCFromDealer(
+    mdc: MDC,
+    dealer: Bytes[],
+    event: ethereum.Event
+): void{
+    for(let i = 0; i < dealer.length; i++){
+        let _dealer = Dealer.load(dealer[i].toHexString())
+        if(_dealer != null){
+            log.debug("remove mdc from dealer {}/{}, dealer: {}, mdc: {}", [(i+1).toString(), dealer.length.toString(), dealer[i].toHexString(), mdc.id])
+            let _mdcs = _dealer.mdcs
+            let index = _mdcs.indexOf(mdc.id)
+            if (index > -1) {
+                _mdcs.splice(index, 1);
+            }
+            _dealer.mdcs = _mdcs
+            _dealer.save()
+        }
+        const mappingId = mdc.id + "-" + dealer[i].toHexString()
+        let _dealerMapping = DealerMapping.load(mappingId)
+        if(_dealerMapping != null){
+            _dealerMapping.latestUpdateBlockNumber = event.block.number
+            _dealerMapping.latestUpdateTimestamp = event.block.timestamp
+            _dealerMapping.latestUpdateHash = event.transaction.hash
+            _dealerMapping.save()
+        }
+    }   
+}
+
 export function mdcStoreDealerNewMapping(
     mdc: MDC,
     _MDCBindDealer: MDCBindDealer,
     newDealers: Bytes[],
     event: ethereum.Event
 ): void{
+    let mdcMapping = getMDCMappingEntity(mdc, event)
+    let latesMappingTmp = [] as string[]
+    let snapshotMappingTmp = [] as string[]
+    removeMDCFromDealer(mdc, _MDCBindDealer.dealerList, event)
+    mdcMapping.dealerMapping = []
     _MDCBindDealer.dealerList = newDealers
     _MDCBindDealer.dealerMapping = []
     for(let mappingIndex = 0 ; mappingIndex < newDealers.length; mappingIndex++){
-        const id = mdc.id + "-" + newDealers[mappingIndex].toHexString()
-        let _dealerMapping = DealerMapping.load(id)
+        const latestMappingId = mdc.id + "-" + newDealers[mappingIndex].toHexString()
+        
+        let _dealerMapping = DealerMapping.load(latestMappingId)
         if(_dealerMapping == null){
-            _dealerMapping = new DealerMapping(id)
+            _dealerMapping = new DealerMapping(latestMappingId)
+            
+            // mdcMapping.save()
         }
-        log.info('update dealerMapping, id: {}', [id])
-        _dealerMapping.dealerAddr = newDealers[mappingIndex]
-        _dealerMapping.dealerIndex = BigInt.fromI32(mappingIndex+1)
-        _dealerMapping.latestUpdateBlockNumber = event.block.number
-        _dealerMapping.latestUpdateTimestamp = event.block.timestamp
-        _dealerMapping.latestUpdateHash = event.transaction.hash
-        _MDCBindDealer.dealerMapping = _MDCBindDealer.dealerMapping.concat([_dealerMapping.id])
+        const snapshotId = _MDCBindDealer.id + "-" + newDealers[mappingIndex].toHexString()
+        let _MDCBindDealerSnapshot = DealerMapping.load(snapshotId)
+        if(_MDCBindDealerSnapshot == null){
+            _MDCBindDealerSnapshot = new DealerMapping(snapshotId)
+        }
+
+        log.info('update dealerMapping, id: {}', [latestMappingId])
+        _MDCBindDealerSnapshot.dealerAddr = _dealerMapping.dealerAddr = newDealers[mappingIndex]
+        _MDCBindDealerSnapshot.dealerIndex = _dealerMapping.dealerIndex = BigInt.fromI32(mappingIndex+1)
+        _MDCBindDealerSnapshot.latestUpdateBlockNumber = _dealerMapping.latestUpdateBlockNumber = event.block.number
+        _MDCBindDealerSnapshot.latestUpdateTimestamp =  _dealerMapping.latestUpdateTimestamp = event.block.timestamp
+        _MDCBindDealerSnapshot.latestUpdateHash = _dealerMapping.latestUpdateHash = event.transaction.hash
+        // _MDCBindDealer.dealerMapping = _MDCBindDealer.dealerMapping.concat([_MDCBindDealerSnapshot.id])
+        // mdcMapping.dealerMapping = mdcMapping.dealerMapping.concat([latestMappingId])
+        snapshotMappingTmp = snapshotMappingTmp.concat([snapshotId])
+        latesMappingTmp = latesMappingTmp.concat([latestMappingId])
+        
         _dealerMapping.save()
+        _MDCBindDealerSnapshot.save()
+        let _dealer = getDealerEntity(newDealers[mappingIndex], event)
+        saveMDC2Dealer(_dealer, mdc.id)
+        _dealer.save()
     }
+    mdcMapping.dealerMapping = latesMappingTmp
+    _MDCBindDealer.dealerMapping = snapshotMappingTmp
+    mdcMapping.save()
+}
+
+export function getDealerEntity(
+    dealer: Bytes,
+    event: ethereum.Event
+): Dealer{
+    let id = dealer.toHexString()
+    let _dealer = Dealer.load(id)
+    if (_dealer == null) {
+        _dealer = new Dealer(id)
+        _dealer.mdcs = []
+        _dealer.register = false
+        _dealer.latestUpdateHash = event.transaction.hash
+        _dealer.latestUpdateBlockNumber = event.block.number
+        _dealer.latestUpdateTimestamp = event.block.timestamp
+        log.info('create new Dealer, id: {}', [id])
+    }
+    return _dealer as Dealer
 }
 
 export function mdcStoreChainIdNewMapping(
@@ -598,6 +695,17 @@ function saveRules2Rules(
         _rules.rules = [rule.id];
     } else if (!_rules.rules.includes(rule.id)) {
         _rules.rules = _rules.rules.concat([rule.id])
+    }
+}
+
+function saveMDC2Dealer(
+    dealer: Dealer,
+    mdcId: string,
+): void {
+    if (dealer.mdcs == null) {
+        dealer.mdcs = [mdcId];
+    }else if (!dealer.mdcs.includes(mdcId)) {
+        dealer.mdcs = dealer.mdcs.concat([mdcId])
     }
 }
 

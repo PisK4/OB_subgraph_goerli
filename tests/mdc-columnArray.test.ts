@@ -33,6 +33,8 @@ import {
 describe("Describe ColumnArrayUpdated assertions", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"
+  const dealerRemoved1 = "0x12346F7b0CD1633348877043Ae92302139796686"
+  const dealerRemoved2 = "0x56786F7b0CD1633348877043Ae92302139796686"
   const dealers = "0xA1AE843d71Ef6843137F70d6E93c5d143C1843E4"
   const dealer1 = "0x230B33bDcBD07f10FfAa8251fC843ed293495fEb"
   const ebc0 = "0xB6fF6F7b0CD1633348877043Ae92302139796686"
@@ -40,17 +42,35 @@ describe("Describe ColumnArrayUpdated assertions", () => {
   const ebc2 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
   const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
   const mdcAddress = "0x7A0B33bDcBD07f10FfAa8251fC843ed293495fEb"
+  const MDCBindDealerId = "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1" as string
 
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
     let mdc = Address.fromString(mdcAddress)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
+    
 
     let dealersAddr = Address.fromString(dealers) 
     let dealersAddr1 = Address.fromString(dealer1)
+    let dealersAddrRemove1 = Address.fromString(dealerRemoved1)
+    let dealersAddrRemove2 = Address.fromString(dealerRemoved2)
     let chainIds = [123, 456, 789, 123, 123]
     let ebcs = [Address.fromString(ebc0), Address.fromString(ebc1), Address.fromString(ebc2)]
+ 
+    const newColumnArrayUpdatedEvent0 = createColumnArrayUpdatedEvent(
+      Address.fromString(impl),
+      Bytes.fromHexString(columnArrayHash) as Bytes,
+      [ dealersAddrRemove1,
+        dealersAddrRemove2,
+        dealersAddrRemove1,
+      ],
+      [],
+      []
+    )
+    handleColumnArrayUpdated(newColumnArrayUpdatedEvent0)
+ 
+ 
     const newColumnArrayUpdatedEvent = createColumnArrayUpdatedEvent(
       Address.fromString(impl),
       Bytes.fromHexString(columnArrayHash) as Bytes,
@@ -94,7 +114,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "MDC",
       mdcAddress.toLowerCase(),
       "bindDealers",
-      mdcAddress.toLowerCase(),
+      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]",
     )
   })
 
@@ -167,18 +187,24 @@ describe("Describe ColumnArrayUpdated assertions", () => {
 
     assert.fieldEquals(
       "MDCBindDealer",
-      mdcAddress.toLowerCase(),
+      MDCBindDealerId,
       "id",
-      mdcAddress.toLowerCase()
+      MDCBindDealerId
     )
 
     assert.fieldEquals(
       "MDCBindDealer",
-      mdcAddress.toLowerCase(),
+      MDCBindDealerId,
       "dealerList",
       "[0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
+    assert.fieldEquals(
+      "MDCBindDealer",
+      MDCBindDealerId,
+      "dealerMapping",
+      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
   })
 
   test("MDCBindChainId created and stored", () => {
@@ -236,8 +262,19 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )
   })
 
+  test("MDCMapping created and stored", () =>{
+    assert.entityCount("MDCMapping", 1)
+
+    assert.fieldEquals(
+      "MDCMapping",
+      mdcAddress.toLowerCase(),
+      "dealerMapping",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+  })
+
   test("DealerMapping created and stored", () => {
-    assert.entityCount("DealerMapping", 2)
+    assert.entityCount("DealerMapping", 8)
 
     assert.fieldEquals(
       "DealerMapping",
@@ -245,6 +282,50 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "dealerAddr",
       "0xa1ae843d71ef6843137f70d6e93c5d143c1843e4"
     )
+
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
+      "MDCBindDealer",
+      "[]"
+    )
+
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4",
+      "MDCMapping",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
+      "MDCMapping",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+    )
+
+    assert.fieldEquals(
+      "DealerMapping",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
+      "MDCBindDealer",
+      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
+    )    
+
+    // un-bind dealer msut be removed in MDCBindDealer
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x12346f7b0cd1633348877043ae92302139796686",
+      "MDCBindDealer",
+      "[]"
+    )
+
+    // un-bind dealer msut be removed in MDCBindDealer
+    assert.fieldEquals(
+      "DealerMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x12346f7b0cd1633348877043ae92302139796686",
+      "MDCMapping",
+      "[]"
+    )    
   })
 
   test("ChainIdMapping created and stored", () => {
@@ -255,6 +336,40 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-123",
       "chainId",
       "123"
+    )
+  })
+
+
+  test("Dealer created and stored", () => {
+    assert.entityCount("Dealer", 4)
+
+    assert.fieldEquals(
+      "Dealer",
+      dealerRemoved1.toLowerCase(),
+      "mdcs",
+      "[]"
+    )
+
+    assert.fieldEquals(
+      "Dealer",
+      dealerRemoved2.toLowerCase(),
+      "mdcs",
+      "[]"
+    )
+
+
+    assert.fieldEquals(
+      "Dealer",
+      dealer1.toLowerCase(),
+      "id",
+      dealer1.toLowerCase()
+    )
+
+    assert.fieldEquals(
+      "Dealer",
+      dealer1.toLowerCase(),
+      "mdcs",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
   })
 

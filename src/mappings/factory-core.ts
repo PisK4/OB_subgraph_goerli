@@ -3,7 +3,7 @@ import {
     BigInt, 
     ethereum 
 } from "@graphprotocol/graph-ts";
-import { FactoryManger } from "../types/schema";
+import { DealerMapping, FactoryManger } from "../types/schema";
 import { log } from '@graphprotocol/graph-ts'
 import { MDCCreated as MDCCreatedEvent } from "../types/MDCFactory/MDCFactory"
 import { MDC as MDCTemplate} from "../types/templates"
@@ -11,6 +11,7 @@ import {
   ONE_ADDRESS,
   ONE_NUM,
   getMDCEntity,
+  getMDCMappingEntity,
   getONEBytes
 } from './helpers'
 
@@ -48,7 +49,11 @@ export function factoryCreateMDC(
             } else {
                 factory.mdcs = factory.mdcs.concat([mdcNew.id]);
             }
-            
+
+            let mdcMapping = getMDCMappingEntity(mdcNew, event)
+            mdcNew.mapping = mdcMapping.id
+
+            mdcMapping.save()
             mdcNew.save()
             factory.save()
         }
