@@ -77,7 +77,7 @@ type MDCCreated @entity(immutable: true) {
 
 # customed using entity
 type MDC @entity {
-  id: ID! # MDC ADDRESS
+  id: ID! # mdc address
   owner: Bytes! # address
   responseMakers: [ResponseMakersUpdated!]!
   bindDealers: MDCBindDealer
@@ -86,7 +86,7 @@ type MDC @entity {
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
-  ebc: [EBC!]! @derivedFrom(field: "mdcList") # EBC
+  ebc: [EbcsUpdated!]! @derivedFrom(field: "mdcList") # EBC
   
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
@@ -95,14 +95,14 @@ type MDC @entity {
 
 }
 # customed using entity
-type MDCBindResponseMaker @entity{
-  id: ID! # mdc address
+# type MDCBindResponseMaker @entity{
+  # id: ID! # mdc address
   # responseMakerList: [Bytes!]! # responseMaker address array
   # mdc: MDC! @derivedFrom(field: "responseMakers") # MDC
   # latestUpdateHash: Bytes
   # latestUpdateTimestamp: BigInt
   # latestUpdateBlockNumber: BigInt
-}
+# }
 
 # customed using entity
 # TODO: dealer should register in feeManger contract, wait for the contract
@@ -117,18 +117,6 @@ type FactoryManger @entity{
   id: Bytes!  # factory address
   mdcs: [MDC!]! # MDC[]
   mdcCounts: BigInt!
-  latestUpdateHash: Bytes!
-  latestUpdateTimestamp: BigInt!
-  latestUpdateBlockNumber: BigInt!
-}
-
-# customed using entity
-type EBCManager @entity{
-  id: ID! 
-  ebcCounts: BigInt!
-  ebcs: [EBC!]! # ebc entity
-  manger: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
-  
   latestUpdateHash: Bytes!
   latestUpdateTimestamp: BigInt!
   latestUpdateBlockNumber: BigInt!
@@ -219,13 +207,13 @@ type chainIdMapping @entity{
 }
 
 # customed using entity
-type EBC @entity {
-  id: ID! #ebc address
-  mdcList: [MDC!]! # list all mdc!! who bind this ebc
-  statuses: Boolean!
-  ebcManager: EBCManager! @derivedFrom(field: "ebcs") # ebcManager entity
-  latestUpdateHash: Bytes!
-}
+# type EBC @entity {
+#   id: ID! #ebc address
+#   mdcList: [MDC!]! # list all mdc!! who bind this ebc
+#   statuses: Boolean!
+#   manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
+#   latestUpdateHash: Bytes!
+# }
 
 # customed using entity
 type ruleTypes @entity {  #contain all rules snapshot
@@ -305,7 +293,7 @@ type ChainInfoUpdated @entity{
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
-  manger: ORManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
+  manger: ORManger! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: Bytes!
@@ -325,10 +313,10 @@ type ChainTokenUpdated @entity(immutable: true) {
 }
 
 # customed using entity
-type ORManager @entity{
+type ORManger @entity{
   id: ID!  # Manger ID
   chainInfoManager: [ChainInfoUpdated!]! # ChainInfo
-  ebcManager: EBCManager # EBCs
+  ebcManager: [EbcsUpdated!]! # EBCs
 }
 
 type ChallengeUserRatioUpdated @entity(immutable: true) {
@@ -339,14 +327,13 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-# unused entity, but it's binding in contract Event, so we need to define it
-type EbcsUpdated @entity(immutable: true) {
-  id: Bytes!
-  # ebcs: [Bytes!]! # address[]
-  # statuses: [Boolean!]! # bool[]
-  # blockNumber: BigInt!
-  # blockTimestamp: BigInt!
-  # transactionHash: Bytes!
+# using entity, binding in contract Event
+type EbcsUpdated @entity {
+  id: ID! #ebc address
+  mdcList: [MDC!]! # list all mdc!! who bind this ebc
+  statuses: Boolean!
+  manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
+  latestUpdateHash: Bytes!
 }
 
 type FeeChallengeSecondUpdated @entity(immutable: true) {

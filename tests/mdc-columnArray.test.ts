@@ -124,32 +124,32 @@ describe("Describe ColumnArrayUpdated assertions", () => {
 
   })
 
-  test("EBC created and stored", () => {
-    assert.entityCount("EBC", 2)
+  test("EbcsUpdated created and stored", () => {
+    assert.entityCount("EbcsUpdated", 2)
 
     assert.fieldEquals(
-      "EBC",
+      "EbcsUpdated",
       ebc0.toLowerCase(),
       "id",
       ebc0.toLowerCase()
     )
 
     assert.fieldEquals(
-      "EBC",
+      "EbcsUpdated",
       ebc1.toLowerCase(),
       "id",
       ebc1.toLowerCase()
     )
 
     assert.fieldEquals(
-      "EBC",
+      "EbcsUpdated",
       ebc1.toLowerCase(),
       "mdcList",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
     assert.fieldEquals(
-      "EBC",
+      "EbcsUpdated",
       ebc0.toLowerCase(),
       "mdcList",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"

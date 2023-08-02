@@ -52,8 +52,8 @@ describe("Describe event RulesRootUpdated", () => {
     clearStore()
   })
 
-  test("EBC created and stored", () => {
-    assert.entityCount("EBC", 1)
+  test("EbcsUpdated created and stored", () => {
+    assert.entityCount("EbcsUpdated", 1)
     
   })
 

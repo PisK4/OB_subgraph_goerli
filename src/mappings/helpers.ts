@@ -14,16 +14,14 @@ import {
     ChainTokenUpdated,
     ColumnArrayUpdated,
     DealerMapping,
-    EBC, 
-    EBCManager, 
+    EbcsUpdated, 
     MDC, 
     MDCBindChainId, 
     MDCBindDealer, 
     MDCBindEBC,
     MDCBindEBCAll,
-    MDCBindResponseMaker,
     MDCBindSPV,
-    ORManager,
+    ORManger,
     ResponseMakersUpdated,
     chainIdMapping,
     ebcMapping,
@@ -113,59 +111,66 @@ export function ebcManagerUpdate(
     event: ethereum.Event
 ) :void{
     let ebcId = ebcAddress.toHexString()
-    let ebc = EBC.load(ebcId)
+    let ebc = EbcsUpdated.load(ebcId)
     if (ebc == null) {
         log.info('create new EBC, ebc: {}, status: {}', [ebcId, status.toString()])
-        ebc = new EBC(ebcId)
+        ebc = new EbcsUpdated(ebcId)
         ebc.mdcList = []
+        saveEBCMgr2ORMgr(ebc)
     }    
     ebc.statuses = status
     ebc.latestUpdateHash = event.transaction.hash
     
-    let _EBCManager = EBCManager.load(EBCManagerID)
-    if(_EBCManager == null){
-        _EBCManager = new EBCManager(EBCManagerID)
-        _EBCManager.ebcCounts = BigInt.fromI32(0)
-        _EBCManager.ebcs = []
-        _EBCManager.latestUpdateHash = event.transaction.hash
-        _EBCManager.latestUpdateBlockNumber = event.block.number
-        _EBCManager.latestUpdateTimestamp = event.block.timestamp  
-        saveEBCMgr2ORMgr(_EBCManager)
-    }
-    if(!_EBCManager.ebcs.includes(ebcId)){
-        _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)  
-        if (_EBCManager.ebcs == null) {
-            _EBCManager.ebcs = [ebcId];
-        } else {
-            _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
-        }   
-        _EBCManager.latestUpdateHash = event.transaction.hash
-        _EBCManager.latestUpdateBlockNumber = event.block.number
-        _EBCManager.latestUpdateTimestamp = event.block.timestamp    
-    }
+    // let _EBCManager = EBCManager.load(EBCManagerID)
+    // if(_EBCManager == null){
+    //     _EBCManager = new EBCManager(EBCManagerID)
+    //     _EBCManager.ebcCounts = BigInt.fromI32(0)
+    //     _EBCManager.ebcs = []
+    //     _EBCManager.latestUpdateHash = event.transaction.hash
+    //     _EBCManager.latestUpdateBlockNumber = event.block.number
+    //     _EBCManager.latestUpdateTimestamp = event.block.timestamp  
+    //     saveEBCMgr2ORMgr(_EBCManager)
+    // }
+    // if(!_EBCManager.ebcs.includes(ebcId)){
+    //     _EBCManager.ebcCounts = _EBCManager.ebcCounts.plus(ONE_BI)  
+    //     if (_EBCManager.ebcs == null) {
+    //         _EBCManager.ebcs = [ebcId];
+    //     } else {
+    //         _EBCManager.ebcs = _EBCManager.ebcs.concat([ebcId])
+    //     }   
+    //     _EBCManager.latestUpdateHash = event.transaction.hash
+    //     _EBCManager.latestUpdateBlockNumber = event.block.number
+    //     _EBCManager.latestUpdateTimestamp = event.block.timestamp    
+    // }
     ebc.save()
-    _EBCManager.save() 
+    // _EBCManager.save() 
 }
 
 function saveEBCMgr2ORMgr(
-    _EBCManager: EBCManager
+    _EBCManager: EbcsUpdated
 ): void{
-    let _ORManger = ORManager.load(ORMangerID)
+    let _ORManger = ORManger.load(ORMangerID)
     if(_ORManger == null){
-        _ORManger = new ORManager(ORMangerID)
+        _ORManger = new ORManger(ORMangerID)
         _ORManger.chainInfoManager = []
+        _ORManger.ebcManager = []
     }
-    _ORManger.ebcManager = _EBCManager.id
+    if(_ORManger.ebcManager == null){
+        _ORManger.ebcManager = [_EBCManager.id]
+    }else if(!_ORManger.ebcManager.includes(_EBCManager.id)){
+        _ORManger.ebcManager = _ORManger.ebcManager.concat([_EBCManager.id])
+    }
     _ORManger.save()
 }
 
 function saveChainInfoMgr2ORMgr(
     _ChainInfoMgr: ChainInfoUpdated
 ): void{
-    let _ORManger = ORManager.load(ORMangerID)
+    let _ORManger = ORManger.load(ORMangerID)
     if(_ORManger == null){
-        _ORManger = new ORManager(ORMangerID)
+        _ORManger = new ORManger(ORMangerID)
         _ORManger.chainInfoManager = []
+        _ORManger.ebcManager = []
     }
     if(_ORManger.chainInfoManager == null){
         _ORManger.chainInfoManager = [_ChainInfoMgr.id]
@@ -183,10 +188,10 @@ export function ebcSave(
 ): void {
     
     const ebcId = getEBCId(MDCBindEBC.id)
-    let ebc = EBC.load(ebcId)
+    let ebc = EbcsUpdated.load(ebcId)
     if (ebc == null) {
         log.warning('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
-        ebc = new EBC(ebcId)
+        ebc = new EbcsUpdated(ebcId)
         ebc.statuses = true
         ebc.mdcList = []
     }
@@ -342,7 +347,6 @@ export function getChainInfoEntity(
 
 export function encode(values: Array<ethereum.Value>): Bytes {
     return ethereum.encode(
-        // forcefully cast Value[] -> Tuple
         ethereum.Value.fromTuple(changetype<ethereum.Tuple>(values))
     )!;
 }
@@ -449,7 +453,7 @@ export function mdcReBindEBC(
     let currentEBCs = _MDCBindEBCAll.ebcList
     _MDCBindEBCAll.ebcMapping = []
     for(let i = 0; i < _MDCBindEBCAll.ebcList.length; i++){
-        let ebc = EBC.load(currentEBCs[i].toHexString())
+        let ebc = EbcsUpdated.load(currentEBCs[i].toHexString())
         if(ebc != null){
             let allMDCs = ebc.mdcList
             // remove the mdc from ebc.mdcList
@@ -549,9 +553,11 @@ export function mdcStoreResponseMaker(
     responseMakersBytes: Bytes[],
     event: ethereum.Event
 ): void{
-    let responseMakers = ResponseMakersUpdated.load(mdc.id)
+    // id = txhash + logIndex
+    let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+    let responseMakers = ResponseMakersUpdated.load(id)
     if(responseMakers == null){
-        responseMakers = new ResponseMakersUpdated(mdc.id)
+        responseMakers = new ResponseMakersUpdated(id)
         responseMakers.responseMakerList = []
         mdc.responseMakers = mdc.responseMakers.concat([responseMakers.id])
     }
@@ -607,7 +613,7 @@ export function saveBindEBC2All(
 }
 
 function saveMDC2EBC(
-    ebc: EBC, 
+    ebc: EbcsUpdated, 
     mdc: MDC
 ): void {
     if (ebc.mdcList == null) {
@@ -905,80 +911,7 @@ export function parseRSC(
         }
         rscRules.push(_rscRuleType);
     }
-//   let rscDecode = ethereum.decode(RSCDataFmt, rsc) as ethereum.Value;
-//   if (!rscDecode) {
-//     log.error("Failed to decode transaction input data", ["error"])
-//   }
-//   let rscArray = rscDecode.toArray();
-// //   log.debug("rscArray length: {}", [rscArray.length.toString()])
-
-//   let rscRules: rscRuleType[] = [];
-
-//   for (let i = 0; i < rscArray.length; i++) {
-//     let rscTuple = rscArray[i].toTuple();
-//     let _rscRuleType = getLastRules(mdcAddress, ebcAddress, version, i)
-
-    // if (checkRulesFormat(rscTuple)) {
-    //     if (checkifRSCRuleTypeExist(rscTuple[0].toBigInt())) {
-    //         _rscRuleType.chain0 = rscTuple[0].toBigInt();
-    //     }
-    //     if (checkifRSCRuleTypeExist(rscTuple[1].toBigInt())) {
-    //         _rscRuleType.chain1 = rscTuple[1].toBigInt();
-    //     }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[2].toBigInt())) {
-    //         _rscRuleType.chain0Status = rscTuple[2].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[3].toBigInt())) {
-    //         _rscRuleType.chain1Status = rscTuple[3].toBigInt();
-    //     // }
-    //     if (checkifRSCRuleTypeExist(rscTuple[4].toBigInt())) {
-    //         _rscRuleType.chain0Token = rscTuple[4].toBigInt();
-    //     }
-    //     if (checkifRSCRuleTypeExist(rscTuple[5].toBigInt())) {
-    //         _rscRuleType.chain1Token = rscTuple[5].toBigInt();
-    //     }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[6].toBigInt())) {
-    //         _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[7].toBigInt())) {
-    //         _rscRuleType.chain0maxPrice = rscTuple[7].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[8].toBigInt())) {
-    //         _rscRuleType.chain1minPrice = rscTuple[8].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[9].toBigInt())) {
-    //         _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[10].toBigInt())) {
-    //         _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[11].toBigInt())) {
-    //         _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[12].toBigInt())) {
-    //         _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
-    //     // }
-    //     // if (checkifRSCRuleTypeExist(rscTuple[13].toBigInt())) {
-    //         _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
-    //     // }
-    //     if (checkifRSCRuleTypeExist(rscTuple[14].toBigInt())) {
-    //         _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
-    //     }
-    //     if (checkifRSCRuleTypeExist(rscTuple[15].toBigInt())) {
-    //         _rscRuleType.chain1ResponseTime = rscTuple[15].toBigInt();
-    //     }
-    //     if (checkifRSCRuleTypeExist(rscTuple[16].toBigInt())) {
-    //         _rscRuleType.chain0CompensationRatio = rscTuple[16].toBigInt();
-    //     }
-    //     if (checkifRSCRuleTypeExist(rscTuple[17].toBigInt())) {
-    //         _rscRuleType.chain1CompensationRatio = rscTuple[17].toBigInt();
-    //     }
-    //     _rscRuleType.verifyPass = true;
-    // }
-//     rscRules.push(_rscRuleType);
-//   }
-
-  return rscRules;
+    return rscRules;
 }
 
 export function inputdataPrefix(data: Bytes): Bytes {

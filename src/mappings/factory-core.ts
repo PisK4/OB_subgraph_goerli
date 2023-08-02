@@ -3,7 +3,7 @@ import {
     BigInt, 
     ethereum 
 } from "@graphprotocol/graph-ts";
-import { MDCCreated, MDC , EBC, FactoryManger } from "../types/schema";
+import { FactoryManger } from "../types/schema";
 import { log } from '@graphprotocol/graph-ts'
 import { MDCCreated as MDCCreatedEvent } from "../types/MDCFactory/MDCFactory"
 import { MDC as MDCTemplate} from "../types/templates"
