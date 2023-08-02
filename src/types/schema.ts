@@ -755,8 +755,8 @@ export class MDC extends Entity {
     this.set("responseMakers", Value.fromStringArray(value));
   }
 
-  get bindDealers(): Array<string> {
-    let value = this.get("bindDealers");
+  get dealerSnapshot(): Array<string> {
+    let value = this.get("dealerSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -764,8 +764,8 @@ export class MDC extends Entity {
     }
   }
 
-  set bindDealers(value: Array<string>) {
-    this.set("bindDealers", Value.fromStringArray(value));
+  set dealerSnapshot(value: Array<string>) {
+    this.set("dealerSnapshot", Value.fromStringArray(value));
   }
 
   get bindChainIds(): string | null {
@@ -1684,7 +1684,7 @@ export class MDCBindSPV extends Entity {
   }
 }
 
-export class MDCBindDealer extends Entity {
+export class dealerSnapshot extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1692,24 +1692,24 @@ export class MDCBindDealer extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save MDCBindDealer entity without an ID");
+    assert(id != null, "Cannot save dealerSnapshot entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type MDCBindDealer must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type dealerSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("MDCBindDealer", id.toString(), this);
+      store.set("dealerSnapshot", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): MDCBindDealer | null {
-    return changetype<MDCBindDealer | null>(
-      store.get_in_block("MDCBindDealer", id)
+  static loadInBlock(id: string): dealerSnapshot | null {
+    return changetype<dealerSnapshot | null>(
+      store.get_in_block("dealerSnapshot", id)
     );
   }
 
-  static load(id: string): MDCBindDealer | null {
-    return changetype<MDCBindDealer | null>(store.get("MDCBindDealer", id));
+  static load(id: string): dealerSnapshot | null {
+    return changetype<dealerSnapshot | null>(store.get("dealerSnapshot", id));
   }
 
   get id(): string {
@@ -1752,7 +1752,7 @@ export class MDCBindDealer extends Entity {
   }
 
   get mdc(): MDCLoader {
-    return new MDCLoader("MDCBindDealer", this.get("id")!.toString(), "mdc");
+    return new MDCLoader("dealerSnapshot", this.get("id")!.toString(), "mdc");
   }
 
   get latestUpdateHash(): Bytes | null {
@@ -1933,11 +1933,11 @@ export class DealerMapping extends Entity {
     }
   }
 
-  get MDCBindDealer(): MDCBindDealerLoader {
-    return new MDCBindDealerLoader(
+  get dealerSnapshot(): dealerSnapshotLoader {
+    return new dealerSnapshotLoader(
       "DealerMapping",
       this.get("id")!.toString(),
-      "MDCBindDealer"
+      "dealerSnapshot"
     );
   }
 
@@ -4452,7 +4452,7 @@ export class MDCBindEBCAllLoader extends Entity {
   }
 }
 
-export class MDCBindDealerLoader extends Entity {
+export class dealerSnapshotLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -4464,9 +4464,9 @@ export class MDCBindDealerLoader extends Entity {
     this._field = field;
   }
 
-  load(): MDCBindDealer[] {
+  load(): dealerSnapshot[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<MDCBindDealer[]>(value);
+    return changetype<dealerSnapshot[]>(value);
   }
 }
 

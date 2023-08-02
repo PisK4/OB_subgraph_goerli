@@ -18,7 +18,7 @@ import {
     EbcsUpdated, 
     MDC, 
     MDCBindChainId, 
-    MDCBindDealer, 
+    dealerSnapshot, 
     MDCBindEBC,
     MDCBindEBCAll,
     MDCBindSPV,
@@ -282,7 +282,7 @@ export function getMDCEntity(
         mdc.columnArrayUpdated = []
         mdc.responseMakers = []
         mdc.bindSPVs = []
-        mdc.bindDealers = []
+        mdc.dealerSnapshot = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
         mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
@@ -439,20 +439,20 @@ export function getMDCBindSPVEntity(
 export function getMDCBindDealerEntity(
     mdc: MDC,
     event: ethereum.Event
-): MDCBindDealer{
+): dealerSnapshot{
     const id = createEventID(event)
-    let dealer = MDCBindDealer.load(id)
+    let dealer = dealerSnapshot.load(id)
     if(dealer == null){
         log.info('create new MDCBindDealer, id: {}', [id])
-        dealer = new MDCBindDealer(id)
+        dealer = new dealerSnapshot(id)
         dealer.dealerList = []
         dealer.dealerMapping = []
         dealer.latestUpdateBlockNumber = event.block.number
         dealer.latestUpdateTimestamp = event.block.timestamp
         dealer.latestUpdateHash = event.transaction.hash
-        mdc.bindDealers = mdc.bindDealers.concat([dealer.id])
+        mdc.dealerSnapshot = mdc.dealerSnapshot.concat([dealer.id])
     }
-    return dealer as MDCBindDealer
+    return dealer as dealerSnapshot
 }
 
 
@@ -554,7 +554,7 @@ function removeMDCFromDealer(
 
 export function mdcStoreDealerNewMapping(
     mdc: MDC,
-    _MDCBindDealer: MDCBindDealer,
+    _MDCBindDealer: dealerSnapshot,
     newDealers: Bytes[],
     event: ethereum.Event
 ): void{

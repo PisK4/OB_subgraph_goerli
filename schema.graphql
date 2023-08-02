@@ -80,7 +80,7 @@ type MDC @entity {
   id: ID! # mdc address
   owner: Bytes! # address
   responseMakers: [ResponseMakersUpdated!]!
-  bindDealers: [MDCBindDealer!]!
+  dealerSnapshot: [dealerSnapshot!]!
   bindChainIds: MDCBindChainId
   bindEBCs: MDCBindEBCAll
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
@@ -171,11 +171,11 @@ type MDCBindSPV @entity{
 }
 
 # customed using entity
-type MDCBindDealer @entity{
+type dealerSnapshot @entity{
   id: ID! # txHash - logIndex
   dealerList: [Bytes!]! # dealer address array
   dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
-  mdc: MDC! @derivedFrom(field: "bindDealers") # MDC
+  mdc: MDC! @derivedFrom(field: "dealerSnapshot") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
   latestUpdateBlockNumber: BigInt
@@ -184,14 +184,14 @@ type MDCBindDealer @entity{
 # customed using entity
 type DealerMapping @entity{
   # 1. latestMaping: mdc address - dealer address
-  # 2. snapshot: MDCBindDealer.id - dealer address
+  # 2. snapshot: dealerSnapshot.id - dealer address
   id: ID! 
   dealerAddr: Bytes # dealer address
   dealerIndex: BigInt # uint64
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
   latestUpdateHash: Bytes
-  MDCBindDealer: MDCBindDealer! @derivedFrom(field: "dealerMapping") # MDCBindDealer
+  dealerSnapshot: dealerSnapshot! @derivedFrom(field: "dealerMapping") # dealerSnapshot
   MDCMapping: MDCMapping! @derivedFrom(field: "dealerMapping") # MDCMapping
 }
 
