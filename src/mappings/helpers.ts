@@ -35,7 +35,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 export const debugLogCreateRules = false
 
@@ -119,6 +119,7 @@ export function ebcManagerUpdate(
         log.info('create new EBC, ebc: {}, status: {}', [ebcId, status.toString()])
         ebc = new EbcsUpdated(ebcId)
         ebc.mdcList = []
+        ebc.rulesList = []
         saveEBCMgr2ORMgr(ebc)
     }    
     ebc.statuses = status
@@ -191,13 +192,15 @@ export function ebcSave(
 ): void {
     
     const ebcId = getEBCId(MDCBindEBC.id)
-    let ebc = EbcsUpdated.load(ebcId)
-    if (ebc == null) {
-        log.warning('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
-        ebc = new EbcsUpdated(ebcId)
-        ebc.statuses = true
-        ebc.mdcList = []
-    }
+    // let ebc = EbcsUpdated.load(ebcId)
+    // if (ebc == null) {
+    //     log.warning('create EBC in runtime, check if EBCManager is updated, ebc: {}', [ebcId])
+    //     ebc = new EbcsUpdated(ebcId)
+    //     ebc.statuses = true
+    //     ebc.mdcList = []
+    //     ebc.rulesList = []
+    // }
+    let ebc = getEBCEntityNew(ebcId, event)
     ebc.latestUpdateHash = event.transaction.hash
     saveMDC2EBC(ebc, mdc)
     ebc.save()
@@ -274,6 +277,23 @@ export function getRuleEntity(
     return _rule as rule
 }
 
+export function getEBCEntityNew(
+    ebcAddress: string,
+    event: ethereum.Event
+): EbcsUpdated {
+    let ebc = EbcsUpdated.load(ebcAddress)
+    if (ebc == null) {
+        log.info('create new EBC, ebc: {}', [ebcAddress])
+        ebc = new EbcsUpdated(ebcAddress)
+        ebc.mdcList = []
+        ebc.rulesList = []
+        ebc.statuses = true
+    }
+    ebc.latestUpdateHash = event.transaction.hash
+    return ebc as EbcsUpdated
+}
+
+
 export function getMDCEntity(
     mdcAddress: Address,
     maker: Address,
@@ -288,6 +308,7 @@ export function getMDCEntity(
         mdc.responseMakers = []
         mdc.bindSPVs = []
         mdc.dealerSnapshot = []
+        mdc.ruleSnapshot = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
         mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
@@ -592,7 +613,7 @@ function removeMDCFromDealer(
     // dealer: Bytes[],
     event: ethereum.Event
 ): void{
-    let dealer = getMDCLatestDealers(mdc)
+    const dealer = getMDCLatestDealers(mdc)
 
     for(let i = 0; i < dealer.length; i++){
         let _dealer = Dealer.load(dealer[i].toHexString())
@@ -677,6 +698,7 @@ export function getDealerEntity(
     if (_dealer == null) {
         _dealer = new Dealer(id)
         _dealer.mdcs = []
+        _dealer.rules = []
         _dealer.register = false
         _dealer.latestUpdateHash = event.transaction.hash
         _dealer.latestUpdateBlockNumber = event.block.number
@@ -1356,6 +1378,144 @@ function updateLatestRules(
     }
     
 }
+
+function saveRuleSnapshotRelation(
+    event: ethereum.Event,
+    ruleSnapshot: ruleTypes,
+    mdc: MDC,
+    ebc: EbcsUpdated
+): void{
+    // let ebc = getEBCEntityNew(mdc.ebc._id, event)
+    // let dealer = getDealerEntity(Bytes.fromHexString(mdc.dealer._id), event)
+    if (mdc.ruleSnapshot == null) {
+        mdc.ruleSnapshot = [ruleSnapshot.id];
+    } else if (!mdc.ruleSnapshot.includes(ruleSnapshot.id)) {
+        mdc.ruleSnapshot = mdc.ruleSnapshot.concat([ruleSnapshot.id])
+    }
+    //TODO: double check if dealer.rules is needed
+    // if (dealer.rules == null) {
+    //     dealer.rules = [ruleSnapshot.id];
+    // } else if (!dealer.rules.includes(ruleSnapshot.id)) {
+    //     dealer.rules = dealer.rules.concat([ruleSnapshot.id])
+    // }
+    if (ebc.rulesList == null) {
+        ebc.rulesList = [ruleSnapshot.id];
+    } else if (!ebc.rulesList.includes(ruleSnapshot.id)) {
+        ebc.rulesList = ebc.rulesList.concat([ruleSnapshot.id])
+    }
+    // TODO: save ruleSnapshot to mdc later??
+    mdc.save()
+    // dealer.save()
+    ebc.save()
+    log.debug("save ruleSnapshot relation mdc: {}, ebc: {}", [
+        mdc.id,
+        ebc.id
+    ])
+}
+
+function getRuleSnapshotEntity(
+    event: ethereum.Event,
+    mdc: MDC
+): ruleTypes {
+    let snapshotId = createEventID(event)
+    let ruleSnapshot = ruleTypes.load(snapshotId)
+    if(ruleSnapshot == null){
+        ruleSnapshot = new ruleTypes(snapshotId)
+        ruleSnapshot.root = new Bytes(0)
+        ruleSnapshot.version = 0
+        ruleSnapshot.rules = []
+        ruleSnapshot.sourceChainIds = []
+        ruleSnapshot.pledgeAmounts = []
+        ruleSnapshot.token = new Bytes(0)
+        log.debug("create ruleSnapshot id: {}", [snapshotId])
+    }
+    ruleSnapshot.latestUpdateBlockNumber = event.block.number
+    ruleSnapshot.latestUpdateHash = event.transaction.hash
+    ruleSnapshot.latestUpdateTimestamp = event.block.timestamp
+    return ruleSnapshot
+}
+
+function storeMDCMapping2RuleSnapshot(
+    event: ethereum.Event,
+    ruleSnapshot: ruleTypes,
+    mdc: MDC
+): void{
+    let  currentMDCMapping = getMDCMappingEntity(mdc, event)
+    const dealers = getMDCLatestDealers(mdc)
+    const ebc = getMDCLatestEBCs(mdc)
+    const chainId = getMDCLatestChainIds(mdc)
+}
+
+export function mdcStoreRuleSnapshot(
+    event: ethereum.Event,
+    updateRulesRootEntity: rscRules,
+    mdc: MDC,
+    ebc: EbcsUpdated
+): void {
+    if(updateRulesRootEntity.rscType.length > 0){
+        let ruleSnapshot = getRuleSnapshotEntity(event, mdc)
+        saveRuleSnapshotRelation(event, ruleSnapshot, mdc, ebc)
+        // TODO: storeMDCMapping to ruleSnapshot
+
+
+        for(let i = 0; i < updateRulesRootEntity.rscType.length; i++){
+            let _rule = getRuleEntity(ruleSnapshot, i)          
+            _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
+            _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
+            _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
+            _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()    
+            _rule.chain0Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain0Token.toHexString()))
+            _rule.chain1Token = Address.fromHexString(AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain1Token.toHexString()))
+            _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice
+            _rule.chain0maxPrice = updateRulesRootEntity.rscType[i].chain0maxPrice
+            _rule.chain1minPrice = updateRulesRootEntity.rscType[i].chain1minPrice
+            _rule.chain1maxPrice = updateRulesRootEntity.rscType[i].chain1maxPrice
+            _rule.chain0WithholdingFee = updateRulesRootEntity.rscType[i].chain0WithholdingFee
+            _rule.chain1WithholdingFee = updateRulesRootEntity.rscType[i].chain1WithholdingFee
+            _rule.chain0TradeFee = updateRulesRootEntity.rscType[i].chain0TradeFee.toI32()
+            _rule.chain1TradeFee = updateRulesRootEntity.rscType[i].chain1TradeFee.toI32()
+            _rule.chain0ResponseTime = updateRulesRootEntity.rscType[i].chain0ResponseTime.toI32()
+            _rule.chain1ResponseTime = updateRulesRootEntity.rscType[i].chain1ResponseTime.toI32()
+            _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
+            _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
+            _rule.enableTimestamp = updateRulesRootEntity.rscType[i].enableTimestamp
+            _rule.save()
+            // updateLatestRules(
+            //     updateRulesRootEntity.rscType[i],
+            //     event,
+            //     version,
+            //     mdc,
+            //     ebc
+            // )
+            if(1){
+                log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}, [18]:{}', [
+                    i.toString(),
+                    _rule.chain0.toString(),
+                    _rule.chain1.toString(),
+                    _rule.chain0Status.toString(),
+                    _rule.chain1Status.toString(),
+                    _rule.chain0Token.toHexString(),
+                    _rule.chain1Token.toHexString(),
+                    _rule.chain0minPrice.toString(),
+                    _rule.chain0maxPrice.toString(),
+                    _rule.chain1minPrice.toString(),
+                    _rule.chain1maxPrice.toString(),
+                    _rule.chain0WithholdingFee.toString(),
+                    _rule.chain1WithholdingFee.toString(),
+                    _rule.chain0TradeFee.toString(),
+                    _rule.chain1TradeFee.toString(),
+                    _rule.chain0ResponseTime.toString(),
+                    _rule.chain1ResponseTime.toString(),
+                    _rule.chain0CompensationRatio.toString(),
+                    _rule.chain1CompensationRatio.toString(),
+                    _rule.enableTimestamp.toString()
+                ])
+            }
+        }           
+        ruleSnapshot.save()
+    }
+}
+
 
 export function updateRuleTypesThenSave(
     updateRulesRootEntity: rscRules,

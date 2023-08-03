@@ -768,6 +768,19 @@ export class MDC extends Entity {
     this.set("dealerSnapshot", Value.fromStringArray(value));
   }
 
+  get ruleSnapshot(): Array<string> {
+    let value = this.get("ruleSnapshot");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ruleSnapshot(value: Array<string>) {
+    this.set("ruleSnapshot", Value.fromStringArray(value));
+  }
+
   get bindChainIds(): string | null {
     let value = this.get("bindChainIds");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1098,6 +1111,19 @@ export class Dealer extends Entity {
 
   set mdcs(value: Array<string>) {
     this.set("mdcs", Value.fromStringArray(value));
+  }
+
+  get rules(): Array<string> {
+    let value = this.get("rules");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rules(value: Array<string>) {
+    this.set("rules", Value.fromStringArray(value));
   }
 
   get register(): boolean {
@@ -2319,6 +2345,90 @@ export class ruleTypes extends Entity {
 
   set token(value: Bytes) {
     this.set("token", Value.fromBytes(value));
+  }
+
+  get mappingSnapshot(): Array<string> | null {
+    let value = this.get("mappingSnapshot");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set mappingSnapshot(value: Array<string> | null) {
+    if (!value) {
+      this.unset("mappingSnapshot");
+    } else {
+      this.set("mappingSnapshot", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
+  get mdc(): MDCLoader {
+    return new MDCLoader("ruleTypes", this.get("id")!.toString(), "mdc");
+  }
+
+  get ebc(): EbcsUpdatedLoader {
+    return new EbcsUpdatedLoader(
+      "ruleTypes",
+      this.get("id")!.toString(),
+      "ebc"
+    );
+  }
+
+  get dealer(): DealerLoader {
+    return new DealerLoader("ruleTypes", this.get("id")!.toString(), "dealer");
+  }
+
+  get latestUpdateHash(): Bytes | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set latestUpdateHash(value: Bytes | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 
@@ -3615,6 +3725,19 @@ export class EbcsUpdated extends Entity {
 
   set mdcList(value: Array<string>) {
     this.set("mdcList", Value.fromStringArray(value));
+  }
+
+  get rulesList(): Array<string> {
+    let value = this.get("rulesList");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rulesList(value: Array<string>) {
+    this.set("rulesList", Value.fromStringArray(value));
   }
 
   get statuses(): boolean {

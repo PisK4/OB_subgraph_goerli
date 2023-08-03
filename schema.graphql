@@ -81,6 +81,7 @@ type MDC @entity {
   owner: Bytes! # address
   responseMakers: [ResponseMakersUpdated!]!
   dealerSnapshot: [dealerSnapshot!]!
+  ruleSnapshot: [ruleTypes!]!
   bindChainIds: MDCBindChainId
   bindEBCs: MDCBindEBCAll
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
@@ -117,6 +118,7 @@ type MDCMapping @entity{
 type Dealer @entity{
   id: ID! # dealer address
   mdcs: [MDC!]! # binding MDC
+  rules: [ruleTypes!]! # binding ruleSnapshot
   register: Boolean!
   latestUpdateHash: Bytes!
   latestUpdateTimestamp: BigInt!
@@ -221,16 +223,8 @@ type chainIdMapping @entity{
 }
 
 # customed using entity
-# type EBC @entity {
-#   id: ID! #ebc address
-#   mdcList: [MDC!]! # list all mdc!! who bind this ebc
-#   statuses: Boolean!
-#   manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
-#   latestUpdateHash: Bytes!
-# }
-
-# customed using entity
 type ruleTypes @entity {  #contain all rules snapshot
+  # As MDC snapshot, id: transactionHash - logIndex
   id: ID!
   rules: [rule!]! # all rules   
   mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
@@ -239,6 +233,16 @@ type ruleTypes @entity {  #contain all rules snapshot
   sourceChainIds: [BigInt!]! # uint64[]
   pledgeAmounts: [BigInt!]! # uint[]
   token: Bytes! # address
+
+  # related to rule
+  mappingSnapshot: [MDCMapping!] # ruleMapping
+  mdc: MDC! @derivedFrom(field: "ruleSnapshot") # MDC
+  ebc: EbcsUpdated! @derivedFrom(field: "rulesList") # EBCs
+  dealer: Dealer! @derivedFrom(field: "rules") # Dealer
+
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
 }
 
 # customed using entitys
@@ -345,6 +349,7 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
 type EbcsUpdated @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
+  rulesList:[ruleTypes!]! # list all rules Snapshot!! who bind this ebc
   statuses: Boolean!
   manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: Bytes!

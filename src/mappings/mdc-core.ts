@@ -51,7 +51,9 @@ import {
     mdcStoreEBCNewMapping,
     mdcStoreDealerNewMapping,
     mdcStoreChainIdNewMapping,
-    mdcStoreResponseMaker
+    mdcStoreResponseMaker,
+    mdcStoreRuleSnapshot,
+    getEBCEntityNew
 } from "./helpers"
 import { 
     FactoryManger
@@ -100,10 +102,11 @@ export function handleupdateRulesRootEvent(
       
       if(ebcAddress != null){
         let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
+        let ebcEntity = getEBCEntityNew(ebcAddress, event)
     
         // save ebcs ruletype
         if(updateRulesRootEntity.rscType != null){
-          // if(version.equals(BigInt.fromI32(updateRulesRootEntity.version))){
+            mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
             let _rules = getRulesEntity(ebc, version)
             if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version, event, mdc, ebc)){
                 if(updateRulesRootEntity.pledgeAmounts != null){
@@ -115,9 +118,6 @@ export function handleupdateRulesRootEvent(
                 _rules.token = updateRulesRootEntity.tokenAddr
                 _rules.save()
             }
-          // }else{
-          //   log.error('version not equal {} != {}', [version.toString(), updateRulesRootEntity.version.toString()])
-          // }
         } 
         ebcSave(ebc, mdc, event)
       }        
