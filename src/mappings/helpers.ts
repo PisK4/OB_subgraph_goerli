@@ -35,8 +35,9 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
+export const debugLogCreateRules = false
 
 export const ZERO_BI = BigInt.fromI32(0)
 export const ONE_BI = BigInt.fromI32(1)
@@ -249,7 +250,9 @@ export function getRulesEntity(
         rule.rules = []
         initRulesEntity(rule)
         saveRule2EBC(ebc, rule)
-        log.info('create new rules, rules: {}', [rule.id])
+        if(debugLogCreateRules){
+            log.info('create new rules, rules: {}', [rule.id])
+        }
     }
     return rule as ruleTypes
 }
@@ -263,7 +266,9 @@ export function getRuleEntity(
         _rule = new rule(_rules.id + "-" + i.toString())
         initRuleEntity(_rule)
         saveRules2Rules(_rules, _rule)
-        log.info('create new rule, rule: {}', [_rule.id])
+        if(debugLogCreateRules){
+            log.info('create new rule, rule: {}', [_rule.id])
+        }
     }
     
     return _rule as rule
@@ -436,14 +441,14 @@ export function getMDCBindSPVEntity(
     return _MDCBindSPV as MDCBindSPV
 }
 
-export function getMDCBindDealerEntity(
+export function getdealerSnapshotEntity(
     mdc: MDC,
     event: ethereum.Event
 ): dealerSnapshot{
     const id = createEventID(event)
     let dealer = dealerSnapshot.load(id)
     if(dealer == null){
-        log.info('create new MDCBindDealer, id: {}', [id])
+        log.info('create new dealerSnapshot, id: {}', [id])
         dealer = new dealerSnapshot(id)
         dealer.dealerList = []
         dealer.dealerMapping = []
@@ -512,6 +517,7 @@ export function mdcStoreEBCNewMapping(
         let _ebcMapping = ebcMapping.load(id)
         if(_ebcMapping == null){
             _ebcMapping = new ebcMapping(id)
+            _ebcMapping.ebcAddr = new Bytes(0)
         }   
         log.info('update ebcMapping, id: {}', [id])
         _ebcMapping.ebcAddr = _MDCBindEBCAll.ebcList[mappingIndex]
@@ -524,15 +530,74 @@ export function mdcStoreEBCNewMapping(
     }
 }
 
+function getMDCLatestDealers(
+    mdc: MDC
+): Bytes[]{
+    let dealer = new Array<Bytes>()
+    let mdcMapping = MDCMapping.load(mdc.id)
+    if(mdcMapping != null){
+        log.info("MDC: {} mapping dealerCnt: {}", [mdc.id, mdcMapping.dealerMapping.length.toString()])
+        for(let i = 0; i < mdcMapping.dealerMapping.length; i++){
+            let _dealerMapping = DealerMapping.load(mdcMapping.dealerMapping[i])
+            if (_dealerMapping != null) {
+                if (_dealerMapping.dealerAddr.length > 0){
+                    dealer = dealer.concat([_dealerMapping.dealerAddr])
+                }
+            }
+        }
+    }
+    return dealer
+}
+
+function getMDCLatestEBCs(
+    mdc: MDC
+): Bytes[]{
+    let ebc = new Array<Bytes>()
+    let mdcMapping = MDCMapping.load(mdc.id)
+    if(mdcMapping != null){
+        log.info("MDC: {} mapping ebcCnt: {}", [mdc.id, mdcMapping.ebcMapping.length.toString()])
+        for(let i = 0; i < mdcMapping.ebcMapping.length; i++){
+            let _ebcMapping = ebcMapping.load(mdcMapping.ebcMapping[i])
+            if (_ebcMapping != null) {
+                if (_ebcMapping.ebcAddr.length > 0){
+                    ebc = ebc.concat([_ebcMapping.ebcAddr])
+                }
+            }
+        }
+    }
+    return ebc
+}
+
+function getMDCLatestChainIds(
+    mdc: MDC
+): BigInt[]{
+    let chainIds = new Array<BigInt>()
+    let mdcMapping = MDCMapping.load(mdc.id)
+    if(mdcMapping != null){
+        log.info("MDC: {} mapping chainIdCnt: {}", [mdc.id, mdcMapping.chainIdMapping.length.toString()])
+        for(let i = 0; i < mdcMapping.chainIdMapping.length; i++){
+            let _chainIdMapping = chainIdMapping.load(mdcMapping.chainIdMapping[i])
+            if (_chainIdMapping != null) {
+                if (_chainIdMapping.chainId.length > 0){
+                    chainIds = chainIds.concat([_chainIdMapping.chainId])
+                }
+            }
+        }
+    }
+    return chainIds
+}
+
 function removeMDCFromDealer(
     mdc: MDC,
-    dealer: Bytes[],
+    // dealer: Bytes[],
     event: ethereum.Event
 ): void{
+    let dealer = getMDCLatestDealers(mdc)
+
     for(let i = 0; i < dealer.length; i++){
         let _dealer = Dealer.load(dealer[i].toHexString())
         if(_dealer != null){
-            log.debug("remove mdc from dealer {}/{}, dealer: {}, mdc: {}", [(i+1).toString(), dealer.length.toString(), dealer[i].toHexString(), mdc.id])
+            log.debug("remove dealer from mdc {}/{}, dealer: {}, mdc: {}", [(i+1).toString(), dealer.length.toString(), dealer[i].toHexString(), mdc.id])
             let _mdcs = _dealer.mdcs
             let index = _mdcs.indexOf(mdc.id)
             if (index > -1) {
@@ -561,7 +626,7 @@ export function mdcStoreDealerNewMapping(
     let mdcMapping = getMDCMappingEntity(mdc, event)
     let latesMappingTmp = [] as string[]
     let snapshotMappingTmp = [] as string[]
-    removeMDCFromDealer(mdc, _MDCBindDealer.dealerList, event)
+    removeMDCFromDealer(mdc, event)
     mdcMapping.dealerMapping = []
     _MDCBindDealer.dealerList = newDealers
     _MDCBindDealer.dealerMapping = []
@@ -571,6 +636,7 @@ export function mdcStoreDealerNewMapping(
         let _dealerMapping = DealerMapping.load(latestMappingId)
         if(_dealerMapping == null){
             _dealerMapping = new DealerMapping(latestMappingId)
+            _dealerMapping.dealerAddr = new Bytes(0)
             
             // mdcMapping.save()
         }
@@ -633,6 +699,7 @@ export function mdcStoreChainIdNewMapping(
         let _chainIdMapping = chainIdMapping.load(id)
         if(_chainIdMapping == null){
             _chainIdMapping = new chainIdMapping(id)
+            _chainIdMapping.chainId = new BigInt(0)
         }
         log.info('update chainIdMapping, id: {}', [id])
         _chainIdMapping.chainId = newChainIds[mappingIndex]
@@ -1284,7 +1351,10 @@ function updateLatestRules(
     _rule.latestUpdateVersion = version.toI32()
     saveLatestRule2EBC(ebc, _rule)
     _rule.save()
-    log.info("update latest rule id: {}", [id])
+    if(debugLogCreateRules){
+        log.info("update latest rule id: {}", [id])
+    }
+    
 }
 
 export function updateRuleTypesThenSave(

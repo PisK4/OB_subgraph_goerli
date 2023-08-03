@@ -99,8 +99,11 @@ type MDC @entity {
 
 type MDCMapping @entity{
   id: ID! # mdc address 
+  # dealerList: [Bytes!]! # dealer address array
   dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
+  # ebcList: [Bytes!]! # ebc address array
   ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
+  # chainIdList: [BigInt!]! # chainId array
   chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
   mdc: [MDC!]! @derivedFrom(field: "mapping") # MDC
   latestUpdateHash: Bytes
@@ -142,7 +145,7 @@ type MDCBindEBCAll @entity{
 # customed using entity
 type ebcMapping @entity{
   id: ID! # mdc address - ebc address
-  ebcAddr: Bytes # ebc address
+  ebcAddr: Bytes! # ebc address
   ebcIndex: BigInt # uint64
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
@@ -186,7 +189,7 @@ type DealerMapping @entity{
   # 1. latestMaping: mdc address - dealer address
   # 2. snapshot: dealerSnapshot.id - dealer address
   id: ID! 
-  dealerAddr: Bytes # dealer address
+  dealerAddr: Bytes! # dealer address
   dealerIndex: BigInt # uint64
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
@@ -209,7 +212,7 @@ type MDCBindChainId @entity{
 # customed using entity
 type chainIdMapping @entity{
   id: ID! # mdc address - chainId
-  chainId: BigInt # chainId
+  chainId: BigInt! # chainId
   chainIdIndex: BigInt # uint64
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt

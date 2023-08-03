@@ -42,7 +42,7 @@ import {
     getChainTokenUpdatedEntity,
     getColumnArrayUpdatedEntity,
     getMDCBindSPVEntity,
-    getMDCBindDealerEntity,
+    getdealerSnapshotEntity,
     removeDuplicatesBigInt,
     getMDCBindChainIdEntity,
     getMDCBindEBCAllEntity,
@@ -144,9 +144,9 @@ export function handleColumnArrayUpdatedEvent (
     for(let i = 0; i < uniqueDealers.length; i++){
         dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
-    let _dealers = getMDCBindDealerEntity(mdc, event)
-    mdcStoreDealerNewMapping(mdc, _dealers, dealersBytes, event)
-    _dealers.save()
+    let dealerSnapshot = getdealerSnapshotEntity(mdc, event)
+    mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealersBytes, event)
+    dealerSnapshot.save()
 
     // process chainIds
     let uniqueChainIds = removeDuplicatesBigInt(chainIds)

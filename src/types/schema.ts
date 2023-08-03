@@ -1386,21 +1386,17 @@ export class ebcMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ebcAddr(): Bytes | null {
+  get ebcAddr(): Bytes {
     let value = this.get("ebcAddr");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytes();
     }
   }
 
-  set ebcAddr(value: Bytes | null) {
-    if (!value) {
-      this.unset("ebcAddr");
-    } else {
-      this.set("ebcAddr", Value.fromBytes(<Bytes>value));
-    }
+  set ebcAddr(value: Bytes) {
+    this.set("ebcAddr", Value.fromBytes(value));
   }
 
   get ebcIndex(): BigInt | null {
@@ -1848,21 +1844,17 @@ export class DealerMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get dealerAddr(): Bytes | null {
+  get dealerAddr(): Bytes {
     let value = this.get("dealerAddr");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytes();
     }
   }
 
-  set dealerAddr(value: Bytes | null) {
-    if (!value) {
-      this.unset("dealerAddr");
-    } else {
-      this.set("dealerAddr", Value.fromBytes(<Bytes>value));
-    }
+  set dealerAddr(value: Bytes) {
+    this.set("dealerAddr", Value.fromBytes(value));
   }
 
   get dealerIndex(): BigInt | null {
@@ -2114,21 +2106,17 @@ export class chainIdMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get chainId(): BigInt | null {
+  get chainId(): BigInt {
     let value = this.get("chainId");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chainId(value: BigInt | null) {
-    if (!value) {
-      this.unset("chainId");
-    } else {
-      this.set("chainId", Value.fromBigInt(<BigInt>value));
-    }
+  set chainId(value: BigInt) {
+    this.set("chainId", Value.fromBigInt(value));
   }
 
   get chainIdIndex(): BigInt | null {
