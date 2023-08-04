@@ -79,13 +79,14 @@ type MDCCreated @entity(immutable: true) {
 type MDC @entity {
   id: ID! # mdc address
   owner: Bytes! # address
-  responseMakers: [ResponseMakersUpdated!]!
-  dealerSnapshot: [dealerSnapshot!]!    #snapshot
-  ebcSnapshot: [ebcSnapshot!]!          #snapshot
-  chainIdSnapshot: [chainIdSnapshot!]!  #snapshot
-  ruleSnapshot: [ruleTypes!]!           #snapshot
+  responseMakers: [ResponseMakersUpdated!]! #snapshot
+  dealerSnapshot: [dealerSnapshot!]!        #snapshot
+  ebcSnapshot: [ebcSnapshot!]!              #snapshot
+  chainIdSnapshot: [chainIdSnapshot!]!      #snapshot
+  ruleSnapshot: [ruleTypes!]!               #snapshot
+  ruleLatest: [latestRule!]!                #latestData
   bindChainIds: MDCBindChainId
-  bindEBCs: MDCBindEBCAll
+  # bindEBCs: MDCBindEBCAll
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   mapping: MDCMapping # dealer/ebc/chainId mapping
@@ -135,13 +136,13 @@ type FactoryManger @entity{
 }
 
 # customed using entity
-type MDCBindEBCAll @entity{
-  id: ID! # mdc address
-  ebcList: [Bytes!]! # ebc address array
-  ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
-  ebcs: [MDCBindEBC!]! # MDCBindEBC
-  mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
-}
+# type MDCBindEBCAll @entity{
+#   id: ID! # mdc address
+#   ebcList: [Bytes!]! # ebc address array
+#   ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
+#   ebcs: [MDCBindEBC!]! # MDCBindEBC
+#   mdc: MDC! @derivedFrom(field: "bindEBCs") # MDC
+# }
 
 # customed using entity
 type ebcMapping @entity{
@@ -151,7 +152,7 @@ type ebcMapping @entity{
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
   latestUpdateHash: Bytes
-  MDCBindEBCAll: MDCBindEBCAll! @derivedFrom(field: "ebcMapping") # MDCBindEBCAll
+  # MDCBindEBCAll: MDCBindEBCAll! @derivedFrom(field: "ebcMapping") # MDCBindEBCAll
 }
 
 # customed using entity
@@ -160,7 +161,7 @@ type MDCBindEBC @entity{
   ebc: Bytes! # ebc address
   latestRule: [latestRule!]! 
   rulesWithRootVersion: [ruleTypes!]! 
-  ebcAll: MDCBindEBCAll! @derivedFrom(field: "ebcs") # MDCBindEBCAll
+  # ebcAll: MDCBindEBCAll! @derivedFrom(field: "ebcs") # MDCBindEBCAll
   latestUpdateHash: Bytes!
   latestUpdateTimestamp: BigInt!
   latestUpdateBlockNumber: BigInt!
@@ -242,7 +243,7 @@ type chainIdMapping @entity{
 
 # customed using entity
 type ruleTypes @entity {  #contain all rules snapshot
-  # As MDC snapshot, id: transactionHash - logIndex
+  # As MDC snapshot, id: mdc-ecb-transactionHash - logIndex
   id: ID!
   rules: [rule!]! # all rules   
   mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC

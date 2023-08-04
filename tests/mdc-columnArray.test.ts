@@ -25,11 +25,6 @@ import {
 } from "./mdc-utils"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
-import { 
-  EBCManagerID,
-  getBindEbcId 
-} from "../src/mappings/helpers"
-
 describe("Describe ColumnArrayUpdated assertions", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"

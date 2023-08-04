@@ -29,8 +29,7 @@ import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
   EBCManagerID,
-  ORMangerID,
-  getBindEbcId 
+  ORMangerID
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"

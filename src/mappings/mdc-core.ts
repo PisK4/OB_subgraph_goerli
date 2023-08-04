@@ -26,11 +26,7 @@ import {
     ebcSave,
     debugLog,
     parseTransactionInputData,
-    calculateRscRootAndCompare,
-    checkifRSCRuleTypeExist,
     removeDuplicates,
-    getRuleEntity,
-    updateRuleTypesThenSave,
     getRulesEntity,
     ebcManagerUpdate,
     AddressFmtPadZero,
@@ -44,10 +40,6 @@ import {
     getMDCBindSPVEntity,
     getdealerSnapshotEntity,
     removeDuplicatesBigInt,
-    getMDCBindChainIdEntity,
-    getMDCBindEBCAllEntity,
-    mdcReBindEBC,
-    saveBindEBC2All,
     mdcStoreEBCNewMapping,
     mdcStoreDealerNewMapping,
     mdcStoreChainIdNewMapping,
@@ -103,25 +95,27 @@ export function handleupdateRulesRootEvent(
       ])
       
       if(ebcAddress != null){
-        let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
-        let ebcEntity = getEBCEntityNew(ebcAddress, event)
+        // let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
+        const ebcEntity = getEBCEntityNew(ebcAddress, event)
     
         // save ebcs ruletype
-        if(updateRulesRootEntity.rscType != null){
-            mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
-            let _rules = getRulesEntity(ebc, version)
-            if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version, event, mdc, ebc)){
-                if(updateRulesRootEntity.pledgeAmounts != null){
-                  _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
-                }
-                if(updateRulesRootEntity.sourceChainIds != null){
-                  _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
-                }
-                _rules.token = updateRulesRootEntity.tokenAddr
-                _rules.save()
-            }
-        } 
-        ebcSave(ebc, mdc, event)
+        // if(updateRulesRootEntity.rscType != null){
+        mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
+        ebcSave(ebcEntity, mdc)
+        ebcEntity.save()
+        // let _rules = getRulesEntity(ebc, version)
+          // if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version, event, mdc, ebc)){
+          //     if(updateRulesRootEntity.pledgeAmounts != null){
+          //       _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
+          //     }
+          //     if(updateRulesRootEntity.sourceChainIds != null){
+          //       _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
+          //     }
+          //     _rules.token = updateRulesRootEntity.tokenAddr
+          //     _rules.save()
+          // }
+        // } 
+
       }        
       mdc.save()
       if(factory){
