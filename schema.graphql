@@ -80,8 +80,10 @@ type MDC @entity {
   id: ID! # mdc address
   owner: Bytes! # address
   responseMakers: [ResponseMakersUpdated!]!
-  dealerSnapshot: [dealerSnapshot!]!
-  ruleSnapshot: [ruleTypes!]!
+  dealerSnapshot: [dealerSnapshot!]!    #snapshot
+  ebcSnapshot: [ebcSnapshot!]!          #snapshot
+  chainIdSnapshot: [chainIdSnapshot!]!  #snapshot
+  ruleSnapshot: [ruleTypes!]!           #snapshot
   bindChainIds: MDCBindChainId
   bindEBCs: MDCBindEBCAll
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
@@ -100,11 +102,8 @@ type MDC @entity {
 
 type MDCMapping @entity{
   id: ID! # mdc address 
-  # dealerList: [Bytes!]! # dealer address array
   dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
-  # ebcList: [Bytes!]! # ebc address array
   ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
-  # chainIdList: [BigInt!]! # chainId array
   chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
   mdc: [MDC!]! @derivedFrom(field: "mapping") # MDC
   latestUpdateHash: Bytes
@@ -187,10 +186,29 @@ type dealerSnapshot @entity{
 }
 
 # customed using entity
+type ebcSnapshot @entity{
+  id: ID! # txHash - logIndex
+  ebcList: [Bytes!]! # ebc address array
+  ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
+  mdc: MDC! @derivedFrom(field: "ebcSnapshot") # MDC
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+type chainIdSnapshot @entity{
+  id: ID! # txHash - logIndex
+  chainIdList: [BigInt!]! # chainId array
+  chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
+  mdc: MDC! @derivedFrom(field: "chainIdSnapshot") # MDC
+  latestUpdateHash: Bytes
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+# customed using entity
 type DealerMapping @entity{
-  # 1. latestMaping: mdc address - dealer address
-  # 2. snapshot: dealerSnapshot.id - dealer address
-  id: ID! 
+  id: ID! # mdc address - dealer address
   dealerAddr: Bytes! # dealer address
   dealerIndex: BigInt # uint64
   latestUpdateBlockNumber: BigInt

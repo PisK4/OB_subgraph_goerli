@@ -53,7 +53,8 @@ import {
     mdcStoreChainIdNewMapping,
     mdcStoreResponseMaker,
     mdcStoreRuleSnapshot,
-    getEBCEntityNew
+    getEBCEntityNew,
+    getEBCSnapshotEntity
 } from "./helpers"
 import { 
     FactoryManger
@@ -144,7 +145,7 @@ export function handleColumnArrayUpdatedEvent (
     for(let i = 0; i < uniqueDealers.length; i++){
         dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
     }
-    let dealerSnapshot = getdealerSnapshotEntity(mdc, event)
+    const dealerSnapshot = getdealerSnapshotEntity(mdc, event)
     mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealersBytes, event)
     dealerSnapshot.save()
 
@@ -155,18 +156,24 @@ export function handleColumnArrayUpdatedEvent (
     _chainIds.save()
 
     // process ebcs
-    mdcReBindEBC(mdc)
+    // mdcReBindEBC(mdc)
     let uniqueEbcs = removeDuplicates(ebcs)
-    let _MDCBindEBCAll = getMDCBindEBCAllEntity(mdc)
+    // let _MDCBindEBCAll = getMDCBindEBCAllEntity(mdc)
     let ebcsBytes = new Array<Bytes>()
     for(let i = 0; i < uniqueEbcs.length; i++){
         let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
         ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
-        saveBindEBC2All(_MDCBindEBCAll, ebc.id)
+        // saveBindEBC2All(_MDCBindEBCAll, ebc.id)
         ebcSave(ebc, mdc, event)
     }
-    mdcStoreEBCNewMapping(mdc, _MDCBindEBCAll, ebcsBytes, event)
-    _MDCBindEBCAll.save() 
+    // mdcStoreEBCNewMapping(mdc, _MDCBindEBCAll, ebcsBytes, event)
+    // _MDCBindEBCAll.save() 
+
+    const ebcSnapshot = getEBCSnapshotEntity(mdc, event)
+    mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsBytes, event)
+    ebcSnapshot.save()
+
+
     
 
     // process ColumnArray
