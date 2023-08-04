@@ -301,7 +301,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
   })
 
   test("ChainIdMapping created and stored", () => {
-    assert.entityCount("chainIdMapping", 3)
+    assert.entityCount("chainIdMapping", 6)
 
     assert.fieldEquals(
       "chainIdMapping",

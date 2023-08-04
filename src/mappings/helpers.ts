@@ -30,7 +30,8 @@ import {
     latestRule,
     rule,
     ruleTypes,
-    ebcSnapshot
+    ebcSnapshot,
+    chainIdSnapshot
 } from '../types/schema'
 import { 
     MDC as mdcContract
@@ -503,6 +504,25 @@ export function getEBCSnapshotEntity(
     return ebc as ebcSnapshot
 }
 
+export function getChainIdSnapshotEntity(
+    mdc: MDC,
+    event: ethereum.Event
+): chainIdSnapshot{
+    const id = createEventID(event)
+    let chainId = chainIdSnapshot.load(id)
+    if(chainId == null){
+        log.info('create new chainIdSnapshot, id: {}', [id])
+        chainId = new chainIdSnapshot(id)
+        chainId.chainIdList = []
+        chainId.chainIdMapping = []
+        mdc.chainIdSnapshot = mdc.chainIdSnapshot.concat([chainId.id])
+    }
+    chainId.latestUpdateBlockNumber = event.block.number
+    chainId.latestUpdateTimestamp = event.block.timestamp
+    chainId.latestUpdateHash = event.transaction.hash
+    return chainId as chainIdSnapshot
+}
+
 
 export function getMDCBindChainIdEntity(
     mdc: MDC,
@@ -771,6 +791,57 @@ export function mdcStoreEBCNewMapping(
     mdcMapping.save()
 }
 
+export function mdcStoreChainIdNewMapping(
+    mdc: MDC,
+    chainIdSnapshot: chainIdSnapshot,
+    newChainIds: BigInt[],
+    event: ethereum.Event
+): void{
+    let mdcMapping = getMDCMappingEntity(mdc, event)
+    let latesMappingTmp = [] as string[]
+    let snapshotMappingTmp = [] as string[]
+    mdcMapping.chainIdMapping = []
+    chainIdSnapshot.chainIdList = newChainIds
+    chainIdSnapshot.chainIdMapping = []
+    for(let mappingIndex = 0 ; mappingIndex < newChainIds.length; mappingIndex++){
+        const latestMappingId = mdc.id + "-" + newChainIds[mappingIndex].toString()
+
+        let _chainIdMapping = chainIdMapping.load(latestMappingId)
+        if(_chainIdMapping == null){
+            _chainIdMapping = new chainIdMapping(latestMappingId)
+            _chainIdMapping.chainId = new BigInt(0)
+
+            // mdcMapping.save()
+        }
+        const snapshotId = chainIdSnapshot.id + "-" + newChainIds[mappingIndex].toString()
+        let _chainIdSnapshot = chainIdMapping.load(snapshotId)
+        if(_chainIdSnapshot == null){
+            _chainIdSnapshot = new chainIdMapping(snapshotId)
+        }
+
+        log.info('update chainIdMapping, id: {}', [latestMappingId])
+        _chainIdSnapshot.chainId = _chainIdMapping.chainId = newChainIds[mappingIndex]
+        _chainIdSnapshot.chainIdIndex = _chainIdMapping.chainIdIndex = BigInt.fromI32(mappingIndex+1)
+        _chainIdSnapshot.latestUpdateBlockNumber = _chainIdMapping.latestUpdateBlockNumber = event.block.number
+        _chainIdSnapshot.latestUpdateTimestamp =  _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
+        _chainIdSnapshot.latestUpdateHash = _chainIdMapping.latestUpdateHash = event.transaction.hash
+        // _chainIdSnapshot.chainIdMapping = _chainIdMapping.chainIdMapping.concat([_chainIdSnapshot.id])
+        // mdcMapping.chainIdMapping = mdcMapping.chainIdMapping.concat([latestMappingId])
+        snapshotMappingTmp = snapshotMappingTmp.concat([snapshotId])
+        latesMappingTmp = latesMappingTmp.concat([latestMappingId])
+        
+        _chainIdMapping.save()
+        _chainIdSnapshot.save()
+        // let _chainId = getChainInfoEntity(event, newChainIds[mappingIndex])
+        // saveMDC2ChainId(_chainId, mdc)
+        // _chainId.save()
+        mdc.save()
+    }
+    mdcMapping.chainIdMapping = latesMappingTmp
+    chainIdSnapshot.chainIdMapping = snapshotMappingTmp
+    mdcMapping.save()
+}
+
 
 
 // export function mdcStoreEBCNewMapping(
@@ -821,31 +892,31 @@ export function getDealerEntity(
     return _dealer as Dealer
 }
 
-export function mdcStoreChainIdNewMapping(
-    mdc: MDC,
-    _MDCBindChainId: MDCBindChainId,
-    newChainIds: BigInt[],
-    event: ethereum.Event
-): void{
-    _MDCBindChainId.chainIdList = newChainIds
-    _MDCBindChainId.chainIdMapping = []
-    for(let mappingIndex = 0 ; mappingIndex < newChainIds.length; mappingIndex++){
-        const id = mdc.id + "-" + newChainIds[mappingIndex].toString()
-        let _chainIdMapping = chainIdMapping.load(id)
-        if(_chainIdMapping == null){
-            _chainIdMapping = new chainIdMapping(id)
-            _chainIdMapping.chainId = new BigInt(0)
-        }
-        log.info('update chainIdMapping, id: {}', [id])
-        _chainIdMapping.chainId = newChainIds[mappingIndex]
-        _chainIdMapping.chainIdIndex = BigInt.fromI32(mappingIndex+1)
-        _chainIdMapping.latestUpdateBlockNumber = event.block.number
-        _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
-        _chainIdMapping.latestUpdateHash = event.transaction.hash
-        _MDCBindChainId.chainIdMapping = _MDCBindChainId.chainIdMapping.concat([_chainIdMapping.id])
-        _chainIdMapping.save()
-    }
-}
+// export function mdcStoreChainIdNewMapping(
+//     mdc: MDC,
+//     _MDCBindChainId: MDCBindChainId,
+//     newChainIds: BigInt[],
+//     event: ethereum.Event
+// ): void{
+//     _MDCBindChainId.chainIdList = newChainIds
+//     _MDCBindChainId.chainIdMapping = []
+//     for(let mappingIndex = 0 ; mappingIndex < newChainIds.length; mappingIndex++){
+//         const id = mdc.id + "-" + newChainIds[mappingIndex].toString()
+//         let _chainIdMapping = chainIdMapping.load(id)
+//         if(_chainIdMapping == null){
+//             _chainIdMapping = new chainIdMapping(id)
+//             _chainIdMapping.chainId = new BigInt(0)
+//         }
+//         log.info('update chainIdMapping, id: {}', [id])
+//         _chainIdMapping.chainId = newChainIds[mappingIndex]
+//         _chainIdMapping.chainIdIndex = BigInt.fromI32(mappingIndex+1)
+//         _chainIdMapping.latestUpdateBlockNumber = event.block.number
+//         _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
+//         _chainIdMapping.latestUpdateHash = event.transaction.hash
+//         _MDCBindChainId.chainIdMapping = _MDCBindChainId.chainIdMapping.concat([_chainIdMapping.id])
+//         _chainIdMapping.save()
+//     }
+// }
 
 export function mdcStoreResponseMaker(
     mdc: MDC,
