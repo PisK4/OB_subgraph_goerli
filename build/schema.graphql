@@ -156,16 +156,16 @@ type ebcMapping @entity{
 }
 
 # customed using entity
-type MDCBindEBC @entity{
-  id: ID! # mdc address - ebc address
-  ebc: Bytes! # ebc address
-  latestRule: [latestRule!]! 
-  rulesWithRootVersion: [ruleTypes!]! 
-  # ebcAll: MDCBindEBCAll! @derivedFrom(field: "ebcs") # MDCBindEBCAll
-  latestUpdateHash: Bytes!
-  latestUpdateTimestamp: BigInt!
-  latestUpdateBlockNumber: BigInt!
-}
+# type MDCBindEBC @entity{
+#   id: ID! # mdc address - ebc address
+#   ebc: Bytes! # ebc address
+#   latestRule: [latestRule!]! 
+#   rulesWithRootVersion: [ruleTypes!]! 
+#   # ebcAll: MDCBindEBCAll! @derivedFrom(field: "ebcs") # MDCBindEBCAll
+#   latestUpdateHash: Bytes!
+#   latestUpdateTimestamp: BigInt!
+#   latestUpdateBlockNumber: BigInt!
+# }
 
 # customed using entity
 type MDCBindSPV @entity{
@@ -246,7 +246,7 @@ type ruleTypes @entity {  #contain all rules snapshot
   # As MDC snapshot, id: mdc-ecb-transactionHash - logIndex
   id: ID!
   rules: [rule!]! # all rules   
-  mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
+  # mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
   root: Bytes! # bytes32
   version: Int! # uint32  
   sourceChainIds: [BigInt!]! # uint64[]
@@ -257,7 +257,7 @@ type ruleTypes @entity {  #contain all rules snapshot
   mappingSnapshot: [MDCMapping!] # ruleMapping
   mdc: MDC! @derivedFrom(field: "ruleSnapshot") # MDC
   ebc: EbcsUpdated! @derivedFrom(field: "rulesList") # EBCs
-  dealer: Dealer! @derivedFrom(field: "rules") # Dealer
+  # dealer: Dealer! @derivedFrom(field: "rules") # Dealer
 
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
@@ -290,9 +290,8 @@ type rule @entity { # only one rule in ruleTypes
 }
 
 # customed using entitys
-type latestRule @entity { # latest rule in MDCBindEBC
+type latestRule @entity { # latest rule
   id: ID! # mdc-ebc-chain0-chain1
-  mdc: Bytes # mdc address
   chain0: BigInt # uint64
   chain1: BigInt # uint64
   chain0Status: Int # uint8
@@ -317,7 +316,9 @@ type latestRule @entity { # latest rule in MDCBindEBC
   latestUpdateBlockNumber: BigInt
   latestUpdateHash: Bytes
   ruleValidation: Boolean!
-  ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
+  ebc: EbcsUpdated! @derivedFrom(field: "ruleLatest") # EBCs
+  mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
+  # ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
 }
 
 # using entity, binding in contract Event
@@ -368,7 +369,8 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
 type EbcsUpdated @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
-  rulesList:[ruleTypes!]! # list all rules Snapshot!! who bind this ebc
+  rulesList: [ruleTypes!]! # list all rules Snapshot!! who bind this ebc
+  ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
   statuses: Boolean!
   manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: Bytes!

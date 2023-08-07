@@ -19,7 +19,6 @@ import {
     MDC, 
     MDCBindChainId, 
     dealerSnapshot, 
-    MDCBindEBC,
     MDCBindSPV,
     MDCMapping,
     ORManger,
@@ -36,7 +35,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = false
 export const debugLogCreateRules = false
 
@@ -121,6 +120,7 @@ export function ebcManagerUpdate(
         ebc = new EbcsUpdated(ebcId)
         ebc.mdcList = []
         ebc.rulesList = []
+        ebc.ruleLatest = []
         saveEBCMgr2ORMgr(ebc)
     }    
     ebc.statuses = status
@@ -242,23 +242,23 @@ export function initRuleEntity(
     _rules.chain1CompensationRatio = ZERO_BI.toI32()
 }
 
-export function getRulesEntity(
-    ebc: MDCBindEBC,
-    version: BigInt
-): ruleTypes {
-    let id = ebc.id + "-" + version.toString()
-    let rule = ruleTypes.load(id)
-    if (rule == null) {
-        rule = new ruleTypes(id)
-        rule.rules = []
-        initRulesEntity(rule)
-        saveRule2EBC(ebc, rule)
-        if(debugLogCreateRules){
-            log.info('create new rules, rules: {}', [rule.id])
-        }
-    }
-    return rule as ruleTypes
-}
+// export function getRulesEntity(
+//     ebc: MDCBindEBC,
+//     version: BigInt
+// ): ruleTypes {
+//     let id = ebc.id + "-" + version.toString()
+//     let rule = ruleTypes.load(id)
+//     if (rule == null) {
+//         rule = new ruleTypes(id)
+//         rule.rules = []
+//         initRulesEntity(rule)
+//         saveRule2EBC(ebc, rule)
+//         if(debugLogCreateRules){
+//             log.info('create new rules, rules: {}', [rule.id])
+//         }
+//     }
+//     return rule as ruleTypes
+// }
 
 export function getRuleEntity(
     _rules: ruleTypes,
@@ -287,6 +287,7 @@ export function getEBCEntityNew(
         ebc = new EbcsUpdated(ebcAddress)
         ebc.mdcList = []
         ebc.rulesList = []
+        ebc.ruleLatest = []
         ebc.statuses = true
     }
     ebc.latestUpdateHash = event.transaction.hash
@@ -333,29 +334,29 @@ export function getMDCEntity(
 //     return _MDCBindEBCAll as MDCBindEBCAll
 // }
 
-export function getEBCEntity(
-    mdc: MDC,
-    ebcAddress: Address,
-    event: ethereum.Event
-): MDCBindEBC {
-    const bindID = createBindID([mdc.id, ebcAddress.toHexString()])
-    let _MDCBindEBC = MDCBindEBC.load(bindID)
-    if(_MDCBindEBC == null){
-        _MDCBindEBC = new MDCBindEBC(bindID)
-        _MDCBindEBC.ebc = ebcAddress
-        _MDCBindEBC.rulesWithRootVersion = []
-        _MDCBindEBC.latestRule = []
-        log.info('create new MDCBindEBC, mdc: {}, ebc: {}', 
-            [mdc.id,
-            _MDCBindEBC.ebc.toHexString()]
-        )
-    }
-    _MDCBindEBC.latestUpdateHash = event.transaction.hash
-    _MDCBindEBC.latestUpdateBlockNumber = event.block.number
-    _MDCBindEBC.latestUpdateTimestamp = event.block.timestamp
-    // saveBindEBC2MDC(mdc, bindID)    
-    return _MDCBindEBC as MDCBindEBC
-}
+// export function getEBCEntity(
+//     mdc: MDC,
+//     ebcAddress: Address,
+//     event: ethereum.Event
+// ): MDCBindEBC {
+//     const bindID = createBindID([mdc.id, ebcAddress.toHexString()])
+//     let _MDCBindEBC = MDCBindEBC.load(bindID)
+//     if(_MDCBindEBC == null){
+//         _MDCBindEBC = new MDCBindEBC(bindID)
+//         _MDCBindEBC.ebc = ebcAddress
+//         _MDCBindEBC.rulesWithRootVersion = []
+//         _MDCBindEBC.latestRule = []
+//         log.info('create new MDCBindEBC, mdc: {}, ebc: {}', 
+//             [mdc.id,
+//             _MDCBindEBC.ebc.toHexString()]
+//         )
+//     }
+//     _MDCBindEBC.latestUpdateHash = event.transaction.hash
+//     _MDCBindEBC.latestUpdateBlockNumber = event.block.number
+//     _MDCBindEBC.latestUpdateTimestamp = event.block.timestamp
+//     // saveBindEBC2MDC(mdc, bindID)    
+//     return _MDCBindEBC as MDCBindEBC
+// }
 
 export function getChainInfoEntity(
     event: ethereum.Event,
@@ -1002,25 +1003,32 @@ function saveMDC2EBC(
     }
 }
 
-function saveRule2EBC(
-    ebc: MDCBindEBC,
-    rule: ruleTypes
-): void{
-    if (ebc.rulesWithRootVersion == null) {
-        ebc.rulesWithRootVersion = [rule.id];
-    } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
-        ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
-    }
-}
+// function saveRule2EBC(
+//     ebc: MDCBindEBC,
+//     rule: ruleTypes
+// ): void{
+//     if (ebc.rulesWithRootVersion == null) {
+//         ebc.rulesWithRootVersion = [rule.id];
+//     } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
+//         ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
+//     }
+// }
 
-function saveLatestRule2MDC(
+function saveLatestRule2MDCEBC(
     mdc: MDC,
+    ebc: EbcsUpdated,
     ruleLatestId: string
 ): void{
     if (mdc.ruleLatest == null) {
         mdc.ruleLatest = [ruleLatestId];
     } else if (!mdc.ruleLatest.includes(ruleLatestId)) {
         mdc.ruleLatest = mdc.ruleLatest.concat([ruleLatestId])
+    }
+
+    if (ebc.ruleLatest == null) {
+        ebc.ruleLatest = [ruleLatestId];
+    } else if (!ebc.ruleLatest.includes(ruleLatestId)) {
+        ebc.ruleLatest = ebc.ruleLatest.concat([ruleLatestId])
     }
 }
 
@@ -1529,7 +1537,7 @@ function updateLatestRules(
         _rule = new latestRule(id)
         _rule.ruleValidation = false
     }
-    _rule.mdc = Bytes.fromHexString(AddressFmtPadZero(mdc.id))
+    // _rule.mdc = Bytes.fromHexString(AddressFmtPadZero(mdc.id))
     _rule.chain0 = rsc.chain0
     _rule.chain1 = rsc.chain1
     _rule.chain0Status = rsc.chain0Status.toI32()
@@ -1553,7 +1561,7 @@ function updateLatestRules(
     _rule.latestUpdateBlockNumber = event.block.number
     _rule.latestUpdateHash = event.transaction.hash
     _rule.latestUpdateVersion = version as i32;
-    saveLatestRule2MDC(mdc, _rule.id)
+    saveLatestRule2MDCEBC(mdc, ebc, _rule.id)
     _rule.save()
     if(debugLogCreateRules){
         log.info("update latest rule id: {}", [id])

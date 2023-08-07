@@ -16,7 +16,6 @@ import {
     func_updateRulesRootERC20,
     func_updateRulesRootERC20Selector,
     func_updateRulesRootSelector,
-    getEBCEntity,
     getMDCFactory,
     getMDCEntity,
     getONEBytes,
@@ -27,7 +26,6 @@ import {
     debugLog,
     parseTransactionInputData,
     removeDuplicates,
-    getRulesEntity,
     ebcManagerUpdate,
     AddressFmtPadZero,
     getChainInfoEntity,
@@ -103,19 +101,6 @@ export function handleupdateRulesRootEvent(
         mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
         ebcSave(ebcEntity, mdc)
         ebcEntity.save()
-        // let _rules = getRulesEntity(ebc, version)
-          // if(updateRuleTypesThenSave(updateRulesRootEntity, _rules, root, version, event, mdc, ebc)){
-          //     if(updateRulesRootEntity.pledgeAmounts != null){
-          //       _rules.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
-          //     }
-          //     if(updateRulesRootEntity.sourceChainIds != null){
-          //       _rules.sourceChainIds = updateRulesRootEntity.sourceChainIds
-          //     }
-          //     _rules.token = updateRulesRootEntity.tokenAddr
-          //     _rules.save()
-          // }
-        // } 
-
       }        
       mdc.save()
       if(factory){
