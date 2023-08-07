@@ -135,20 +135,12 @@ export function handleColumnArrayUpdatedEvent (
     mdcStoreChainIdNewMapping(mdc, chainIdSnapshot, uniqueChainIds, event)
     chainIdSnapshot.save()
 
-
-    // let _chainIds = getMDCBindChainIdEntity(mdc, uniqueChainIds)
-    // mdcStoreChainIdNewMapping(mdc, _chainIds, uniqueChainIds, event)
-    // _chainIds.save()
-
     // process ebcs
     let uniqueEbcs = removeDuplicates(ebcs)
     let ebcsBytes = new Array<Bytes>()
     for(let i = 0; i < uniqueEbcs.length; i++){
-        // let ebc = getEBCEntity(mdc, uniqueEbcs[i], event)
         ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
-        // ebcSave(ebc, mdc, event)
     }
-
     const ebcSnapshot = getEBCSnapshotEntity(mdc, event)
     mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsBytes, event)
     ebcSnapshot.save()
@@ -157,9 +149,15 @@ export function handleColumnArrayUpdatedEvent (
     let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
     columnArrayUpdated.impl = impl
     columnArrayUpdated.columnArrayHash = columnArrayHash
-    columnArrayUpdated.dealers = dealersBytes
-    columnArrayUpdated.ebcs = ebcsBytes
-    columnArrayUpdated.chainIds = chainIds
+    if(dealersBytes.length > 0){
+      columnArrayUpdated.dealers = dealersBytes
+    }
+    if(ebcsBytes.length > 0){
+      columnArrayUpdated.ebcs = ebcsBytes
+    }
+    if(uniqueChainIds.length > 0){
+      columnArrayUpdated.chainIds = uniqueChainIds
+    }
     columnArrayUpdated.save()
 
     mdc.save()

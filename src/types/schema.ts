@@ -340,55 +340,43 @@ export class ColumnArrayUpdated extends Entity {
     }
   }
 
-  get dealers(): Array<Bytes> | null {
+  get dealers(): Array<Bytes> {
     let value = this.get("dealers");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytesArray();
     }
   }
 
-  set dealers(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("dealers");
-    } else {
-      this.set("dealers", Value.fromBytesArray(<Array<Bytes>>value));
-    }
+  set dealers(value: Array<Bytes>) {
+    this.set("dealers", Value.fromBytesArray(value));
   }
 
-  get ebcs(): Array<Bytes> | null {
+  get ebcs(): Array<Bytes> {
     let value = this.get("ebcs");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytesArray();
     }
   }
 
-  set ebcs(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("ebcs");
-    } else {
-      this.set("ebcs", Value.fromBytesArray(<Array<Bytes>>value));
-    }
+  set ebcs(value: Array<Bytes>) {
+    this.set("ebcs", Value.fromBytesArray(value));
   }
 
-  get chainIds(): Array<BigInt> | null {
+  get chainIds(): Array<BigInt> {
     let value = this.get("chainIds");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigIntArray();
     }
   }
 
-  set chainIds(value: Array<BigInt> | null) {
-    if (!value) {
-      this.unset("chainIds");
-    } else {
-      this.set("chainIds", Value.fromBigIntArray(<Array<BigInt>>value));
-    }
+  set chainIds(value: Array<BigInt>) {
+    this.set("chainIds", Value.fromBigIntArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -2755,6 +2743,19 @@ export class rule extends Entity {
     this.set("enableTimestamp", Value.fromBigInt(value));
   }
 
+  get ruleValidation(): boolean {
+    let value = this.get("ruleValidation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set ruleValidation(value: boolean) {
+    this.set("ruleValidation", Value.fromBoolean(value));
+  }
+
   get ruletypes(): ruleTypesLoader {
     return new ruleTypesLoader("rule", this.get("id")!.toString(), "ruletypes");
   }
@@ -3437,21 +3438,17 @@ export class ChainTokenUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get token(): BigInt | null {
+  get token(): BigInt {
     let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set token(value: BigInt | null) {
-    if (!value) {
-      this.unset("token");
-    } else {
-      this.set("token", Value.fromBigInt(<BigInt>value));
-    }
+  set token(value: BigInt) {
+    this.set("token", Value.fromBigInt(value));
   }
 
   get mainnetToken(): Bytes | null {

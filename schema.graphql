@@ -23,9 +23,9 @@ type ColumnArrayUpdated @entity(immutable: true) {
   id: ID!
   impl: Bytes # address
   columnArrayHash: Bytes # bytes32
-  dealers: [Bytes!] # address[]
-  ebcs: [Bytes!] # address[]
-  chainIds: [BigInt!] # uint64[]
+  dealers: [Bytes!]! # address[]
+  ebcs: [Bytes!]! # address[]
+  chainIds: [BigInt!]! # uint64[]
   mdc: MDC! @derivedFrom(field: "columnArrayUpdated") # MDC
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -286,6 +286,7 @@ type rule @entity { # only one rule in ruleTypes
   chain0CompensationRatio: Int! # uint32
   chain1CompensationRatio: Int! # uint32
   enableTimestamp: BigInt! # uint64
+  ruleValidation: Boolean!
   ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
 }
 
@@ -341,7 +342,7 @@ type ChainInfoUpdated @entity{
 type ChainTokenUpdated @entity(immutable: true) {
   id: ID! # chainId - token
   # inputId: BigInt # uint64
-  token: BigInt # uint
+  token: BigInt! # uint
   mainnetToken: Bytes # address
   decimals: Int # uint8
   chain: ChainInfoUpdated! @derivedFrom(field: "token") # ChainInfo
