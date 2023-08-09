@@ -473,17 +473,17 @@ export class ResponseMakersUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get responseMakerList(): Array<Bytes> {
+  get responseMakerList(): Array<string> {
     let value = this.get("responseMakerList");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set responseMakerList(value: Array<Bytes>) {
-    this.set("responseMakerList", Value.fromBytesArray(value));
+  set responseMakerList(value: Array<string>) {
+    this.set("responseMakerList", Value.fromStringArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -546,138 +546,6 @@ export class ResponseMakersUpdated extends Entity {
   }
 }
 
-export class RulesRootUpdated extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save RulesRootUpdated entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type RulesRootUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("RulesRootUpdated", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): RulesRootUpdated | null {
-    return changetype<RulesRootUpdated | null>(
-      store.get_in_block("RulesRootUpdated", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): RulesRootUpdated | null {
-    return changetype<RulesRootUpdated | null>(
-      store.get("RulesRootUpdated", id.toHexString())
-    );
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-}
-
-export class SpvUpdated extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save SpvUpdated entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type SpvUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("SpvUpdated", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): SpvUpdated | null {
-    return changetype<SpvUpdated | null>(
-      store.get_in_block("SpvUpdated", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): SpvUpdated | null {
-    return changetype<SpvUpdated | null>(
-      store.get("SpvUpdated", id.toHexString())
-    );
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-}
-
-export class MDCCreated extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save MDCCreated entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type MDCCreated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("MDCCreated", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): MDCCreated | null {
-    return changetype<MDCCreated | null>(
-      store.get_in_block("MDCCreated", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): MDCCreated | null {
-    return changetype<MDCCreated | null>(
-      store.get("MDCCreated", id.toHexString())
-    );
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-}
-
 export class MDC extends Entity {
   constructor(id: string) {
     super();
@@ -717,21 +585,21 @@ export class MDC extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get owner(): Bytes {
+  get owner(): string {
     let value = this.get("owner");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set owner(value: Bytes) {
-    this.set("owner", Value.fromBytes(value));
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
   }
 
-  get responseMakers(): Array<string> {
-    let value = this.get("responseMakers");
+  get responseMakerSnapshot(): Array<string> {
+    let value = this.get("responseMakerSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -739,8 +607,8 @@ export class MDC extends Entity {
     }
   }
 
-  set responseMakers(value: Array<string>) {
-    this.set("responseMakers", Value.fromStringArray(value));
+  set responseMakerSnapshot(value: Array<string>) {
+    this.set("responseMakerSnapshot", Value.fromStringArray(value));
   }
 
   get dealerSnapshot(): Array<string> {
@@ -910,30 +778,30 @@ export class MDC extends Entity {
     this.set("createblockTimestamp", Value.fromBigInt(value));
   }
 
-  get createtransactionHash(): Bytes {
+  get createtransactionHash(): string {
     let value = this.get("createtransactionHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set createtransactionHash(value: Bytes) {
-    this.set("createtransactionHash", Value.fromBytes(value));
+  set createtransactionHash(value: string) {
+    this.set("createtransactionHash", Value.fromString(value));
   }
 
-  get latestUpdatetransactionHash(): Bytes {
+  get latestUpdatetransactionHash(): string {
     let value = this.get("latestUpdatetransactionHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdatetransactionHash(value: Bytes) {
-    this.set("latestUpdatetransactionHash", Value.fromBytes(value));
+  set latestUpdatetransactionHash(value: string) {
+    this.set("latestUpdatetransactionHash", Value.fromString(value));
   }
 }
 
@@ -1190,9 +1058,9 @@ export class Dealer extends Entity {
 }
 
 export class FactoryManger extends Entity {
-  constructor(id: Bytes) {
+  constructor(id: string) {
     super();
-    this.set("id", Value.fromBytes(id));
+    this.set("id", Value.fromString(id));
   }
 
   save(): void {
@@ -1200,36 +1068,34 @@ export class FactoryManger extends Entity {
     assert(id != null, "Cannot save FactoryManger entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type FactoryManger must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        id.kind == ValueKind.STRING,
+        `Entities of type FactoryManger must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("FactoryManger", id.toBytes().toHexString(), this);
+      store.set("FactoryManger", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: Bytes): FactoryManger | null {
+  static loadInBlock(id: string): FactoryManger | null {
     return changetype<FactoryManger | null>(
-      store.get_in_block("FactoryManger", id.toHexString())
+      store.get_in_block("FactoryManger", id)
     );
   }
 
-  static load(id: Bytes): FactoryManger | null {
-    return changetype<FactoryManger | null>(
-      store.get("FactoryManger", id.toHexString())
-    );
+  static load(id: string): FactoryManger | null {
+    return changetype<FactoryManger | null>(store.get("FactoryManger", id));
   }
 
-  get id(): Bytes {
+  get id(): string {
     let value = this.get("id");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 
   get mdcs(): Array<string> {
@@ -1243,6 +1109,32 @@ export class FactoryManger extends Entity {
 
   set mdcs(value: Array<string>) {
     this.set("mdcs", Value.fromStringArray(value));
+  }
+
+  get owners(): Array<string> {
+    let value = this.get("owners");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set owners(value: Array<string>) {
+    this.set("owners", Value.fromStringArray(value));
+  }
+
+  get responseMakers(): Array<string> {
+    let value = this.get("responseMakers");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set responseMakers(value: Array<string>) {
+    this.set("responseMakers", Value.fromStringArray(value));
   }
 
   get mdcCounts(): BigInt {
@@ -1295,6 +1187,69 @@ export class FactoryManger extends Entity {
 
   set latestUpdateBlockNumber(value: BigInt) {
     this.set("latestUpdateBlockNumber", Value.fromBigInt(value));
+  }
+}
+
+export class responseMaker extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save responseMaker entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type responseMaker must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("responseMaker", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): responseMaker | null {
+    return changetype<responseMaker | null>(
+      store.get_in_block("responseMaker", id)
+    );
+  }
+
+  static load(id: string): responseMaker | null {
+    return changetype<responseMaker | null>(store.get("responseMaker", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get mdcs(): Array<string> {
+    let value = this.get("mdcs");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set mdcs(value: Array<string>) {
+    this.set("mdcs", Value.fromStringArray(value));
+  }
+
+  get factory(): FactoryMangerLoader {
+    return new FactoryMangerLoader(
+      "responseMaker",
+      this.get("id")!.toString(),
+      "factory"
+    );
   }
 }
 
@@ -2311,6 +2266,19 @@ export class ruleTypes extends Entity {
     this.set("rules", Value.fromStringArray(value));
   }
 
+  get ruleLatest(): Array<string> {
+    let value = this.get("ruleLatest");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ruleLatest(value: Array<string>) {
+    this.set("ruleLatest", Value.fromStringArray(value));
+  }
+
   get root(): Bytes {
     let value = this.get("root");
     if (!value || value.kind == ValueKind.NULL) {
@@ -3179,6 +3147,14 @@ export class latestRule extends Entity {
   get mdc(): MDCLoader {
     return new MDCLoader("latestRule", this.get("id")!.toString(), "mdc");
   }
+
+  get ruleSnapshot(): ruleTypesLoader {
+    return new ruleTypesLoader(
+      "latestRule",
+      this.get("id")!.toString(),
+      "ruleSnapshot"
+    );
+  }
 }
 
 export class ChainInfoUpdated extends Entity {
@@ -3224,8 +3200,8 @@ export class ChainInfoUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get token(): Array<string> {
-    let value = this.get("token");
+  get tokens(): Array<string> {
+    let value = this.get("tokens");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -3233,12 +3209,12 @@ export class ChainInfoUpdated extends Entity {
     }
   }
 
-  set token(value: Array<string>) {
-    this.set("token", Value.fromStringArray(value));
+  set tokens(value: Array<string>) {
+    this.set("tokens", Value.fromStringArray(value));
   }
 
-  get spv(): Array<Bytes> {
-    let value = this.get("spv");
+  get spvs(): Array<Bytes> {
+    let value = this.get("spvs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -3246,8 +3222,8 @@ export class ChainInfoUpdated extends Entity {
     }
   }
 
-  set spv(value: Array<Bytes>) {
-    this.set("spv", Value.fromBytesArray(value));
+  set spvs(value: Array<Bytes>) {
+    this.set("spvs", Value.fromBytesArray(value));
   }
 
   get batchLimit(): BigInt | null {

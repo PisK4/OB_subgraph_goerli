@@ -43,8 +43,8 @@ type ResponseMakersUpdated @entity(immutable: true) {
 }
 
 # unused entity, but it's binding in contract Event, so we need to define it
-type RulesRootUpdated @entity(immutable: true) {
-  id: Bytes!
+# type RulesRootUpdated @entity(immutable: true) {
+  # id: Bytes!
   # impl: Bytes! # address
   # ebc: Bytes! # address
   # rootWithVersion_root: Bytes! # bytes32
@@ -53,27 +53,27 @@ type RulesRootUpdated @entity(immutable: true) {
   # blockTimestamp: BigInt!
   # transactionHash: Bytes!
   # input: Bytes!
-}
+# }
 
 # unused entity, but it's binding in contract Event, so we need to define it
-type SpvUpdated @entity(immutable: true) {
-  id: Bytes!
+# type SpvUpdated @entity(immutable: true) {
+  # id: Bytes!
   # impl: Bytes! # address
   # chainId: BigInt! # uint64
   # spv: Bytes! # address
   # blockNumber: BigInt!
   # blockTimestamp: BigInt!
   # transactionHash: Bytes!
-}
+# }
 
-# unused entity, but it's binding in contract Event, so we need to define it
-type MDCCreated @entity(immutable: true) {
-  id: Bytes!
-  # maker: Bytes! # address
-  # mdc: Bytes! # address
-  # blockNumber: BigInt!
-  # blockTimestamp: BigInt!
-}
+# # unused entity, but it's binding in contract Event, so we need to define it
+# type MDCCreated @entity(immutable: true) {
+#   id: Bytes!
+#   # maker: Bytes! # address
+#   # mdc: Bytes! # address
+#   # blockNumber: BigInt!
+#   # blockTimestamp: BigInt!
+# }
 
 # customed using entity
 type MDC @entity {
@@ -245,8 +245,8 @@ type chainIdMapping @entity{
 type ruleTypes @entity {  #contain all rules snapshot
   # As MDC snapshot, id: mdc-ecb-transactionHash - logIndex
   id: ID!
-  rules: [rule!]! # all rules   
-  # mdcBindebc: MDCBindEBC! @derivedFrom(field: "rulesWithRootVersion") # MDCBindEBC
+  rules: [rule!]! # rules in input Data   
+  ruleLatest: [latestRule!]! # all latest rules
   root: Bytes! # bytes32
   version: Int! # uint32  
   sourceChainIds: [BigInt!]! # uint64[]
@@ -319,14 +319,14 @@ type latestRule @entity { # latest rule
   ruleValidation: Boolean!
   ebc: EbcsUpdated! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
-  # ebc: MDCBindEBC! @derivedFrom(field: "latestRule") # MDCBindEBC
+  ruleSnapshot: ruleTypes! @derivedFrom(field: "ruleLatest") # ruleTypes
 }
 
 # using entity, binding in contract Event
 type ChainInfoUpdated @entity{
   id: ID! # chainId
-  token: [ChainTokenUpdated!]! # ChainToken
-  spv: [Bytes!]! # address[]
+  tokens: [ChainTokenUpdated!]! # ChainToken
+  spvs: [Bytes!]! # address[]
   batchLimit: BigInt # uint192
   minVerifyChallengeSourceTxSecond: BigInt # uint64
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
@@ -345,7 +345,7 @@ type ChainTokenUpdated @entity(immutable: true) {
   token: BigInt! # uint
   mainnetToken: Bytes # address
   decimals: Int # uint8
-  chain: ChainInfoUpdated! @derivedFrom(field: "token") # ChainInfo
+  chain: ChainInfoUpdated! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: Bytes!

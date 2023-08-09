@@ -21,42 +21,43 @@ export function factoryCreateMDC(
     maker: Address,
     mdc: Address
     ): void {
-        if(!(event.transaction.to)){
-            log.error('event.transaction.to is null, transactionHash: {}', [event.transaction.hash.toHexString()])
-        }else{
-            let to = event.transaction.to as Address
-            let factory = FactoryManger.load(to)
+        // if(!(event.transaction.to)){
+        //     log.error('event.transaction.to is null, transactionHash: {}', [event.transaction.hash.toHexString()])
+        // }else{
+            // let to = event.transaction.to.toHexString()
+        const ID = event.address.toHexString()
+        let factory = FactoryManger.load(ID)
 
-            if(!factory){
-                factory = new FactoryManger(
-                    to
-                  )
-                factory.mdcCounts = BigInt.fromI32(0);
-                factory.mdcs = []
-            }
-            
-            factory.latestUpdateHash  = event.transaction.hash
-            factory.latestUpdateBlockNumber = event.block.number
-            factory.latestUpdateTimestamp = event.block.timestamp
-            factory.mdcCounts = factory.mdcCounts.plus(BigInt.fromI32(1))
-
-            let mdcNew = getMDCEntity(mdc, maker, event)
-            MDCTemplate.create(mdc)
-
-            // factory.mdcs = [mdcNew.id]
-            if (factory.mdcs == null) {
-                factory.mdcs = [mdcNew.id]
-            } else {
-                factory.mdcs = factory.mdcs.concat([mdcNew.id]);
-            }
-
-            let mdcMapping = getMDCMappingEntity(mdcNew, event)
-            mdcNew.mapping = mdcMapping.id
-
-            mdcMapping.save()
-            mdcNew.save()
-            factory.save()
+        if(!factory){
+            factory = new FactoryManger(ID)
+            factory.mdcCounts = BigInt.fromI32(0);
+            factory.mdcs = []
+            factory.owners = []
+            factory.responseMakers = []
         }
+        
+        factory.latestUpdateHash  = event.transaction.hash
+        factory.latestUpdateBlockNumber = event.block.number
+        factory.latestUpdateTimestamp = event.block.timestamp
+        factory.mdcCounts = factory.mdcCounts.plus(BigInt.fromI32(1))
+
+        let mdcNew = getMDCEntity(mdc, maker, event)
+        MDCTemplate.create(mdc)
+
+        // factory.mdcs = [mdcNew.id]
+        if (factory.mdcs == null) {
+            factory.mdcs = [mdcNew.id]
+        } else {
+            factory.mdcs = factory.mdcs.concat([mdcNew.id]);
+        }
+
+        let mdcMapping = getMDCMappingEntity(mdcNew, event)
+        mdcNew.mapping = mdcMapping.id
+
+        mdcMapping.save()
+        mdcNew.save()
+        factory.save()
+        // }
 
 
 }

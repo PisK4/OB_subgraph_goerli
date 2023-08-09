@@ -80,7 +80,7 @@ export function handleupdateRulesRootEvent(
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
       let factoryAddress = Bytes.fromHexString(mdc.factory._id)
       // log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
-      let factory = FactoryManger.load(factoryAddress)
+      let factory = FactoryManger.load(factoryAddress.toHexString())
 
       log.info('inputdata decode: ebc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
       [
@@ -206,7 +206,7 @@ export function handleChainInfoUpdatedEvent(
         _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
         for (let i = 0; i < spvs.length; i++) {
-          _chainInfo.spv = _chainInfo.spv.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
+          _chainInfo.spvs = _chainInfo.spvs.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
           
         }
 
@@ -244,12 +244,17 @@ export function handleResponseMakersUpdatedEvent(
 ): void {
   const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
-  let responseMakersBytes = new Array<Bytes>()
+  // let responseMakersBytes = new Array<Bytes>()
+  // for(let i = 0; i < responseMakers.length; i++){
+  //   // log.info('mdc{} update responseMakers: {}', [mdcAddress.toHexString(), responseMakers[i].toString()])
+  //   responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
+  // }
+  // mdcStoreResponseMaker(mdc, responseMakersBytes, event)
+  let responseMakersArray = new Array<string>()
   for(let i = 0; i < responseMakers.length; i++){
-    // log.info('mdc{} update responseMakers: {}', [mdcAddress.toHexString(), responseMakers[i].toString()])
-    responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
+    responseMakersArray.push(AddressFmtPadZero(responseMakers[i].toHexString()))
   }
-  mdcStoreResponseMaker(mdc, responseMakersBytes, event)
+  mdcStoreResponseMaker(mdc, responseMakersArray, event)
   mdc.save()
 }
 

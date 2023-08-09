@@ -79,7 +79,7 @@ describe("Describe check responseMakers Event", () => {
     assert.fieldEquals(
       "MDC",
       mockMdcAddr.toLowerCase(),
-      "responseMakers",
+      "responseMakerSnapshot",
       "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
     )
   })
@@ -165,7 +165,7 @@ describe("Describe check ChainTokenUpdated Event", () => {
       assert.fieldEquals(
         "ChainInfoUpdated",
         Chainid.toString(),
-        "token",
+        "tokens",
         "[985-196376302172346843968590065221485113559586934957\]"
       )
 

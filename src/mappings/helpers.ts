@@ -37,7 +37,7 @@ import {
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 export const debugLogCreateRules = false
 
@@ -245,9 +245,9 @@ export function getMDCEntity(
     if (mdc == null) {
         log.info('create new MDC, maker: {}, mdc: {}', [maker.toHexString(), mdcAddress.toHexString()])
         mdc = new MDC(mdcAddress.toHexString())
-        mdc.owner = maker
+        mdc.owner = maker.toHexString()
         mdc.columnArrayUpdated = []
-        mdc.responseMakers = []
+        mdc.responseMakerSnapshot = []
         mdc.bindSPVs = []
         mdc.dealerSnapshot = []
         mdc.ebcSnapshot = []
@@ -256,9 +256,9 @@ export function getMDCEntity(
         mdc.ruleLatest = []
         mdc.createblockNumber = event.block.number
         mdc.createblockTimestamp = event.block.timestamp
-        mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash        
+        mdc.latestUpdatetransactionHash = mdc.createtransactionHash = event.transaction.hash.toHexString()        
     }
-    mdc.latestUpdatetransactionHash = event.transaction.hash
+    mdc.latestUpdatetransactionHash = event.transaction.hash.toHexString()
     return mdc as MDC
 }
 
@@ -271,8 +271,8 @@ export function getChainInfoEntity(
     if (_chainInfo == null) {
         log.info('create new ChainInfo, id: {}', [id])
         _chainInfo = new ChainInfoUpdated(id)
-        _chainInfo.token = []
-        _chainInfo.spv = []
+        _chainInfo.tokens = []
+        _chainInfo.spvs = []
         saveChainInfoMgr2ORMgr(_chainInfo)
     }
     _chainInfo.latestUpdateHash = event.transaction.hash
@@ -323,8 +323,8 @@ function getTokenFromChainInfoUpdated(
     let _chainInfo = ChainInfoUpdated.load(chainid.toString())
     let tokens = [] as Array<BigInt>
     if(_chainInfo != null){
-        for(let i = 0; i < _chainInfo.token.length; i++){
-            const ChainTokenUpdatedID = _chainInfo.token[i].toString()
+        for(let i = 0; i < _chainInfo.tokens.length; i++){
+            const ChainTokenUpdatedID = _chainInfo.tokens[i].toString()
             let _ChainTokenUpdated = ChainTokenUpdated.load(ChainTokenUpdatedID)
             if(_ChainTokenUpdated != null){
                 tokens = tokens.concat([_ChainTokenUpdated.token])
@@ -817,18 +817,19 @@ export function getDealerEntity(
 
 export function mdcStoreResponseMaker(
     mdc: MDC,
-    responseMakersBytes: Bytes[],
+    responseMakersArray: string[],
     event: ethereum.Event
 ): void{
     // id = txhash + logIndex
-    let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+    // let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+    const id = createEventID(event)
     let responseMakers = ResponseMakersUpdated.load(id)
     if(responseMakers == null){
         responseMakers = new ResponseMakersUpdated(id)
         responseMakers.responseMakerList = []
-        mdc.responseMakers = mdc.responseMakers.concat([responseMakers.id])
+        mdc.responseMakerSnapshot = mdc.responseMakerSnapshot.concat([responseMakers.id])
     }
-    responseMakers.responseMakerList = responseMakersBytes
+    responseMakers.responseMakerList = responseMakersArray
     responseMakers.latestUpdateBlockNumber = event.block.number
     responseMakers.latestUpdateTimestamp = event.block.timestamp
     responseMakers.latestUpdateHash = event.transaction.hash
@@ -850,10 +851,10 @@ function saveTokenInfo2ChainInfo(
     chainInfo: ChainInfoUpdated,
     tokenId: string
 ): void {
-    if (chainInfo.token == null) {
-        chainInfo.token = [tokenId];
-    } else if (!chainInfo.token.includes(tokenId)) {
-        chainInfo.token = chainInfo.token.concat([tokenId])
+    if (chainInfo.tokens == null) {
+        chainInfo.tokens = [tokenId];
+    } else if (!chainInfo.tokens.includes(tokenId)) {
+        chainInfo.tokens = chainInfo.tokens.concat([tokenId])
     }
 }
 
@@ -911,6 +912,17 @@ function saveMDC2EBC(
 //         ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
 //     }
 // }
+
+function saveLatestRule2RuleSnapshot(
+    ruleSnapshot: ruleTypes,
+    releLatestId: string
+): void{
+    if (ruleSnapshot.ruleLatest == null) {
+        ruleSnapshot.ruleLatest = [releLatestId];
+    } else if (!ruleSnapshot.ruleLatest.includes(releLatestId)) {
+        ruleSnapshot.ruleLatest = ruleSnapshot.ruleLatest.concat([releLatestId])
+    }
+}
 
 function saveLatestRule2MDCEBC(
     mdc: MDC,
@@ -1347,7 +1359,7 @@ export function parseChainInfoUpdatedInputData(
     
     for(let i = 0; i < spvs.length; i++){
         if(i < indexs.length){
-            let _spv = _chainInfoUpdated.spv;
+            let _spv = _chainInfoUpdated.spvs;
             if (indexs.length > 0) {
                 let spvBytes: Bytes[] = [];
                 for (let i = 0; i < indexs.length; i++) {
@@ -1360,29 +1372,27 @@ export function parseChainInfoUpdatedInputData(
                         }
                     }
                 }
-                _chainInfoUpdated.spv = _spv.slice(0, indexs[0].toI32()).concat(spvBytes).concat(_spv.slice(indexs[indexs.length - 1].toI32() + 1));
+                _chainInfoUpdated.spvs = _spv.slice(0, indexs[0].toI32()).concat(spvBytes).concat(_spv.slice(indexs[indexs.length - 1].toI32() + 1));
             } else {
                 let spvBytes: Bytes[] = [];
                 for (let i = 0; i < spvs.length; i++) {
                     spvBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes);
                 }
-                _chainInfoUpdated.spv = _spv.concat(spvBytes);
+                _chainInfoUpdated.spvs = _spv.concat(spvBytes);
             }
             _chainInfoUpdated.save();
         }else{
-            _chainInfoUpdated.spv = _chainInfoUpdated.spv.concat([Bytes.fromHexString(spvs[i].toHexString())])
+            _chainInfoUpdated.spvs = _chainInfoUpdated.spvs.concat([Bytes.fromHexString(spvs[i].toHexString())])
             _chainInfoUpdated.save()
         }
     }
 
     if(debugLog){
-        for(let i = 0; i < _chainInfoUpdated.spv.length; i++){
-            log.debug("update new spv[{}/{}]:{}", [(i+1).toString(),_chainInfoUpdated.spv.length.toString(), _chainInfoUpdated.spv[i].toHexString()])
+        for(let i = 0; i < _chainInfoUpdated.spvs.length; i++){
+            log.debug("update new spv[{}/{}]:{}", [(i+1).toString(),_chainInfoUpdated.spvs.length.toString(), _chainInfoUpdated.spvs[i].toHexString()])
         }
     }   
-
 }
-
 
 export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscRules {
     let func = compareUpdateRulesRootSelector(getFunctionSelector(data))
@@ -1494,6 +1504,33 @@ function ruleVerification(
     rule.ruleValidation = true
 }
 
+function getLastRulesEntity(
+    id: string
+): latestRule {
+    let lastRule = latestRule.load(id)
+    if(lastRule == null){
+        lastRule = new latestRule(id)
+        lastRule.ruleValidation = false
+    }
+    return lastRule
+}
+
+function getAllLatestRules(
+    mdc: MDC,
+    ebc: EbcsUpdated
+): string[] {
+    let ruleIDs: string[] = [];
+    if (mdc.ruleLatest != null) {
+        for (let i = 0; i < mdc.ruleLatest.length; i++) {
+            let rule = latestRule.load(mdc.ruleLatest[i]);
+            if (rule != null && rule.ebc._id == ebc.id) {
+                ruleIDs.push(rule.id);
+            }
+        }
+    }
+    return ruleIDs;
+}
+
 function updateLatestRules( 
     rsc: rscRuleType,
     event: ethereum.Event,
@@ -1501,45 +1538,51 @@ function updateLatestRules(
     mdc: MDC,
     ebc: EbcsUpdated,
     validateResult: boolean,
-    ebcValidateResult: boolean
+    ebcValidateResult: boolean,
+    snapshot:ruleTypes
 ):void{
-    let id = createBindID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()])
-    let _rule = latestRule.load(id)
-    if(_rule == null){
-        _rule = new latestRule(id)
-        _rule.ruleValidation = false
+    const id = createBindID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()])
+    const _rule = getLastRulesEntity(id);
+    const _snapshotLatestRule = getLastRulesEntity(snapshot.id);
+
+    for (let i = 0; i < 2; i++) {
+        const _rscRuleType = i === 0 ? _rule : _snapshotLatestRule;
+        _rscRuleType.chain0 = rsc.chain0;
+        _rscRuleType.chain1 = rsc.chain1;
+        _rscRuleType.chain0Status = rsc.chain0Status.toI32();
+        _rscRuleType.chain1Status = rsc.chain1Status.toI32();
+        _rscRuleType.chain0Token = Address.fromHexString(
+            AddressFmtPadZero(rsc.chain0Token.toHexString())
+        );
+        _rscRuleType.chain1Token = Address.fromHexString(
+            AddressFmtPadZero(rsc.chain1Token.toHexString())
+        );
+        _rscRuleType.chain0minPrice = rsc.chain0minPrice;
+        _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
+        _rscRuleType.chain1minPrice = rsc.chain1minPrice;
+        _rscRuleType.chain1maxPrice = rsc.chain1maxPrice;
+        _rscRuleType.chain0WithholdingFee = rsc.chain0WithholdingFee;
+        _rscRuleType.chain1WithholdingFee = rsc.chain1WithholdingFee;
+        _rscRuleType.chain0TradeFee = rsc.chain0TradeFee.toI32();
+        _rscRuleType.chain1TradeFee = rsc.chain1TradeFee.toI32();
+        _rscRuleType.chain0ResponseTime = rsc.chain0ResponseTime.toI32();
+        _rscRuleType.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
+        _rscRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
+        _rscRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
+        _rscRuleType.enableTimestamp = rsc.enableTimestamp;
+        _rscRuleType.ruleValidation = validateResult && ebcValidateResult;
+        _rscRuleType.latestUpdateTimestamp = event.block.timestamp;
+        _rscRuleType.latestUpdateBlockNumber = event.block.number;
+        _rscRuleType.latestUpdateHash = event.transaction.hash;
+        _rscRuleType.latestUpdateVersion = version as i32;
     }
-    // _rule.mdc = Bytes.fromHexString(AddressFmtPadZero(mdc.id))
-    _rule.chain0 = rsc.chain0
-    _rule.chain1 = rsc.chain1
-    _rule.chain0Status = rsc.chain0Status.toI32()
-    _rule.chain1Status = rsc.chain1Status.toI32()
-    _rule.chain0Token = Address.fromHexString(AddressFmtPadZero(rsc.chain0Token.toHexString()))
-    _rule.chain1Token = Address.fromHexString(AddressFmtPadZero(rsc.chain1Token.toHexString()))
-    _rule.chain0minPrice = rsc.chain0minPrice
-    _rule.chain0maxPrice = rsc.chain0maxPrice
-    _rule.chain1minPrice = rsc.chain1minPrice
-    _rule.chain1maxPrice = rsc.chain1maxPrice
-    _rule.chain0WithholdingFee = rsc.chain0WithholdingFee
-    _rule.chain1WithholdingFee = rsc.chain1WithholdingFee
-    _rule.chain0TradeFee = rsc.chain0TradeFee.toI32()
-    _rule.chain1TradeFee = rsc.chain1TradeFee.toI32()
-    _rule.chain0ResponseTime = rsc.chain0ResponseTime.toI32()
-    _rule.chain1ResponseTime = rsc.chain1ResponseTime.toI32()
-    _rule.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32()
-    _rule.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32()
-    _rule.enableTimestamp = rsc.enableTimestamp
-    _rule.ruleValidation = validateResult && ebcValidateResult
-    _rule.latestUpdateTimestamp = event.block.timestamp
-    _rule.latestUpdateBlockNumber = event.block.number
-    _rule.latestUpdateHash = event.transaction.hash
-    _rule.latestUpdateVersion = version as i32;
-    saveLatestRule2MDCEBC(mdc, ebc, _rule.id)
+    saveLatestRule2MDCEBC(mdc, ebc, _rule.id);
+    saveLatestRule2RuleSnapshot(snapshot, _snapshotLatestRule.id);
     _rule.save()
+    _snapshotLatestRule.save()
     if(debugLogCreateRules){
         log.info("update latest rule id: {}", [id])
     }
-    
 }
 
 function saveRuleSnapshotRelation(
@@ -1591,6 +1634,7 @@ function getRuleSnapshotEntity(
         ruleSnapshot.rules = []
         ruleSnapshot.sourceChainIds = []
         ruleSnapshot.pledgeAmounts = []
+        ruleSnapshot.ruleLatest = []
         ruleSnapshot.token = new Bytes(0)
         // log.debug("create ruleSnapshot id: {}", [snapshotId])
     }
@@ -1695,7 +1739,8 @@ export function mdcStoreRuleSnapshot(
                 mdc,
                 ebc,
                 validateResult,
-                EBCValidation
+                EBCValidation,
+                ruleSnapshot
             )
             if(debugLogCreateRules){
                 log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}, [18]:{}', [

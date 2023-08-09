@@ -6,10 +6,7 @@ import {
   SpvUpdated as SpvUpdatedEvent
 } from "../types/templates/MDC/MDC"
 import {
-  ChallengeInfoUpdated,
-  ColumnArrayUpdated,
-  ResponseMakersUpdated,
-  SpvUpdated,
+  ChallengeInfoUpdated
 } from "../types/schema"
 import { 
   handleColumnArrayUpdatedEvent,
