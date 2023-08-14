@@ -195,7 +195,7 @@ export function handleChainInfoUpdatedEvent(
     chainInfoId: BigInt,
     chainInfo: ChainInfoUpdatedChainInfoStruct
 ): void{
-  log.debug("handleChainInfoUpdated id:{}", [chainInfoId.toString()])
+  // log.debug("handleChainInfoUpdated id:{}", [chainInfoId.toString()])
     let _chainInfo = getChainInfoEntity(event, chainInfoId)
     let batchLimit = chainInfo.batchLimit
     let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond

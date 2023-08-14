@@ -305,6 +305,24 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getVersionAndEnableTime",
+    "outputs": [
+      {
+        "internalType": "uint192",
+        "name": "version",
+        "type": "uint192"
+      },
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -407,20 +425,12 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "storageVersion",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "address[]",
         "name": "dealers",
@@ -445,6 +455,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
         "internalType": "bytes[]",
         "name": "responseMakerSignatures",
         "type": "bytes[]"
@@ -457,6 +472,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "address",
         "name": "ebc",
@@ -553,11 +573,6 @@
             "internalType": "uint32",
             "name": "compensationRatio1",
             "type": "uint32"
-          },
-          {
-            "internalType": "uint64",
-            "name": "enableTimestamp",
-            "type": "uint64"
           }
         ],
         "internalType": "struct RuleLib.Rule[]",
@@ -600,6 +615,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
         "internalType": "address",
         "name": "ebc",
         "type": "address"
@@ -695,11 +715,6 @@
             "internalType": "uint32",
             "name": "compensationRatio1",
             "type": "uint32"
-          },
-          {
-            "internalType": "uint64",
-            "name": "enableTimestamp",
-            "type": "uint64"
           }
         ],
         "internalType": "struct RuleLib.Rule[]",
@@ -746,6 +761,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "address[]",
         "name": "spvs",
@@ -887,6 +907,19 @@
       }
     ],
     "name": "verifyChallengeSource",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      }
+    ],
+    "name": "versionIncreaseAndEnableTime",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

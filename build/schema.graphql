@@ -313,8 +313,8 @@ type rule @entity { # only one rule in ruleTypes
 
 # customed using entitys
 type latestRule @entity { # latest rule
-  # As MDC LatestRule: mdc-ebc-chain0-chain1
-  # As MDC LatestRuleSnapshot: mdc-ebc-transctionHash-logIndex
+  # As MDC LatestRule: hash(mdc-ebc-chain0-chain1)
+  # As MDC LatestRuleSnapshot: hash(mdc-ebc-transctionHash-logIndex)
   id: ID! 
   owner: String! # address
   mdcAddr: String! # address

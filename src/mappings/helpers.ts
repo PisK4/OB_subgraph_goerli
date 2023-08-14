@@ -40,7 +40,7 @@ import {
 } from "../types/templates/MDC/MDC"
 import { createBindID, createHashID, entityConcatID } from './utils'
 
-export const isProduction = true
+export const isProduction = false
 export const debugLog = false
 export const debugLogCreateRules = false
 
@@ -586,7 +586,7 @@ function removeMDCFromDealer(
     for(let i = 0; i < dealer.length; i++){
         let _dealer = Dealer.load(dealer[i])
         if(_dealer != null){
-            log.debug("remove mdc from dealer {}/{}, dealer: {}, mdc: {}", [(i+1).toString(), dealer.length.toString(), dealer[i], mdc.id])
+            log.info("remove mdc from dealer {}/{}, dealer: {}, mdc: {}", [(i+1).toString(), dealer.length.toString(), dealer[i], mdc.id])
             let _mdcs = _dealer.mdcs
             let index = _mdcs.indexOf(mdc.id)
             if (index > -1) {
@@ -674,7 +674,7 @@ function removeMDCFromEBC(
     for(let i = 0; i < ebc.length; i++){
         let _ebc = EbcsUpdated.load(ebc[i])
         if(_ebc != null){
-            log.debug("remove mdc from ebc {}/{}, ebc: {}, mdc: {}", [(i+1).toString(), ebc.length.toString(), ebc[i], mdc.id])
+            log.info("remove mdc from ebc {}/{}, ebc: {}, mdc: {}", [(i+1).toString(), ebc.length.toString(), ebc[i], mdc.id])
             let _mdcs = _ebc.mdcList
             let index = _mdcs.indexOf(mdc.id)
             if (index > -1) {
@@ -1483,13 +1483,13 @@ export function parseChainInfoUpdatedInputData(
         indexs = tuple[2].toBigIntArray()
     }
 
-    log.debug("chainInfoUpdated id:{}, spv.length:{}, indexs.length:{}", 
-    [
-        id.toString(),
-        spvs.length.toString(),
-        indexs.length.toString()
-    ])
     if(debugLog){
+        log.debug("chainInfoUpdated id:{}, spv.length:{}, indexs.length:{}", 
+        [
+            id.toString(),
+            spvs.length.toString(),
+            indexs.length.toString()
+        ])        
         // print spvs array
         for(let i = 0; i < spvs.length; i++){
             log.debug("chainInfoUpdated spvs:[{}]{}", [
@@ -1565,16 +1565,12 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     let selectorofFunc = "0x000000"
     if(func == updateRulesRootMode.ETH) {
         selectorofFunc = func_updateRulesRootSelector
-        log.debug("func:ETH {}", [func.toString()])
+        // log.debug("func:ETH {}", [func.toString()])
     }else if(func == updateRulesRootMode.ERC20) {
         selectorofFunc = func_updateRulesRootERC20Selector
-        log.debug("func:ERC20 {}", [func.toString()])
+        // log.debug("func:ERC20 {}", [func.toString()])
     }
-    // log.debug("parseTransactionInputData selectorofFunc:{}", [selectorofFunc])
-
-
     const tupleInputBytes = inputdataPrefix(data)
-    // const tupleInputBytes = Bytes.fromUint8Array(data.slice(4,data.length))
     
     if (tupleInputBytes.length < 32) {
         log.error("Failed to decode transaction input data", ["error"])
@@ -1683,6 +1679,21 @@ function getLastRulesEntity(
         lastRule = new latestRule(id)
         lastRule.ruleValidation = false
     }
+
+    if (id.startsWith('0xERC20')) {
+        lastRule.type = 'ERC20'
+        log.info('create LatestERC20 rule: {}', [id]);
+    } else if (id.startsWith('0xETH')) {
+        lastRule.type = 'ETH'
+        log.info('create LatestETH rule: {}', [id]);
+    }        
+
+    // if(rsc.selector === updateRulesRootMode.ERC20){
+    //     _snapshotLatestRule.type = _rule.type = 'ERC20'
+    // }else if(rsc.selector === updateRulesRootMode.ETH){
+    //     _snapshotLatestRule.type = _rule.type = 'ETH'
+    // } 
+
     return lastRule
 }
 
@@ -1726,24 +1737,17 @@ function updateLatestRules(
     ebcValidateResult: boolean,
     snapshot:ruleTypes
 ):void{
-    // const id = createBindID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()])
-    let id = getRulePaddingID(createHashID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()]), rsc.selector)
-    // if(RuleTypeCurrent = updateRulesRootMode.ERC20){
-    //     id = '0xERC20' + id.slice(2, id.length);
-    // }else if(RuleTypeCurrent = updateRulesRootMode.ETH){
-    //     id = '0xETH' + id.slice(2, id.length);
-    // }else{
-    //     log.error("Failed to updateLatestRules, RuleTypeCurrent:{}", [RuleTypeCurrent.toString()])
-    // }
-    log.debug("hashId: {}, rsc.selector:{}", [id, rsc.selector.toString()])
-    
+    let id = getRulePaddingID(createHashID([
+        mdc.id, 
+        ebc.id, 
+        rsc.chain0.toString(), 
+        rsc.chain1.toString(),
+        rsc.chain0Token.toString(),
+        rsc.chain1Token.toString(),
+    ]), rsc.selector)
+
     const _rule = getLastRulesEntity(id);
     const _snapshotLatestRule = getLastRulesEntity(snapshot.id);
-    if(rsc.selector === updateRulesRootMode.ERC20){
-        _snapshotLatestRule.type = _rule.type = 'ERC20'
-    }else if(rsc.selector === updateRulesRootMode.ETH){
-        _snapshotLatestRule.type = _rule.type = 'ETH'
-    } 
 
     for (let i = 0; i < 2; i++) {
         const _rscRuleType = i === 0 ? _rule : _snapshotLatestRule;
@@ -1812,7 +1816,7 @@ function saveRuleSnapshotRelation(
     mdc.save()
     // dealer.save()
     ebc.save()
-    log.debug("save ruleSnapshot {} relation mdc: {}, ebc: {}", [
+    log.info("save ruleSnapshot {} relation mdc: {}, ebc: {}", [
         ruleSnapshot.id,
         mdc.id,
         ebc.id
@@ -2007,7 +2011,7 @@ export function removeDuplicatesBigInt(data: Array<BigInt>): Array<BigInt> {
   
 export function getFunctionSelector(data: Bytes): Bytes {
     let _data = data.toHexString().slice(2, 10);
-    log.debug("selector: {}", [_data])
+    // log.debug("selector: {}", [_data])
     return Bytes.fromHexString(_data);
 }
 
