@@ -108,7 +108,7 @@ import { ORMangerID, EBCManagerID } from "../src/mappings/helpers"
 
 
 describe("Describe check MDC rule snaptShot", () => {
-  const ruleSnapshotId = "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1" as string
+  const ruleSnapshotId = "0xb9f2b7ad97d8ac5131d7bd4f651f3002bbbe04c18aa46f54cdc064631274c344" as string
   const ebcAddress = "0xb3d1b704dd7f7acf9fddcee2868388838f859e0f" as string
 
   // must exctly match the root and version in the mock data
@@ -186,7 +186,7 @@ describe("Describe check MDC rule snaptShot", () => {
       "MDC",
       mockMdcAddr.toLowerCase(),
       "ruleSnapshot",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xb3d1b704dd7f7acf9fddcee2868388838f859e0f-0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
+      `[${ruleSnapshotId}]`
     )
 
     // check EBC relation

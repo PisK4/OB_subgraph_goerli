@@ -38,7 +38,7 @@ import {
 import { 
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
-import { createBindID, entityConcatID } from './utils'
+import { createBindID, createHashID, entityConcatID } from './utils'
 
 export const isProduction = true
 export const debugLog = false
@@ -70,6 +70,9 @@ export enum updateRulesRootMode {
     ERC20 = 1,
     INV = 2,
 }
+
+// export let RuleTypeCurrent  = updateRulesRootMode.INV
+
 export enum ChainInfoUpdatedMode {
     registerChains = 0,
     updateChainSpvs = 1,
@@ -317,11 +320,6 @@ export function getChainInfoEntity(
     return _chainInfo as ChainInfoUpdated
 }
 
-export function encode(values: Array<ethereum.Value>): Bytes {
-    return ethereum.encode(
-        ethereum.Value.fromTuple(changetype<ethereum.Tuple>(values))
-    )!;
-}
 
 export function getMDCMappingEntity(
     mdc: MDC,
@@ -338,19 +336,6 @@ export function getMDCMappingEntity(
     _MDCMapping.latestUpdateTimestamp = event.block.timestamp
     _MDCMapping.latestUpdateHash = event.transaction.hash.toHexString()
     return _MDCMapping as MDCMapping
-}
-
-function calChainTokkenId(
-    chainId: BigInt,
-    token: BigInt
-): string {
-    const tupleValue: Array<ethereum.Value> = [
-        ethereum.Value.fromUnsignedBigInt(chainId),
-        ethereum.Value.fromUnsignedBigInt(token)
-    ]
-    const encodeData = encode(tupleValue)
-    const key = crypto.keccak256(encodeData);
-    return key.toHexString();
 }
 
 function getTokenFromChainInfoUpdated(
@@ -1115,6 +1100,7 @@ export class rscRules {
     sourceChainIds: Array<BigInt>;
     pledgeAmounts: Array<BigInt>;
     tokenAddr: string;
+    selector: updateRulesRootMode;
     constructor(
         mdcAddress: string,
         ebcAddress: string,
@@ -1123,16 +1109,18 @@ export class rscRules {
         version: i32,
         sourceChainIds: Array<BigInt>,
         pledgeAmounts: Array<BigInt>,
-        tokenAddress: string
+        tokenAddress: string,
+        selector: updateRulesRootMode 
     ) {
         this.ebcAddress = ebcAddress;
         this.rsc = rsc;
-        this.rscType = parseRSC(rsc, mdcAddress, ebcAddress, version);
+        this.rscType = parseRSC(rsc, mdcAddress, ebcAddress, version, selector);
         this.root = root;
         this.version = version;
         this.sourceChainIds = sourceChainIds;
         this.pledgeAmounts = pledgeAmounts;
         this.tokenAddr = tokenAddress
+        this.selector = selector
     }
 }
 
@@ -1157,6 +1145,7 @@ export class rscRuleType {
     chain1CompensationRatio: BigInt;
     verifyPass: boolean;
     enableTimestamp: BigInt;
+    selector: updateRulesRootMode;
     constructor(
         chain0: BigInt,
         chain1: BigInt,
@@ -1176,7 +1165,8 @@ export class rscRuleType {
         chain1ResponseTime: BigInt,
         chain0CompensationRatio: BigInt,
         chain1CompensationRatio: BigInt,
-        enableTimestamp: BigInt
+        enableTimestamp: BigInt,
+        selector: updateRulesRootMode
     ) {
         this.chain0 = chain0;
         this.chain1 = chain1;
@@ -1198,6 +1188,7 @@ export class rscRuleType {
         this.chain1CompensationRatio = chain1CompensationRatio;
         this.enableTimestamp = enableTimestamp;
         this.verifyPass = false;
+        this.selector = selector
     }
 }
 
@@ -1229,8 +1220,10 @@ export function checkRulesFormat(rscTuple: ethereum.Tuple): boolean {
 function setInitRuleType(): rscRuleType {
     let _rscRuleType = new rscRuleType(
         ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,
-        ZERO_BI,ZERO_BI,
-        ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI
+        ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,
+        ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,
+        ZERO_BI,ZERO_BI,ZERO_BI,ZERO_BI,
+        ZERO_BI,ZERO_BI,ZERO_BI,updateRulesRootMode.INV
       );
     return _rscRuleType
 }
@@ -1269,7 +1262,8 @@ function getLastRules(
                     BigInt.fromI32(lastVersionRule.chain1ResponseTime),
                     BigInt.fromI32(lastVersionRule.chain0CompensationRatio),
                     BigInt.fromI32(lastVersionRule.chain1CompensationRatio),
-                    lastVersionRule.enableTimestamp
+                    lastVersionRule.enableTimestamp,
+                    updateRulesRootMode.INV
                 )
             )
         }
@@ -1287,13 +1281,15 @@ function parseRSC(
     rsc: Array<ethereum.Value>,
     mdcAddress: string,
     ebcAddress: string,
-    version: i32
+    version: i32,
+    selector: updateRulesRootMode
 ): rscRuleType[] {
     let rscRules: rscRuleType[] = [];
     for (let i = 0; i < rsc.length; i++) {
         let rscTuple = rsc[i].toTuple();
         // let _rscRuleType = getLastRules(mdcAddress, ebcAddress, version, i)
         let _rscRuleType = setInitRuleType()
+        _rscRuleType.selector = selector
         if (isRscTupleUint(rscTuple[0])) {
             _rscRuleType.chain0 = rscTuple[0].toBigInt();
         }
@@ -1566,13 +1562,17 @@ export function parseChainInfoUpdatedInputData(
 
 export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscRules {
     let func = compareUpdateRulesRootSelector(getFunctionSelector(data))
-
     let selectorofFunc = "0x000000"
     if(func == updateRulesRootMode.ETH) {
         selectorofFunc = func_updateRulesRootSelector
+        log.debug("func:ETH {}", [func.toString()])
     }else if(func == updateRulesRootMode.ERC20) {
         selectorofFunc = func_updateRulesRootERC20Selector
+        log.debug("func:ERC20 {}", [func.toString()])
     }
+    // log.debug("parseTransactionInputData selectorofFunc:{}", [selectorofFunc])
+
+
     const tupleInputBytes = inputdataPrefix(data)
     // const tupleInputBytes = Bytes.fromUint8Array(data.slice(4,data.length))
     
@@ -1654,7 +1654,8 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
         version,
         sourceChainIds,
         pledgeAmounts,
-        tokenAddress
+        tokenAddress,
+        func
     )
 
     return updateRulesRootEntity
@@ -1701,6 +1702,20 @@ function getAllLatestRules(
     return ruleIDs;
 }
 
+function getRulePaddingID(
+    id: string,
+    selector:updateRulesRootMode
+): string{
+    if(selector === updateRulesRootMode.ERC20){
+        id = '0xERC20' + id.slice(2, id.length);
+    }else if(selector === updateRulesRootMode.ETH){
+        id = '0xETH' + id.slice(2, id.length);
+    }else{
+        log.error("Failed to updateLatestRules, RuleTypeCurrent:{}", [selector.toString()])
+    }    
+    return id;
+}
+
 function updateLatestRules( 
     rsc: rscRuleType,
     event: ethereum.Event,
@@ -1711,9 +1726,24 @@ function updateLatestRules(
     ebcValidateResult: boolean,
     snapshot:ruleTypes
 ):void{
-    const id = createBindID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()])
+    // const id = createBindID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()])
+    let id = getRulePaddingID(createHashID([mdc.id, ebc.id, rsc.chain0.toString(), rsc.chain1.toString()]), rsc.selector)
+    // if(RuleTypeCurrent = updateRulesRootMode.ERC20){
+    //     id = '0xERC20' + id.slice(2, id.length);
+    // }else if(RuleTypeCurrent = updateRulesRootMode.ETH){
+    //     id = '0xETH' + id.slice(2, id.length);
+    // }else{
+    //     log.error("Failed to updateLatestRules, RuleTypeCurrent:{}", [RuleTypeCurrent.toString()])
+    // }
+    log.debug("hashId: {}, rsc.selector:{}", [id, rsc.selector.toString()])
+    
     const _rule = getLastRulesEntity(id);
     const _snapshotLatestRule = getLastRulesEntity(snapshot.id);
+    if(rsc.selector === updateRulesRootMode.ERC20){
+        _snapshotLatestRule.type = _rule.type = 'ERC20'
+    }else if(rsc.selector === updateRulesRootMode.ETH){
+        _snapshotLatestRule.type = _rule.type = 'ETH'
+    } 
 
     for (let i = 0; i < 2; i++) {
         const _rscRuleType = i === 0 ? _rule : _snapshotLatestRule;
@@ -1794,7 +1824,8 @@ function getRuleSnapshotEntity(
     mdc: MDC,
     ebc: EbcsUpdated
 ): ruleTypes {
-    const snapshotId = createBindID([mdc.id, ebc.id, createEventID(event)])
+    // const snapshotId = createBindID([mdc.id, ebc.id, createEventID(event)])
+    const snapshotId = createHashID([mdc.id, ebc.id, createEventID(event)])
     let ruleSnapshot = ruleTypes.load(snapshotId)
     if(ruleSnapshot == null){
         ruleSnapshot = new ruleTypes(snapshotId)
@@ -1976,7 +2007,7 @@ export function removeDuplicatesBigInt(data: Array<BigInt>): Array<BigInt> {
   
 export function getFunctionSelector(data: Bytes): Bytes {
     let _data = data.toHexString().slice(2, 10);
-    // log.debug("selector: {}", [_data])
+    log.debug("selector: {}", [_data])
     return Bytes.fromHexString(_data);
 }
 
