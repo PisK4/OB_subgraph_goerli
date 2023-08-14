@@ -306,64 +306,64 @@ export class ColumnArrayUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get impl(): Bytes | null {
+  get impl(): string | null {
     let value = this.get("impl");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set impl(value: Bytes | null) {
+  set impl(value: string | null) {
     if (!value) {
       this.unset("impl");
     } else {
-      this.set("impl", Value.fromBytes(<Bytes>value));
+      this.set("impl", Value.fromString(<string>value));
     }
   }
 
-  get columnArrayHash(): Bytes | null {
+  get columnArrayHash(): string | null {
     let value = this.get("columnArrayHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set columnArrayHash(value: Bytes | null) {
+  set columnArrayHash(value: string | null) {
     if (!value) {
       this.unset("columnArrayHash");
     } else {
-      this.set("columnArrayHash", Value.fromBytes(<Bytes>value));
+      this.set("columnArrayHash", Value.fromString(<string>value));
     }
   }
 
-  get dealers(): Array<Bytes> {
+  get dealers(): Array<string> {
     let value = this.get("dealers");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set dealers(value: Array<Bytes>) {
-    this.set("dealers", Value.fromBytesArray(value));
+  set dealers(value: Array<string>) {
+    this.set("dealers", Value.fromStringArray(value));
   }
 
-  get ebcs(): Array<Bytes> {
+  get ebcs(): Array<string> {
     let value = this.get("ebcs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set ebcs(value: Array<Bytes>) {
-    this.set("ebcs", Value.fromBytesArray(value));
+  set ebcs(value: Array<string>) {
+    this.set("ebcs", Value.fromStringArray(value));
   }
 
   get chainIds(): Array<BigInt> {
@@ -413,17 +413,17 @@ export class ColumnArrayUpdated extends Entity {
     this.set("blockTimestamp", Value.fromBigInt(value));
   }
 
-  get transactionHash(): Bytes {
+  get transactionHash(): string {
     let value = this.get("transactionHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set transactionHash(value: Bytes) {
-    this.set("transactionHash", Value.fromBytes(value));
+  set transactionHash(value: string) {
+    this.set("transactionHash", Value.fromString(value));
   }
 }
 
@@ -598,6 +598,19 @@ export class MDC extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
+  get factoryAddr(): string {
+    let value = this.get("factoryAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set factoryAddr(value: string) {
+    this.set("factoryAddr", Value.fromString(value));
+  }
+
   get responseMakerSnapshot(): Array<string> {
     let value = this.get("responseMakerSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
@@ -752,6 +765,14 @@ export class MDC extends Entity {
     return new DealerLoader("MDC", this.get("id")!.toString(), "dealer");
   }
 
+  get responseMaker(): responseMakerLoader {
+    return new responseMakerLoader(
+      "MDC",
+      this.get("id")!.toString(),
+      "responseMaker"
+    );
+  }
+
   get createblockNumber(): BigInt {
     let value = this.get("createblockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -887,20 +908,20 @@ export class MDCMapping extends Entity {
     return new MDCLoader("MDCMapping", this.get("id")!.toString(), "mdc");
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -1017,17 +1038,17 @@ export class Dealer extends Entity {
     this.set("register", Value.fromBoolean(value));
   }
 
-  get latestUpdateHash(): Bytes {
+  get latestUpdateHash(): string {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes) {
-    this.set("latestUpdateHash", Value.fromBytes(value));
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
   }
 
   get latestUpdateTimestamp(): BigInt {
@@ -1150,17 +1171,17 @@ export class FactoryManger extends Entity {
     this.set("mdcCounts", Value.fromBigInt(value));
   }
 
-  get latestUpdateHash(): Bytes {
+  get latestUpdateHash(): string {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes) {
-    this.set("latestUpdateHash", Value.fromBytes(value));
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
   }
 
   get latestUpdateTimestamp(): BigInt {
@@ -1251,6 +1272,45 @@ export class responseMaker extends Entity {
       "factory"
     );
   }
+
+  get latestUpdateHash(): string {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
+  }
+
+  get latestUpdateTimestamp(): BigInt {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt) {
+    this.set("latestUpdateTimestamp", Value.fromBigInt(value));
+  }
+
+  get latestUpdateBlockNumber(): BigInt {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt) {
+    this.set("latestUpdateBlockNumber", Value.fromBigInt(value));
+  }
 }
 
 export class ebcMapping extends Entity {
@@ -1292,17 +1352,30 @@ export class ebcMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ebcAddr(): Bytes {
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get ebcAddr(): string {
     let value = this.get("ebcAddr");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set ebcAddr(value: Bytes) {
-    this.set("ebcAddr", Value.fromBytes(value));
+  set ebcAddr(value: string) {
+    this.set("ebcAddr", Value.fromString(value));
   }
 
   get ebcIndex(): BigInt | null {
@@ -1356,20 +1429,20 @@ export class ebcMapping extends Entity {
     }
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 }
@@ -1430,20 +1503,20 @@ export class MDCBindSPV extends Entity {
     }
   }
 
-  get spv(): Bytes | null {
+  get spv(): string | null {
     let value = this.get("spv");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set spv(value: Bytes | null) {
+  set spv(value: string | null) {
     if (!value) {
       this.unset("spv");
     } else {
-      this.set("spv", Value.fromBytes(<Bytes>value));
+      this.set("spv", Value.fromString(<string>value));
     }
   }
 
@@ -1493,17 +1566,17 @@ export class dealerSnapshot extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get dealerList(): Array<Bytes> {
+  get dealerList(): Array<string> {
     let value = this.get("dealerList");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set dealerList(value: Array<Bytes>) {
-    this.set("dealerList", Value.fromBytesArray(value));
+  set dealerList(value: Array<string>) {
+    this.set("dealerList", Value.fromStringArray(value));
   }
 
   get dealerMapping(): Array<string> {
@@ -1523,20 +1596,20 @@ export class dealerSnapshot extends Entity {
     return new MDCLoader("dealerSnapshot", this.get("id")!.toString(), "mdc");
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -1616,17 +1689,17 @@ export class ebcSnapshot extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ebcList(): Array<Bytes> {
+  get ebcList(): Array<string> {
     let value = this.get("ebcList");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set ebcList(value: Array<Bytes>) {
-    this.set("ebcList", Value.fromBytesArray(value));
+  set ebcList(value: Array<string>) {
+    this.set("ebcList", Value.fromStringArray(value));
   }
 
   get ebcMapping(): Array<string> {
@@ -1646,20 +1719,20 @@ export class ebcSnapshot extends Entity {
     return new MDCLoader("ebcSnapshot", this.get("id")!.toString(), "mdc");
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -1769,20 +1842,20 @@ export class chainIdSnapshot extends Entity {
     return new MDCLoader("chainIdSnapshot", this.get("id")!.toString(), "mdc");
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -1862,17 +1935,30 @@ export class DealerMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get dealerAddr(): Bytes {
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get dealerAddr(): string {
     let value = this.get("dealerAddr");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set dealerAddr(value: Bytes) {
-    this.set("dealerAddr", Value.fromBytes(value));
+  set dealerAddr(value: string) {
+    this.set("dealerAddr", Value.fromString(value));
   }
 
   get dealerIndex(): BigInt | null {
@@ -1926,20 +2012,20 @@ export class DealerMapping extends Entity {
     }
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -2031,20 +2117,20 @@ export class MDCBindChainId extends Entity {
     return new MDCLoader("MDCBindChainId", this.get("id")!.toString(), "mdc");
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -2124,6 +2210,19 @@ export class chainIdMapping extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
   get chainId(): BigInt {
     let value = this.get("chainId");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2188,20 +2287,20 @@ export class chainIdMapping extends Entity {
     }
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -2279,17 +2378,17 @@ export class ruleTypes extends Entity {
     this.set("ruleLatest", Value.fromStringArray(value));
   }
 
-  get root(): Bytes {
+  get root(): string {
     let value = this.get("root");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set root(value: Bytes) {
-    this.set("root", Value.fromBytes(value));
+  set root(value: string) {
+    this.set("root", Value.fromString(value));
   }
 
   get version(): i32 {
@@ -2331,34 +2430,17 @@ export class ruleTypes extends Entity {
     this.set("pledgeAmounts", Value.fromBigIntArray(value));
   }
 
-  get token(): Bytes {
+  get token(): string {
     let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set token(value: Bytes) {
-    this.set("token", Value.fromBytes(value));
-  }
-
-  get mappingSnapshot(): Array<string> | null {
-    let value = this.get("mappingSnapshot");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set mappingSnapshot(value: Array<string> | null) {
-    if (!value) {
-      this.unset("mappingSnapshot");
-    } else {
-      this.set("mappingSnapshot", Value.fromStringArray(<Array<string>>value));
-    }
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
   }
 
   get mdc(): MDCLoader {
@@ -2373,20 +2455,20 @@ export class ruleTypes extends Entity {
     );
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -2464,6 +2546,32 @@ export class rule extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get ebcAddr(): string {
+    let value = this.get("ebcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ebcAddr(value: string) {
+    this.set("ebcAddr", Value.fromString(value));
+  }
+
   get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2516,30 +2624,30 @@ export class rule extends Entity {
     this.set("chain1Status", Value.fromI32(value));
   }
 
-  get chain0Token(): Bytes {
+  get chain0Token(): string {
     let value = this.get("chain0Token");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set chain0Token(value: Bytes) {
-    this.set("chain0Token", Value.fromBytes(value));
+  set chain0Token(value: string) {
+    this.set("chain0Token", Value.fromString(value));
   }
 
-  get chain1Token(): Bytes {
+  get chain1Token(): string {
     let value = this.get("chain1Token");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set chain1Token(value: Bytes) {
-    this.set("chain1Token", Value.fromBytes(value));
+  set chain1Token(value: string) {
+    this.set("chain1Token", Value.fromString(value));
   }
 
   get chain0minPrice(): BigInt {
@@ -2724,6 +2832,45 @@ export class rule extends Entity {
     this.set("ruleValidation", Value.fromBoolean(value));
   }
 
+  get latestUpdateBlockNumber(): BigInt {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt) {
+    this.set("latestUpdateBlockNumber", Value.fromBigInt(value));
+  }
+
+  get latestUpdateTimestamp(): BigInt {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt) {
+    this.set("latestUpdateTimestamp", Value.fromBigInt(value));
+  }
+
+  get latestUpdatetransactionHash(): string {
+    let value = this.get("latestUpdatetransactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdatetransactionHash(value: string) {
+    this.set("latestUpdatetransactionHash", Value.fromString(value));
+  }
+
   get ruletypes(): ruleTypesLoader {
     return new ruleTypesLoader("rule", this.get("id")!.toString(), "ruletypes");
   }
@@ -2766,6 +2913,45 @@ export class latestRule extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get mdcAddr(): string {
+    let value = this.get("mdcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set mdcAddr(value: string) {
+    this.set("mdcAddr", Value.fromString(value));
+  }
+
+  get ebcAddr(): string {
+    let value = this.get("ebcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ebcAddr(value: string) {
+    this.set("ebcAddr", Value.fromString(value));
   }
 
   get chain0(): BigInt | null {
@@ -2828,37 +3014,37 @@ export class latestRule extends Entity {
     this.set("chain1Status", Value.fromI32(value));
   }
 
-  get chain0Token(): Bytes | null {
+  get chain0Token(): string | null {
     let value = this.get("chain0Token");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set chain0Token(value: Bytes | null) {
+  set chain0Token(value: string | null) {
     if (!value) {
       this.unset("chain0Token");
     } else {
-      this.set("chain0Token", Value.fromBytes(<Bytes>value));
+      this.set("chain0Token", Value.fromString(<string>value));
     }
   }
 
-  get chain1Token(): Bytes | null {
+  get chain1Token(): string | null {
     let value = this.get("chain1Token");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set chain1Token(value: Bytes | null) {
+  set chain1Token(value: string | null) {
     if (!value) {
       this.unset("chain1Token");
     } else {
-      this.set("chain1Token", Value.fromBytes(<Bytes>value));
+      this.set("chain1Token", Value.fromString(<string>value));
     }
   }
 
@@ -3106,20 +3292,20 @@ export class latestRule extends Entity {
     }
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -3213,17 +3399,17 @@ export class ChainInfoUpdated extends Entity {
     this.set("tokens", Value.fromStringArray(value));
   }
 
-  get spvs(): Array<Bytes> {
+  get spvs(): Array<string> {
     let value = this.get("spvs");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytesArray();
+      return value.toStringArray();
     }
   }
 
-  set spvs(value: Array<Bytes>) {
-    this.set("spvs", Value.fromBytesArray(value));
+  set spvs(value: Array<string>) {
+    this.set("spvs", Value.fromStringArray(value));
   }
 
   get batchLimit(): BigInt | null {
@@ -3357,17 +3543,17 @@ export class ChainInfoUpdated extends Entity {
     this.set("latestUpdateTimestamp", Value.fromBigInt(value));
   }
 
-  get latestUpdateHash(): Bytes {
+  get latestUpdateHash(): string {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes) {
-    this.set("latestUpdateHash", Value.fromBytes(value));
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
   }
 }
 
@@ -3427,20 +3613,20 @@ export class ChainTokenUpdated extends Entity {
     this.set("token", Value.fromBigInt(value));
   }
 
-  get mainnetToken(): Bytes | null {
+  get mainnetToken(): string | null {
     let value = this.get("mainnetToken");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set mainnetToken(value: Bytes | null) {
+  set mainnetToken(value: string | null) {
     if (!value) {
       this.unset("mainnetToken");
     } else {
-      this.set("mainnetToken", Value.fromBytes(<Bytes>value));
+      this.set("mainnetToken", Value.fromString(<string>value));
     }
   }
 
@@ -3491,17 +3677,17 @@ export class ChainTokenUpdated extends Entity {
     this.set("latestUpdateTimestamp", Value.fromBigInt(value));
   }
 
-  get latestUpdateHash(): Bytes {
+  get latestUpdateHash(): string {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes) {
-    this.set("latestUpdateHash", Value.fromBytes(value));
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
   }
 }
 
@@ -3771,17 +3957,17 @@ export class EbcsUpdated extends Entity {
     );
   }
 
-  get latestUpdateHash(): Bytes {
+  get latestUpdateHash(): string {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes) {
-    this.set("latestUpdateHash", Value.fromBytes(value));
+  set latestUpdateHash(value: string) {
+    this.set("latestUpdateHash", Value.fromString(value));
   }
 }
 
@@ -4552,6 +4738,24 @@ export class DealerLoader extends Entity {
   load(): Dealer[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<Dealer[]>(value);
+  }
+}
+
+export class responseMakerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): responseMaker[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<responseMaker[]>(value);
   }
 }
 

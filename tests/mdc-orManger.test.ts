@@ -28,6 +28,7 @@ import {
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
+  AddressFmtPadZero,
   EBCManagerID,
   ORMangerID
 } from "../src/mappings/helpers"
@@ -38,12 +39,22 @@ import { handleChainInfoUpdated, handleChainTokenUpdated, handleEbcsUpdated } fr
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
+  // const responseMakersArray = [
+  //   "186258217070866900924478871193601082399096503291",
+  //   "905852841822203005801390459791760958298983703480",
+  // ]
+  const responseMakers1 = "186258217070866900924478871193601082399096503291"
+  const responseMakers2 = "905852841822203005801390459791760958298983703480"
 
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
     let mdc = Address.fromString(mockMdcAddr)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
+    let responseMakers = [
+      BigInt.fromString(responseMakers1),
+      BigInt.fromString(responseMakers2)
+    ]
     // let responseMakers = [
     //   BigInt.fromString("186258217070866900924478871193601082399096503291"),
     //   BigInt.fromString("905852841822203005801390459791760958298983703480"),
@@ -56,10 +67,7 @@ describe("Describe check responseMakers Event", () => {
     //   BigInt.fromString("599938358168272848459362921247238227921889336502"),
     //   BigInt.fromString("120665217511887316696823247667523366771488149006")
     // ]
-    let responseMakers = [
-      BigInt.fromString("186258217070866900924478871193601082399096503291"),
-      BigInt.fromString("905852841822203005801390459791760958298983703480")
-    ]
+
 
     const newResponseMakersUpdatedEvent = createResponseMakersUpdatedEvent(
       Address.fromString(impl),
@@ -92,6 +100,24 @@ describe("Describe check responseMakers Event", () => {
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
       "responseMakerList",
       "[0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb, 0x9eabd8a598857fc4238899d6edd42d6158ab23b8\]"
+    )
+  })
+
+  test("responseMaker created and stored", () => {
+    assert.entityCount("responseMaker", 2)
+
+    assert.fieldEquals(
+      "responseMaker",
+      AddressFmtPadZero(BigInt.fromString(responseMakers1).toHexString()),
+      "id",
+      AddressFmtPadZero(BigInt.fromString(responseMakers1).toHexString())
+    )
+
+    assert.fieldEquals(
+      "FactoryManger",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "responseMakers",
+      `[${AddressFmtPadZero((BigInt.fromString(responseMakers1).toHexString()))}, ${AddressFmtPadZero((BigInt.fromString(responseMakers2).toHexString()))}\]`
     )
   })
 

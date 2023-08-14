@@ -114,8 +114,9 @@ describe("Describe check MDC rule snaptShot", () => {
   // must exctly match the root and version in the mock data
   const root = "0xb3f19effe9df83a268c66c65808ee2828b0ec6c43cb400b31126f2682cf7c5c7"
   const version = "2"
+  const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
   beforeAll(() => {
-    let maker = Address.fromString("0xF2BE509057855b055f0515CCD0223BEf84D19ad4")
+    let maker = Address.fromString(makerAddress)
     let mdc = Address.fromString(mockMdcAddr)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
@@ -205,6 +206,13 @@ describe("Describe check MDC rule snaptShot", () => {
       `${ruleSnapshotId}-1`,
       "ruletypes",
       `[${ruleSnapshotId}]`
+    )
+
+    assert.fieldEquals(
+      "rule",
+      `${ruleSnapshotId}-1`,
+      "owner",
+      makerAddress.toLowerCase()
     )
 
     let rules = new Array<string>();

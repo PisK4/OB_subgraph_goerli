@@ -445,9 +445,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "responseMakers_",
-        "type": "uint256[]"
+        "internalType": "bytes[]",
+        "name": "responseMakerSignatures",
+        "type": "bytes[]"
       }
     ],
     "name": "updateResponseMakers",
@@ -556,7 +556,7 @@
           },
           {
             "internalType": "uint64",
-            "name": "enableBlockNumber",
+            "name": "enableTimestamp",
             "type": "uint64"
           }
         ],
@@ -698,7 +698,7 @@
           },
           {
             "internalType": "uint64",
-            "name": "enableBlockNumber",
+            "name": "enableTimestamp",
             "type": "uint64"
           }
         ],

@@ -75,7 +75,7 @@ export function handleupdateRulesRootEvent(
       parseTransactionInputData(event.transaction.input, mdcAddress) :
       parseTransactionInputData(Bytes.fromHexString(funcERC20RootMockInput) as Bytes, mdcAddress)
       
-      const ebcAddress = updateRulesRootEntity.ebcAddress.toHexString()
+      const ebcAddress = updateRulesRootEntity.ebcAddress
       // log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
       let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
       let factoryAddress = Bytes.fromHexString(mdc.factory._id)
@@ -85,11 +85,11 @@ export function handleupdateRulesRootEvent(
       log.info('inputdata decode: ebc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
       [
         ebcAddress,
-        updateRulesRootEntity.root.toHexString(),
+        updateRulesRootEntity.root,
         updateRulesRootEntity.version.toString(),
         updateRulesRootEntity.sourceChainIds.toString(),
         updateRulesRootEntity.pledgeAmounts.toString(),
-        updateRulesRootEntity.tokenAddr.toHexString()
+        updateRulesRootEntity.tokenAddr
       ])
       
       if(ebcAddress != null){
@@ -121,12 +121,16 @@ export function handleColumnArrayUpdatedEvent (
     
     // process dealers
     let uniqueDealers = removeDuplicates(dealers)
-    let dealersBytes = new Array<Bytes>()
+    // let dealersBytes = new Array<Bytes>()
+    // for(let i = 0; i < uniqueDealers.length; i++){
+    //     dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
+    // }
+    let dealerArray = new Array<string>()
     for(let i = 0; i < uniqueDealers.length; i++){
-        dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
+      dealerArray.push(uniqueDealers[i].toHexString())
     }
     const dealerSnapshot = getdealerSnapshotEntity(mdc, event)
-    mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealersBytes, event)
+    mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealerArray, event)
     dealerSnapshot.save()
 
     // process chainIds
@@ -137,23 +141,27 @@ export function handleColumnArrayUpdatedEvent (
 
     // process ebcs
     let uniqueEbcs = removeDuplicates(ebcs)
-    let ebcsBytes = new Array<Bytes>()
+    // let ebcsBytes = new Array<Bytes>()
+    // for(let i = 0; i < uniqueEbcs.length; i++){
+    //     ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
+    // }
+    let ebcsArray = new Array<string>()
     for(let i = 0; i < uniqueEbcs.length; i++){
-        ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
+      ebcsArray.push(uniqueEbcs[i].toHexString())
     }
     const ebcSnapshot = getEBCSnapshotEntity(mdc, event)
-    mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsBytes, event)
+    mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsArray, event)
     ebcSnapshot.save()
 
     // process ColumnArray
     let columnArrayUpdated = getColumnArrayUpdatedEntity(event,mdc)
-    columnArrayUpdated.impl = impl
-    columnArrayUpdated.columnArrayHash = columnArrayHash
-    if(dealersBytes.length > 0){
-      columnArrayUpdated.dealers = dealersBytes
+    columnArrayUpdated.impl = impl.toHexString()
+    columnArrayUpdated.columnArrayHash = columnArrayHash.toHexString()
+    if(dealerArray.length > 0){
+      columnArrayUpdated.dealers = dealerArray
     }
-    if(ebcsBytes.length > 0){
-      columnArrayUpdated.ebcs = ebcsBytes
+    if(ebcsArray.length > 0){
+      columnArrayUpdated.ebcs = dealerArray
     }
     if(uniqueChainIds.length > 0){
       columnArrayUpdated.chainIds = uniqueChainIds
@@ -206,7 +214,7 @@ export function handleChainInfoUpdatedEvent(
         _chainInfo.minVerifyChallengeDestTxSecond = minVerifyChallengeDestTxSecond
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
         for (let i = 0; i < spvs.length; i++) {
-          _chainInfo.spvs = _chainInfo.spvs.concat([Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString()))]);
+          _chainInfo.spvs = _chainInfo.spvs.concat([AddressFmtPadZero(spvs[i].toHexString())]);
           
         }
 
@@ -231,7 +239,7 @@ export function handleChainTokenUpdatedEvent(
   let decimals = tokenInfo.decimals
   let chainToken = getChainTokenUpdatedEntity(chainId, token, event)
   chainToken.token = token
-  chainToken.mainnetToken = mainnetToken
+  chainToken.mainnetToken = AddressFmtPadZero(mainnetToken.toHexString())
   chainToken.decimals = decimals
   chainToken.save()  
 
@@ -266,7 +274,7 @@ export function handleSpvUpdatedEvent(
 ): void{
   let mdc = isProduction ? getMDCEntity(event.address, Address.fromString(ONE_ADDRESS), event) : getMDCEntity(Address.fromString(mockMdcAddr), Address.fromString(ONE_ADDRESS), event)
   let _spv = getMDCBindSPVEntity(mdc, chainId)
-  _spv.spv = spv
+  _spv.spv = spv.toHexString()
   _spv.save()
   mdc.save()
   log.info('mdc {} update:  _spv[{}] = {}', [mdc.id, chainId.toString(), spv.toHexString()])

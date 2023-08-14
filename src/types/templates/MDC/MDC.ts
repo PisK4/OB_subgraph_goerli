@@ -585,8 +585,8 @@ export class UpdateResponseMakersCall__Inputs {
     this._call = call;
   }
 
-  get responseMakers_(): Array<BigInt> {
-    return this._call.inputValues[0].value.toBigIntArray();
+  get responseMakerSignatures(): Array<Bytes> {
+    return this._call.inputValues[0].value.toBytesArray();
   }
 }
 
@@ -721,7 +721,7 @@ export class UpdateRulesRootCallRulesStruct extends ethereum.Tuple {
     return this[17].toBigInt();
   }
 
-  get enableBlockNumber(): BigInt {
+  get enableTimestamp(): BigInt {
     return this[18].toBigInt();
   }
 }
@@ -863,7 +863,7 @@ export class UpdateRulesRootERC20CallRulesStruct extends ethereum.Tuple {
     return this[17].toBigInt();
   }
 
-  get enableBlockNumber(): BigInt {
+  get enableTimestamp(): BigInt {
     return this[18].toBigInt();
   }
 }

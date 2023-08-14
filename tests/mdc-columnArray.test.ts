@@ -227,6 +227,12 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     //   "ebcAddr",
     //   "0xb6ff6f7b0cd1633348877043ae92302139796686"
     // )
+    assert.fieldEquals(
+      "ebcMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75",
+      "owner",
+      makerAddress.toLowerCase()
+    )
   })
 
   test("MDCMapping created and stored", () =>{
@@ -293,6 +299,13 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "MDCMapping",
       "[]"
     )    
+
+    assert.fieldEquals(
+      "DealerMapping",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
+      "owner",
+      makerAddress.toLowerCase()
+    )
   })
 
   test("ChainIdMapping created and stored", () => {
@@ -303,6 +316,13 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-123",
       "chainId",
       "123"
+    )
+
+    assert.fieldEquals(
+      "chainIdMapping",
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-456",
+      "owner",
+      makerAddress.toLowerCase()
     )
   })
 
