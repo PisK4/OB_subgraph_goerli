@@ -204,6 +204,31 @@ export class SpvUpdated__Params {
   }
 }
 
+export class MDC__getVersionAndEnableTimeResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getVersion(): BigInt {
+    return this.value0;
+  }
+
+  getEnableTime(): BigInt {
+    return this.value1;
+  }
+}
+
 export class MDC__rulesRootResultValue0Struct extends ethereum.Tuple {
   get root(): Bytes {
     return this[0].toBytes();
@@ -261,6 +286,39 @@ export class MDC extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getVersionAndEnableTime(): MDC__getVersionAndEnableTimeResult {
+    let result = super.call(
+      "getVersionAndEnableTime",
+      "getVersionAndEnableTime():(uint192,uint64)",
+      []
+    );
+
+    return new MDC__getVersionAndEnableTimeResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_getVersionAndEnableTime(): ethereum.CallResult<
+    MDC__getVersionAndEnableTimeResult
+  > {
+    let result = super.tryCall(
+      "getVersionAndEnableTime",
+      "getVersionAndEnableTime():(uint192,uint64)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new MDC__getVersionAndEnableTimeResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
   }
 
   mdcFactory(): Address {
@@ -360,25 +418,6 @@ export class MDC extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  storageVersion(): BigInt {
-    let result = super.call("storageVersion", "storageVersion():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_storageVersion(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "storageVersion",
-      "storageVersion():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 }
 
@@ -547,16 +586,20 @@ export class UpdateColumnArrayCall__Inputs {
     this._call = call;
   }
 
-  get dealers(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
-  get ebcs(): Array<Address> {
+  get dealers(): Array<Address> {
     return this._call.inputValues[1].value.toAddressArray();
   }
 
+  get ebcs(): Array<Address> {
+    return this._call.inputValues[2].value.toAddressArray();
+  }
+
   get chainIds(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
+    return this._call.inputValues[3].value.toBigIntArray();
   }
 }
 
@@ -585,8 +628,12 @@ export class UpdateResponseMakersCall__Inputs {
     this._call = call;
   }
 
-  get responseMakers_(): Array<BigInt> {
-    return this._call.inputValues[0].value.toBigIntArray();
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get responseMakerSignatures(): Array<Bytes> {
+    return this._call.inputValues[1].value.toBytesArray();
   }
 }
 
@@ -615,28 +662,32 @@ export class UpdateRulesRootCall__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get ebc(): Address {
-    return this._call.inputValues[0].value.toAddress();
+    return this._call.inputValues[1].value.toAddress();
   }
 
   get rules(): Array<UpdateRulesRootCallRulesStruct> {
-    return this._call.inputValues[1].value.toTupleArray<
+    return this._call.inputValues[2].value.toTupleArray<
       UpdateRulesRootCallRulesStruct
     >();
   }
 
   get rootWithVersion(): UpdateRulesRootCallRootWithVersionStruct {
     return changetype<UpdateRulesRootCallRootWithVersionStruct>(
-      this._call.inputValues[2].value.toTuple()
+      this._call.inputValues[3].value.toTuple()
     );
   }
 
   get sourceChainIds(): Array<BigInt> {
-    return this._call.inputValues[3].value.toBigIntArray();
+    return this._call.inputValues[4].value.toBigIntArray();
   }
 
   get pledgeAmounts(): Array<BigInt> {
-    return this._call.inputValues[4].value.toBigIntArray();
+    return this._call.inputValues[5].value.toBigIntArray();
   }
 }
 
@@ -720,10 +771,6 @@ export class UpdateRulesRootCallRulesStruct extends ethereum.Tuple {
   get compensationRatio1(): BigInt {
     return this[17].toBigInt();
   }
-
-  get enableBlockNumber(): BigInt {
-    return this[18].toBigInt();
-  }
 }
 
 export class UpdateRulesRootCallRootWithVersionStruct extends ethereum.Tuple {
@@ -753,32 +800,36 @@ export class UpdateRulesRootERC20Call__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get ebc(): Address {
-    return this._call.inputValues[0].value.toAddress();
+    return this._call.inputValues[1].value.toAddress();
   }
 
   get rules(): Array<UpdateRulesRootERC20CallRulesStruct> {
-    return this._call.inputValues[1].value.toTupleArray<
+    return this._call.inputValues[2].value.toTupleArray<
       UpdateRulesRootERC20CallRulesStruct
     >();
   }
 
   get rootWithVersion(): UpdateRulesRootERC20CallRootWithVersionStruct {
     return changetype<UpdateRulesRootERC20CallRootWithVersionStruct>(
-      this._call.inputValues[2].value.toTuple()
+      this._call.inputValues[3].value.toTuple()
     );
   }
 
   get sourceChainIds(): Array<BigInt> {
-    return this._call.inputValues[3].value.toBigIntArray();
-  }
-
-  get pledgeAmounts(): Array<BigInt> {
     return this._call.inputValues[4].value.toBigIntArray();
   }
 
+  get pledgeAmounts(): Array<BigInt> {
+    return this._call.inputValues[5].value.toBigIntArray();
+  }
+
   get token(): Address {
-    return this._call.inputValues[5].value.toAddress();
+    return this._call.inputValues[6].value.toAddress();
   }
 }
 
@@ -862,10 +913,6 @@ export class UpdateRulesRootERC20CallRulesStruct extends ethereum.Tuple {
   get compensationRatio1(): BigInt {
     return this[17].toBigInt();
   }
-
-  get enableBlockNumber(): BigInt {
-    return this[18].toBigInt();
-  }
 }
 
 export class UpdateRulesRootERC20CallRootWithVersionStruct extends ethereum.Tuple {
@@ -895,12 +942,16 @@ export class UpdateSpvsCall__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get spvs(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
+    return this._call.inputValues[1].value.toAddressArray();
   }
 
   get chainIds(): Array<BigInt> {
-    return this._call.inputValues[1].value.toBigIntArray();
+    return this._call.inputValues[2].value.toBigIntArray();
   }
 }
 
@@ -1059,6 +1110,36 @@ export class VerifyChallengeSourceCallVerifyInfoSlotsStruct extends ethereum.Tup
 
   get value(): BigInt {
     return this[2].toBigInt();
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall extends ethereum.Call {
+  get inputs(): VersionIncreaseAndEnableTimeCall__Inputs {
+    return new VersionIncreaseAndEnableTimeCall__Inputs(this);
+  }
+
+  get outputs(): VersionIncreaseAndEnableTimeCall__Outputs {
+    return new VersionIncreaseAndEnableTimeCall__Outputs(this);
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall__Inputs {
+  _call: VersionIncreaseAndEnableTimeCall;
+
+  constructor(call: VersionIncreaseAndEnableTimeCall) {
+    this._call = call;
+  }
+
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall__Outputs {
+  _call: VersionIncreaseAndEnableTimeCall;
+
+  constructor(call: VersionIncreaseAndEnableTimeCall) {
+    this._call = call;
   }
 }
 

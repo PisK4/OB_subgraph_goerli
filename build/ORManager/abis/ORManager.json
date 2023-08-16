@@ -139,6 +139,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint64[]",
+        "name": "chainIds",
+        "type": "uint64[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "extraTransferContracts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "ExtraTransferContractsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint64",
         "name": "feeChallengeSecond",
         "type": "uint64"
@@ -387,6 +406,43 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "chainId",
+        "type": "uint64"
+      }
+    ],
+    "name": "getExtraTransferContract",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVersionAndEnableTime",
+    "outputs": [
+      {
+        "internalType": "uint192",
+        "name": "version",
+        "type": "uint192"
+      },
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "maxMDCLimit",
     "outputs": [
@@ -440,6 +496,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "components": [
           {
@@ -497,19 +558,6 @@
   },
   {
     "inputs": [],
-    "name": "storageVersion",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "submitter",
     "outputs": [
       {
@@ -538,6 +586,11 @@
     "inputs": [
       {
         "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
         "name": "id",
         "type": "uint64"
       },
@@ -559,6 +612,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "uint64[]",
         "name": "ids",
@@ -596,6 +654,11 @@
     "inputs": [
       {
         "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
         "name": "challengeUserRatio_",
         "type": "uint64"
       }
@@ -627,6 +690,34 @@
     "inputs": [
       {
         "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64[]",
+        "name": "chainIds",
+        "type": "uint64[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "extraTransferContracts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "updateExtraTransferContracts",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
         "name": "feeChallengeSecond_",
         "type": "uint64"
       }
@@ -638,6 +729,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "uint64",
         "name": "feeTakeOnChallengeSecond_",
@@ -666,6 +762,11 @@
     "inputs": [
       {
         "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
         "name": "minChallengeRatio_",
         "type": "uint64"
       }
@@ -677,6 +778,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
       {
         "internalType": "uint64",
         "name": "protocolFee_",
@@ -691,12 +797,30 @@
   {
     "inputs": [
       {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      },
+      {
         "internalType": "address",
         "name": "submitter_",
         "type": "address"
       }
     ],
     "name": "updateSubmitter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "enableTime",
+        "type": "uint64"
+      }
+    ],
+    "name": "versionIncreaseAndEnableTime",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

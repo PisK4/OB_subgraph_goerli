@@ -142,6 +142,28 @@ export class EbcsUpdated__Params {
   }
 }
 
+export class ExtraTransferContractsUpdated extends ethereum.Event {
+  get params(): ExtraTransferContractsUpdated__Params {
+    return new ExtraTransferContractsUpdated__Params(this);
+  }
+}
+
+export class ExtraTransferContractsUpdated__Params {
+  _event: ExtraTransferContractsUpdated;
+
+  constructor(event: ExtraTransferContractsUpdated) {
+    this._event = event;
+  }
+
+  get chainIds(): Array<BigInt> {
+    return this._event.parameters[0].value.toBigIntArray();
+  }
+
+  get extraTransferContracts(): Array<BigInt> {
+    return this._event.parameters[1].value.toBigIntArray();
+  }
+}
+
 export class FeeChallengeSecondUpdated extends ethereum.Event {
   get params(): FeeChallengeSecondUpdated__Params {
     return new FeeChallengeSecondUpdated__Params(this);
@@ -316,6 +338,31 @@ export class ORManager__getChainTokenInfoResultValue0Struct extends ethereum.Tup
   }
 }
 
+export class ORManager__getVersionAndEnableTimeResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getVersion(): BigInt {
+    return this.value0;
+  }
+
+  getEnableTime(): BigInt {
+    return this.value1;
+  }
+}
+
 export class ORManager extends ethereum.SmartContract {
   static bind(address: Address): ORManager {
     return new ORManager("ORManager", address);
@@ -479,6 +526,62 @@ export class ORManager extends ethereum.SmartContract {
     );
   }
 
+  getExtraTransferContract(chainId: BigInt): BigInt {
+    let result = super.call(
+      "getExtraTransferContract",
+      "getExtraTransferContract(uint64):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getExtraTransferContract(chainId: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getExtraTransferContract",
+      "getExtraTransferContract(uint64):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(chainId)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getVersionAndEnableTime(): ORManager__getVersionAndEnableTimeResult {
+    let result = super.call(
+      "getVersionAndEnableTime",
+      "getVersionAndEnableTime():(uint192,uint64)",
+      []
+    );
+
+    return new ORManager__getVersionAndEnableTimeResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_getVersionAndEnableTime(): ethereum.CallResult<
+    ORManager__getVersionAndEnableTimeResult
+  > {
+    let result = super.tryCall(
+      "getVersionAndEnableTime",
+      "getVersionAndEnableTime():(uint192,uint64)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new ORManager__getVersionAndEnableTimeResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
   maxMDCLimit(): BigInt {
     let result = super.call("maxMDCLimit", "maxMDCLimit():(uint64)", []);
 
@@ -540,25 +643,6 @@ export class ORManager extends ethereum.SmartContract {
 
   try_protocolFee(): ethereum.CallResult<BigInt> {
     let result = super.tryCall("protocolFee", "protocolFee():(uint64)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  storageVersion(): BigInt {
-    let result = super.call("storageVersion", "storageVersion():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_storageVersion(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "storageVersion",
-      "storageVersion():(uint256)",
-      []
-    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -629,8 +713,12 @@ export class RegisterChainsCall__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get chains_(): Array<RegisterChainsCallChains_Struct> {
-    return this._call.inputValues[0].value.toTupleArray<
+    return this._call.inputValues[1].value.toTupleArray<
       RegisterChainsCallChains_Struct
     >();
   }
@@ -747,16 +835,20 @@ export class UpdateChainSpvsCall__Inputs {
     this._call = call;
   }
 
-  get id(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 
+  get id(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
   get spvs(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
+    return this._call.inputValues[2].value.toAddressArray();
   }
 
   get indexs(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
+    return this._call.inputValues[3].value.toBigIntArray();
   }
 }
 
@@ -785,12 +877,16 @@ export class UpdateChainTokensCall__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get ids(): Array<BigInt> {
-    return this._call.inputValues[0].value.toBigIntArray();
+    return this._call.inputValues[1].value.toBigIntArray();
   }
 
   get tokenInfos(): Array<UpdateChainTokensCallTokenInfosStruct> {
-    return this._call.inputValues[1].value.toTupleArray<
+    return this._call.inputValues[2].value.toTupleArray<
       UpdateChainTokensCallTokenInfosStruct
     >();
   }
@@ -835,8 +931,12 @@ export class UpdateChallengeUserRatioCall__Inputs {
     this._call = call;
   }
 
-  get challengeUserRatio_(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get challengeUserRatio_(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -882,6 +982,44 @@ export class UpdateEbcsCall__Outputs {
   }
 }
 
+export class UpdateExtraTransferContractsCall extends ethereum.Call {
+  get inputs(): UpdateExtraTransferContractsCall__Inputs {
+    return new UpdateExtraTransferContractsCall__Inputs(this);
+  }
+
+  get outputs(): UpdateExtraTransferContractsCall__Outputs {
+    return new UpdateExtraTransferContractsCall__Outputs(this);
+  }
+}
+
+export class UpdateExtraTransferContractsCall__Inputs {
+  _call: UpdateExtraTransferContractsCall;
+
+  constructor(call: UpdateExtraTransferContractsCall) {
+    this._call = call;
+  }
+
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get chainIds(): Array<BigInt> {
+    return this._call.inputValues[1].value.toBigIntArray();
+  }
+
+  get extraTransferContracts(): Array<BigInt> {
+    return this._call.inputValues[2].value.toBigIntArray();
+  }
+}
+
+export class UpdateExtraTransferContractsCall__Outputs {
+  _call: UpdateExtraTransferContractsCall;
+
+  constructor(call: UpdateExtraTransferContractsCall) {
+    this._call = call;
+  }
+}
+
 export class UpdateFeeChallengeSecondCall extends ethereum.Call {
   get inputs(): UpdateFeeChallengeSecondCall__Inputs {
     return new UpdateFeeChallengeSecondCall__Inputs(this);
@@ -899,8 +1037,12 @@ export class UpdateFeeChallengeSecondCall__Inputs {
     this._call = call;
   }
 
-  get feeChallengeSecond_(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get feeChallengeSecond_(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -929,8 +1071,12 @@ export class UpdateFeeTakeOnChallengeSecondCall__Inputs {
     this._call = call;
   }
 
-  get feeTakeOnChallengeSecond_(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get feeTakeOnChallengeSecond_(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -989,8 +1135,12 @@ export class UpdateMinChallengeRatioCall__Inputs {
     this._call = call;
   }
 
-  get minChallengeRatio_(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get minChallengeRatio_(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -1019,8 +1169,12 @@ export class UpdateProtocolFeeCall__Inputs {
     this._call = call;
   }
 
-  get protocolFee_(): BigInt {
+  get enableTime(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get protocolFee_(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -1049,8 +1203,12 @@ export class UpdateSubmitterCall__Inputs {
     this._call = call;
   }
 
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
   get submitter_(): Address {
-    return this._call.inputValues[0].value.toAddress();
+    return this._call.inputValues[1].value.toAddress();
   }
 }
 
@@ -1058,6 +1216,36 @@ export class UpdateSubmitterCall__Outputs {
   _call: UpdateSubmitterCall;
 
   constructor(call: UpdateSubmitterCall) {
+    this._call = call;
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall extends ethereum.Call {
+  get inputs(): VersionIncreaseAndEnableTimeCall__Inputs {
+    return new VersionIncreaseAndEnableTimeCall__Inputs(this);
+  }
+
+  get outputs(): VersionIncreaseAndEnableTimeCall__Outputs {
+    return new VersionIncreaseAndEnableTimeCall__Outputs(this);
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall__Inputs {
+  _call: VersionIncreaseAndEnableTimeCall;
+
+  constructor(call: VersionIncreaseAndEnableTimeCall) {
+    this._call = call;
+  }
+
+  get enableTime(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class VersionIncreaseAndEnableTimeCall__Outputs {
+  _call: VersionIncreaseAndEnableTimeCall;
+
+  constructor(call: VersionIncreaseAndEnableTimeCall) {
     this._call = call;
   }
 }

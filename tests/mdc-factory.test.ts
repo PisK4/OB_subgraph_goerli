@@ -7,15 +7,8 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Address } from "@graphprotocol/graph-ts"
-import { MDCCreated } from "../src/types/schema"
-import { MDCCreated as MDCCreatedEvent } from "../src/types/MDCFactory/MDCFactory"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
-import {
-  ONE_ADDRESS,
-  ONE_NUM,
-  getONEBytes
-} from '../src/mappings/helpers'
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0

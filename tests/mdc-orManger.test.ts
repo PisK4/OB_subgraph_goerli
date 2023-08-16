@@ -28,22 +28,33 @@ import {
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
+  AddressFmtPadZero,
   EBCManagerID,
-  getBindEbcId 
+  ORMangerID
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "./mock-data"
-import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent } from "./or-manager-utils"
-import { handleChainInfoUpdated, handleChainTokenUpdated } from "../src/mappings/or-manager"
+import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"
+import { handleChainInfoUpdated, handleChainTokenUpdated, handleEbcsUpdated } from "../src/mappings/or-manager"
 
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
+  // const responseMakersArray = [
+  //   "186258217070866900924478871193601082399096503291",
+  //   "905852841822203005801390459791760958298983703480",
+  // ]
+  const responseMakers1 = "186258217070866900924478871193601082399096503291"
+  const responseMakers2 = "905852841822203005801390459791760958298983703480"
 
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
     let mdc = Address.fromString(mockMdcAddr)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
+    let responseMakers = [
+      BigInt.fromString(responseMakers1),
+      BigInt.fromString(responseMakers2)
+    ]
     // let responseMakers = [
     //   BigInt.fromString("186258217070866900924478871193601082399096503291"),
     //   BigInt.fromString("905852841822203005801390459791760958298983703480"),
@@ -56,10 +67,7 @@ describe("Describe check responseMakers Event", () => {
     //   BigInt.fromString("599938358168272848459362921247238227921889336502"),
     //   BigInt.fromString("120665217511887316696823247667523366771488149006")
     // ]
-    let responseMakers = [
-      BigInt.fromString("186258217070866900924478871193601082399096503291"),
-      BigInt.fromString("905852841822203005801390459791760958298983703480")
-    ]
+
 
     const newResponseMakersUpdatedEvent = createResponseMakersUpdatedEvent(
       Address.fromString(impl),
@@ -79,8 +87,8 @@ describe("Describe check responseMakers Event", () => {
     assert.fieldEquals(
       "MDC",
       mockMdcAddr.toLowerCase(),
-      "responseMakers",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+      "responseMakerSnapshot",
+      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
     )
   })
 
@@ -89,9 +97,27 @@ describe("Describe check responseMakers Event", () => {
 
     assert.fieldEquals(
       "ResponseMakersUpdated",
-      mockMdcAddr.toLowerCase(),
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
       "responseMakerList",
       "[0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb, 0x9eabd8a598857fc4238899d6edd42d6158ab23b8\]"
+    )
+  })
+
+  test("responseMaker created and stored", () => {
+    assert.entityCount("responseMaker", 2)
+
+    assert.fieldEquals(
+      "responseMaker",
+      AddressFmtPadZero(BigInt.fromString(responseMakers1).toHexString()),
+      "id",
+      AddressFmtPadZero(BigInt.fromString(responseMakers1).toHexString())
+    )
+
+    assert.fieldEquals(
+      "FactoryManger",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
+      "responseMakers",
+      `[${AddressFmtPadZero((BigInt.fromString(responseMakers1).toHexString()))}, ${AddressFmtPadZero((BigInt.fromString(responseMakers2).toHexString()))}\]`
     )
   })
 
@@ -99,7 +125,7 @@ describe("Describe check responseMakers Event", () => {
 
 describe("Describe check ChainInfoUpdated Event", () => {
   beforeAll(() => {
-    let id = BigInt.fromString("1")
+    let id = BigInt.fromString("985")
     let batchLimit = BigInt.fromI32(100)
     let minVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
     let maxVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
@@ -134,8 +160,9 @@ describe("Describe check ChainInfoUpdated Event", () => {
 describe("Describe check ChainTokenUpdated Event", () => {
     const mockToken = "196376302172346843968590065221485113559586934957"
     const mockMainnetToken = "0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb"
+    const Chainid = "985"
     beforeAll(() => {
-      let id = BigInt.fromString("1")
+      let _chainId = BigInt.fromString(Chainid)
       let token = BigInt.fromString(mockToken)
       let mainnetToken = Address.fromString(mockMainnetToken)
       let decimals = 18
@@ -147,7 +174,7 @@ describe("Describe check ChainTokenUpdated Event", () => {
       const tokenInfo = changetype<ethereum.Tuple>(tupleArray);   
 
       const newChainTokenUpdatedEvent = createChainTokenUpdatedEvent(
-        id,
+        _chainId,
         tokenInfo
       )
 
@@ -158,9 +185,82 @@ describe("Describe check ChainTokenUpdated Event", () => {
       clearStore()
     })
 
+    test("ChainInfoUpdated created and stored", () => {
+      assert.entityCount("ChainInfoUpdated", 1)
+
+      assert.fieldEquals(
+        "ChainInfoUpdated",
+        Chainid.toString(),
+        "tokens",
+        "[985-196376302172346843968590065221485113559586934957\]"
+      )
+
+    })
+
     test("ChainTokenUpdated created and stored", () => {
       assert.entityCount("ChainTokenUpdated", 1)
+
+      assert.fieldEquals(
+        "ChainTokenUpdated",
+        Chainid.toString() + "-" + mockToken,
+        "id",
+        Chainid.toString() + "-" + mockToken
+      )
+
+      assert.fieldEquals(
+        "ChainTokenUpdated",
+        Chainid.toString() + "-" + mockToken,
+        "token",
+        mockToken
+      )
     })
+})
+
+describe("Describe check ORManger", () => {
+  const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
+  const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"
+  const dealers = 
+    "0xA1AE843d71Ef6843137F70d6E93c5d143C1843E4"
+  const ebc0 = "0xB6fF6F7b0CD1633348877043Ae92302139796686"
+  const ebc1 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
+  const ebc2 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
+  const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
+  const mdcAddress = "0x7A0B33bDcBD07f10FfAa8251fC843ed293495fEb"
+
+  beforeAll(() => {
+    let maker = Address.fromString(makerAddress)
+    let mdc = Address.fromString(mdcAddress)
+    let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
+    handleMDCCreated(newMDCCreatedEvent)
+    let ebcs = [Address.fromString(ebc0), Address.fromString(ebc1), Address.fromString(ebc2)]
+    let ebcsAddr = new Array<Address>(ebcs.length);
+    for (let i = 0; i < ebcs.length; i++) {
+      ebcsAddr[i] = changetype<Address>(ebcs[i]);
+    }
+    // let statuses = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]
+    let statuses =[true]
+    const newEbcsUpdatedEvent = createEbcsUpdatedEvent(
+      ebcsAddr,
+      statuses
+    )
+    handleEbcsUpdated(newEbcsUpdatedEvent)
+  })
+
+  afterAll(() => {
+    clearStore()
+  })
+
+  test("ORManger created and stored", () => {
+    assert.entityCount("ORManger", 1)
+
+    assert.fieldEquals(
+      "ORManger",
+      ORMangerID,
+      "ebcManager",
+      "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
+    )
+
+  })
 
 
 })
