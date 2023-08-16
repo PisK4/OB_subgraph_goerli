@@ -1680,13 +1680,13 @@ function getLastRulesEntity(
         lastRule.ruleValidation = false
     }
 
-    if (id.startsWith('0xERC20')) {
-        lastRule.type = 'ERC20'
-        log.info('create LatestERC20 rule: {}', [id]);
-    } else if (id.startsWith('0xETH')) {
-        lastRule.type = 'ETH'
-        log.info('create LatestETH rule: {}', [id]);
-    }        
+    // if (id.startsWith('0xERC20')) {
+    //     lastRule.type = 'ERC20'
+    //     log.info('create LatestERC20 rule: {}', [id]);
+    // } else if (id.startsWith('0xETH')) {
+    //     lastRule.type = 'ETH'
+    //     log.info('create LatestETH rule: {}', [id]);
+    // }        
 
     // if(rsc.selector === updateRulesRootMode.ERC20){
     //     _snapshotLatestRule.type = _rule.type = 'ERC20'
@@ -1737,14 +1737,20 @@ function updateLatestRules(
     ebcValidateResult: boolean,
     snapshot:ruleTypes
 ):void{
-    let id = getRulePaddingID(createHashID([
+    let token0 = rsc.chain0Token;
+    let token1 = rsc.chain1Token;
+    if(rsc.selector === updateRulesRootMode.ETH){
+        token0 = token1 = BigInt.fromI32(0);
+    }
+
+    let id = createHashID([
         mdc.id, 
         ebc.id, 
         rsc.chain0.toString(), 
         rsc.chain1.toString(),
-        rsc.chain0Token.toString(),
-        rsc.chain1Token.toString(),
-    ]), rsc.selector)
+        token0.toString(),
+        token1.toString(),
+    ]);
 
     const _rule = getLastRulesEntity(id);
     const _snapshotLatestRule = getLastRulesEntity(snapshot.id);
@@ -1778,6 +1784,11 @@ function updateLatestRules(
         _rscRuleType.latestUpdateBlockNumber = event.block.number;
         _rscRuleType.latestUpdateHash = event.transaction.hash.toHexString();
         _rscRuleType.latestUpdateVersion = version as i32;
+        if(rsc.selector === updateRulesRootMode.ETH){
+            _rscRuleType.type = 'ETH'
+        }else if(rsc.selector === updateRulesRootMode.ERC20){
+            _rscRuleType.type = 'ERC20'
+        }
     }
     saveLatestRule2MDCEBC(mdc, ebc, _rule.id);
     saveLatestRule2RuleSnapshot(snapshot, _snapshotLatestRule.id);
