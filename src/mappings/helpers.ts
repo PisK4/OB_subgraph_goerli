@@ -342,9 +342,9 @@ export function getMDCMappingEntity(
 
 function getTokenFromChainInfoUpdated(
     chainid: BigInt,
-): Array<BigInt> {
+): Array<string> {
     let _chainInfo = ChainInfoUpdated.load(chainid.toString())
-    let tokens = [] as Array<BigInt>
+    let tokens = [] as Array<string>
     if(_chainInfo != null){
         for(let i = 0; i < _chainInfo.tokens.length; i++){
             const ChainTokenUpdatedID = _chainInfo.tokens[i].toString()
@@ -364,13 +364,13 @@ export function getChainTokenUpdatedEntity(
     event: ethereum.Event
 ): ChainTokenUpdated {
     // let tokenId = id.toString() + "-" + token.toString()
-    const tokenId = createBindID([id.toString(), token.toString()])
+    const tokenId = createBindID([id.toString(), token.toHexString()])
     let chainInfo = getChainInfoEntity(event, id)
     let tokenInfo = ChainTokenUpdated.load(tokenId)
     if (tokenInfo == null) {
         log.info('create new ChainTokenUpdated, id: {}', [tokenId])
         tokenInfo = new ChainTokenUpdated(tokenId)
-        tokenInfo.token = token
+        tokenInfo.token = token.toHexString()
         saveTokenInfo2ChainInfo(chainInfo, tokenId)
         chainInfo.save()
     }
@@ -1844,8 +1844,8 @@ function ruleValidationSchema(
     }
 
     // token validation
-    const chain0Token = rsc.chain0Token
-    const chain1Token = rsc.chain1Token
+    const chain0Token = rsc.chain0Token.toHexString()
+    const chain1Token = rsc.chain1Token.toHexString()
     const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
     const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
     if(!chain0TokenArray.includes(chain0Token) || !chain1TokenArray.includes(chain1Token)){

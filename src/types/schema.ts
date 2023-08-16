@@ -3617,17 +3617,17 @@ export class ChainTokenUpdated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get token(): BigInt {
+  get token(): string {
     let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set token(value: BigInt) {
-    this.set("token", Value.fromBigInt(value));
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
   }
 
   get mainnetToken(): string | null {

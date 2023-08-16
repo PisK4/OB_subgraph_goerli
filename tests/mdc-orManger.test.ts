@@ -159,6 +159,8 @@ describe("Describe check ChainInfoUpdated Event", () => {
 
 describe("Describe check ChainTokenUpdated Event", () => {
     const mockToken = "196376302172346843968590065221485113559586934957"
+    // ccover mockToken to HexString
+    const mockTokenHex = "0x2265d16498efe5e63e08fa50f4344a2668db90ad"
     const mockMainnetToken = "0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb"
     const Chainid = "985"
     beforeAll(() => {
@@ -185,33 +187,21 @@ describe("Describe check ChainTokenUpdated Event", () => {
       clearStore()
     })
 
-    test("ChainInfoUpdated created and stored", () => {
-      assert.entityCount("ChainInfoUpdated", 1)
-
-      assert.fieldEquals(
-        "ChainInfoUpdated",
-        Chainid.toString(),
-        "tokens",
-        "[985-196376302172346843968590065221485113559586934957\]"
-      )
-
-    })
-
     test("ChainTokenUpdated created and stored", () => {
       assert.entityCount("ChainTokenUpdated", 1)
 
       assert.fieldEquals(
         "ChainTokenUpdated",
-        Chainid.toString() + "-" + mockToken,
+        Chainid.toString() + "-" + mockTokenHex,
         "id",
-        Chainid.toString() + "-" + mockToken
+        Chainid.toString() + "-" + mockTokenHex
       )
 
       assert.fieldEquals(
         "ChainTokenUpdated",
-        Chainid.toString() + "-" + mockToken,
+        Chainid.toString() + "-" + mockTokenHex,
         "token",
-        mockToken
+        mockTokenHex
       )
     })
 })

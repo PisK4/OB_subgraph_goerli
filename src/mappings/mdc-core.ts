@@ -238,7 +238,7 @@ export function handleChainTokenUpdatedEvent(
   let mainnetToken = tokenInfo.mainnetToken
   let decimals = tokenInfo.decimals
   let chainToken = getChainTokenUpdatedEntity(chainId, token, event)
-  chainToken.token = token
+  chainToken.token = token.toHexString()
   chainToken.mainnetToken = AddressFmtPadZero(mainnetToken.toHexString())
   chainToken.decimals = decimals
   chainToken.save()  

@@ -369,7 +369,7 @@ type ChainInfoUpdated @entity{
 type ChainTokenUpdated @entity(immutable: true) {
   id: ID! # chainId - token
   # inputId: BigInt # uint64
-  token: BigInt! # uint
+  token: String! # uint
   mainnetToken: String # address
   decimals: Int # uint8
   chain: ChainInfoUpdated! @derivedFrom(field: "tokens") # ChainInfo
