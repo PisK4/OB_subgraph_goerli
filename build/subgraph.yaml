@@ -6,9 +6,9 @@ dataSources:
     name: MDCFactory
     network: goerli
     source:
-      address: "0x789509F6bf7813BDcE50c5Bc36f8E09475197986"
+      address: "0xA709742c7787544Dc19E05cc82c6D5e5cf80C42D"
       abi: MDCFactory
-      startBlock: 9499100
+      startBlock: 9526800
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -26,9 +26,9 @@ dataSources:
     name: ORManager
     network: goerli
     source:
-      address: "0x36cD373293f90A3B8815A9D480fF3CE460224d20"
+      address: "0xC7D9e808Cd42d42d7A7B6A6f84AA9754Fc18B6A5"
       abi: ORManager
-      startBlock: 9499100
+      startBlock: 9526800
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

@@ -40,7 +40,7 @@ import {
 } from "../types/templates/MDC/MDC"
 import { createBindID, createHashID, entityConcatID } from './utils'
 
-export const isProduction = false
+export const isProduction = true
 export const debugLog = true
 export const debugLogCreateRules = true
 
@@ -525,20 +525,6 @@ function getMDCLatestDealers(
 function getMDCLatestEBCs(
     mdc: MDC
 ): string[]{
-    // let ebc = new Array<Bytes>()
-    // let mdcMapping = MDCMapping.load(mdc.id)
-    // if(mdcMapping != null){
-    //     log.info("MDC: {} mapping ebcCnt: {}", [mdc.id, mdcMapping.ebcMapping.length.toString()])
-    //     for(let i = 0; i < mdcMapping.ebcMapping.length; i++){
-    //         let _ebcMapping = ebcMapping.load(mdcMapping.ebcMapping[i])
-    //         if (_ebcMapping != null) {
-    //             if (_ebcMapping.ebcAddr.length > 0){
-    //                 ebc = ebc.concat([_ebcMapping.ebcAddr])
-    //             }
-    //         }
-    //     }
-    // }
-    // return ebc
     let ebc = new Array<string>()
     let mdcMapping = MDCMapping.load(mdc.id)
     if(mdcMapping != null){
