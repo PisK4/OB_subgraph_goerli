@@ -92,11 +92,11 @@ describe("Describe check responseMakers Event", () => {
     )
   })
 
-  test("ResponseMakersUpdated created and stored", () => {
-    assert.entityCount("ResponseMakersUpdated", 1)
+  test("ResponseMakersSnapshot created and stored", () => {
+    assert.entityCount("ResponseMakersSnapshot", 1)
 
     assert.fieldEquals(
-      "ResponseMakersUpdated",
+      "ResponseMakersSnapshot",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
       "responseMakerList",
       "[0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb, 0x9eabd8a598857fc4238899d6edd42d6158ab23b8\]"

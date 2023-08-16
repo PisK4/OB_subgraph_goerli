@@ -33,7 +33,7 @@ type ColumnArrayUpdated @entity(immutable: true) {
 }
 
 # unused entity, but it's binding in contract Event, so we need to define it
-type ResponseMakersUpdated @entity(immutable: true) {
+type ResponseMakersSnapshot @entity(immutable: true) {
   id: ID! # mdc address
   responseMakerList: [String!]! # responseMaker address array
   mdc: MDC! @derivedFrom(field: "responseMakerSnapshot") # MDC
@@ -80,7 +80,7 @@ type MDC @entity {
   id: ID! # mdc address
   owner: String! # address
   factoryAddr: String! # address
-  responseMakerSnapshot: [ResponseMakersUpdated!]! #snapshot
+  responseMakerSnapshot: [ResponseMakersSnapshot!]! #snapshot
   dealerSnapshot: [dealerSnapshot!]!        #snapshot
   ebcSnapshot: [ebcSnapshot!]!              #snapshot
   chainIdSnapshot: [chainIdSnapshot!]!      #snapshot

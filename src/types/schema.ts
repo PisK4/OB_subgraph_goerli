@@ -427,7 +427,7 @@ export class ColumnArrayUpdated extends Entity {
   }
 }
 
-export class ResponseMakersUpdated extends Entity {
+export class ResponseMakersSnapshot extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -437,26 +437,26 @@ export class ResponseMakersUpdated extends Entity {
     let id = this.get("id");
     assert(
       id != null,
-      "Cannot save ResponseMakersUpdated entity without an ID"
+      "Cannot save ResponseMakersSnapshot entity without an ID"
     );
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type ResponseMakersUpdated must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ResponseMakersSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ResponseMakersUpdated", id.toString(), this);
+      store.set("ResponseMakersSnapshot", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ResponseMakersUpdated | null {
-    return changetype<ResponseMakersUpdated | null>(
-      store.get_in_block("ResponseMakersUpdated", id)
+  static loadInBlock(id: string): ResponseMakersSnapshot | null {
+    return changetype<ResponseMakersSnapshot | null>(
+      store.get_in_block("ResponseMakersSnapshot", id)
     );
   }
 
-  static load(id: string): ResponseMakersUpdated | null {
-    return changetype<ResponseMakersUpdated | null>(
-      store.get("ResponseMakersUpdated", id)
+  static load(id: string): ResponseMakersSnapshot | null {
+    return changetype<ResponseMakersSnapshot | null>(
+      store.get("ResponseMakersSnapshot", id)
     );
   }
 
@@ -488,7 +488,7 @@ export class ResponseMakersUpdated extends Entity {
 
   get mdc(): MDCLoader {
     return new MDCLoader(
-      "ResponseMakersUpdated",
+      "ResponseMakersSnapshot",
       this.get("id")!.toString(),
       "mdc"
     );

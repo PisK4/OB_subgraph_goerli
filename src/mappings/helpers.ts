@@ -24,7 +24,7 @@ import {
     MDCBindSPV,
     MDCMapping,
     ORManger,
-    ResponseMakersUpdated,
+    ResponseMakersSnapshot,
     chainIdMapping,
     ebcMapping,
     latestRule,
@@ -955,9 +955,9 @@ export function mdcStoreResponseMaker(
     // id = txhash + logIndex
     // let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
     const id = createEventID(event)
-    let responseMakers = ResponseMakersUpdated.load(id)
+    let responseMakers = ResponseMakersSnapshot.load(id)
     if(responseMakers == null){
-        responseMakers = new ResponseMakersUpdated(id)
+        responseMakers = new ResponseMakersSnapshot(id)
         responseMakers.responseMakerList = []
         mdc.responseMakerSnapshot = mdc.responseMakerSnapshot.concat([responseMakers.id])
     }
