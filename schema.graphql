@@ -258,7 +258,7 @@ type chainIdMapping @entity{
 
 # customed using entity
 type ruleTypes @entity {  #contain all rules snapshot
-  # As MDC snapshot, id: mdc-ecb-transactionHash - logIndex
+  # As MDC snapshot, id: hash(mdc-ecb-transactionHash-logIndex)
   # As MDC LatestRuleSnapshot, id: mdc-ebc-chain0ID-chain1ID
   id: ID!
   rules: [rule!]! # rules in input Data   

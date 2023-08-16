@@ -108,11 +108,13 @@ import { ORMangerID, EBCManagerID } from "../src/mappings/helpers"
 
 
 describe("Describe check MDC rule snaptShot", () => {
-  const ruleSnapshotId = "0xb9f2b7ad97d8ac5131d7bd4f651f3002bbbe04c18aa46f54cdc064631274c344" as string
-  const ebcAddress = "0xb3d1b704dd7f7acf9fddcee2868388838f859e0f" as string
+  // referenced from schema.graphql type ruleTypes @entity -id
+  const ruleSnapshotId = "0xb40290b0f9f1a45175eb915946d00766faab2857654eab985d8f5a5a507f18e0" as string
+  const ebcAddress = "0xFC58E774741B5DB365b677f9Cc4F5e0a510494Aa" as string 
+  const inputMDC = "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb" as string
 
   // must exctly match the root and version in the mock data
-  const root = "0xb3f19effe9df83a268c66c65808ee2828b0ec6c43cb400b31126f2682cf7c5c7"
+  const root = "0xd4b1366edfc3fe8f3304ca902d7383504a24e5a0bf227928da90b30df33097df"
   const version = "2"
   const makerAddress = "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
   beforeAll(() => {
@@ -156,7 +158,7 @@ describe("Describe check MDC rule snaptShot", () => {
 
     assert.fieldEquals(
       "EbcsUpdated",
-      ebcAddress,
+      ebcAddress.toLowerCase(),
       "mdcList",
       `[${mockMdcAddr.toLowerCase()}]`
     )
@@ -170,7 +172,7 @@ describe("Describe check MDC rule snaptShot", () => {
       "ruleTypes",
       ruleSnapshotId,
       "mdc",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+      `[${inputMDC.toLowerCase()}]`
     )
 
     // check new create snapshot relation
@@ -178,7 +180,7 @@ describe("Describe check MDC rule snaptShot", () => {
       "ruleTypes",
       ruleSnapshotId,
       "ebc",
-      "[0xb3d1b704dd7f7acf9fddcee2868388838f859e0f\]" // this id depends on the transaction input EBC data field
+      `[${ebcAddress.toLowerCase()}]`
     )
 
     // check MDC relation
@@ -192,7 +194,7 @@ describe("Describe check MDC rule snaptShot", () => {
     // check EBC relation
     assert.fieldEquals(
       "EbcsUpdated",
-      "0xb3d1b704dd7f7acf9fddcee2868388838f859e0f", // this id depends on the transaction input EBC data field
+      ebcAddress.toLowerCase(), // this id depends on the transaction input EBC data field
       "rulesList",
       `[${ruleSnapshotId}]`
     );
