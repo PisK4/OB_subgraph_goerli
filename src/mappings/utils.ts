@@ -121,3 +121,11 @@ export function decodeInputDataNoPrefix(data: Bytes, types: string): ethereum.Tu
     let tuple = decoded.toTuple();
     return tuple
 }
+
+export function intConverHexString(value: BigInt) : string{
+    if(value){
+        return value.toHexString()
+    }else{
+        return "0x0000000000000000000000000000000000000000"
+    }
+}

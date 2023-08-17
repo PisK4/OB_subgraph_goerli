@@ -486,6 +486,23 @@ export class ResponseMakersSnapshot extends Entity {
     this.set("responseMakerList", Value.fromStringArray(value));
   }
 
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get mdc(): MDCLoader {
     return new MDCLoader(
       "ResponseMakersSnapshot",
@@ -757,8 +774,8 @@ export class MDC extends Entity {
     );
   }
 
-  get ebc(): EbcsUpdatedLoader {
-    return new EbcsUpdatedLoader("MDC", this.get("id")!.toString(), "ebc");
+  get ebc(): ebcRelLoader {
+    return new ebcRelLoader("MDC", this.get("id")!.toString(), "ebc");
   }
 
   get dealer(): DealerLoader {
@@ -1705,6 +1722,23 @@ export class MDCBindSPV extends Entity {
       this.unset("spv");
     } else {
       this.set("spv", Value.fromString(<string>value));
+    }
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
     }
   }
 
@@ -2993,12 +3027,8 @@ export class ruleTypes extends Entity {
     return new MDCLoader("ruleTypes", this.get("id")!.toString(), "mdc");
   }
 
-  get ebc(): EbcsUpdatedLoader {
-    return new EbcsUpdatedLoader(
-      "ruleTypes",
-      this.get("id")!.toString(),
-      "ebc"
-    );
+  get ebc(): ebcRelLoader {
+    return new ebcRelLoader("ruleTypes", this.get("id")!.toString(), "ebc");
   }
 
   get latestUpdateHash(): string | null {
@@ -3885,12 +3915,8 @@ export class latestRule extends Entity {
     this.set("ruleValidation", Value.fromBoolean(value));
   }
 
-  get ebc(): EbcsUpdatedLoader {
-    return new EbcsUpdatedLoader(
-      "latestRule",
-      this.get("id")!.toString(),
-      "ebc"
-    );
+  get ebc(): ebcRelLoader {
+    return new ebcRelLoader("latestRule", this.get("id")!.toString(), "ebc");
   }
 
   get mdc(): MDCLoader {
@@ -4419,7 +4445,7 @@ export class ChallengeUserRatioUpdated extends Entity {
   }
 }
 
-export class EbcsUpdated extends Entity {
+export class ebcRel extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -4427,24 +4453,22 @@ export class EbcsUpdated extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save EbcsUpdated entity without an ID");
+    assert(id != null, "Cannot save ebcRel entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type EbcsUpdated must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ebcRel must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("EbcsUpdated", id.toString(), this);
+      store.set("ebcRel", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): EbcsUpdated | null {
-    return changetype<EbcsUpdated | null>(
-      store.get_in_block("EbcsUpdated", id)
-    );
+  static loadInBlock(id: string): ebcRel | null {
+    return changetype<ebcRel | null>(store.get_in_block("ebcRel", id));
   }
 
-  static load(id: string): EbcsUpdated | null {
-    return changetype<EbcsUpdated | null>(store.get("EbcsUpdated", id));
+  static load(id: string): ebcRel | null {
+    return changetype<ebcRel | null>(store.get("ebcRel", id));
   }
 
   get id(): string {
@@ -4513,11 +4537,7 @@ export class EbcsUpdated extends Entity {
   }
 
   get manger(): ORMangerLoader {
-    return new ORMangerLoader(
-      "EbcsUpdated",
-      this.get("id")!.toString(),
-      "manger"
-    );
+    return new ORMangerLoader("ebcRel", this.get("id")!.toString(), "manger");
   }
 
   get latestUpdateHash(): string {
@@ -5268,7 +5288,7 @@ export class FactoryMangerLoader extends Entity {
   }
 }
 
-export class EbcsUpdatedLoader extends Entity {
+export class ebcRelLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -5280,9 +5300,9 @@ export class EbcsUpdatedLoader extends Entity {
     this._field = field;
   }
 
-  load(): EbcsUpdated[] {
+  load(): ebcRel[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<EbcsUpdated[]>(value);
+    return changetype<ebcRel[]>(value);
   }
 }
 

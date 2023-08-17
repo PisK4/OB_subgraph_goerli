@@ -36,6 +36,7 @@ type ColumnArrayUpdated @entity(immutable: true) {
 type ResponseMakersSnapshot @entity(immutable: true) {
   id: ID! # mdc address
   responseMakerList: [String!]! # responseMaker address array
+  enableTimestamp: BigInt
   mdc: MDC! @derivedFrom(field: "responseMakerSnapshot") # MDC
   latestUpdateHash: Bytes
   latestUpdateTimestamp: BigInt
@@ -58,7 +59,7 @@ type MDC @entity {
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   mapping: MDCMapping # dealer/ebc/chainId mapping
   factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
-  ebc: [EbcsUpdated!]! @derivedFrom(field: "mdcList") # EBC
+  ebc: [ebcRel!]! @derivedFrom(field: "mdcList") # EBC
   dealer: [Dealer!]! @derivedFrom(field: "mdcs") # Dealer
   responseMaker: [responseMaker!]! @derivedFrom(field: "mdcs") # responseMaker
   
@@ -146,6 +147,7 @@ type MDCBindSPV @entity{
   id: ID! # mdc address - ChainId
   chainId: BigInt # uint64 - the index of state varible "_spvs[]" in MDC contract
   spv: String # spv address - the value of state varible "_spvs[]" in MDC contract
+  enableTimestamp: BigInt
   mdc: MDC! @derivedFrom(field: "bindSPVs") # MDC
 }
 
@@ -259,7 +261,7 @@ type ruleTypes @entity {  #contain all rules snapshot
   # related to rule
   # mappingSnapshot: [MDCMapping!] # ruleMapping
   mdc: MDC! @derivedFrom(field: "ruleSnapshot") # MDC
-  ebc: EbcsUpdated! @derivedFrom(field: "rulesList") # EBCs
+  ebc: ebcRel! @derivedFrom(field: "rulesList") # EBCs
   # dealer: Dealer! @derivedFrom(field: "rules") # Dealer
 
   latestUpdateHash: String
@@ -331,7 +333,7 @@ type latestRule @entity { # latest rule
   latestUpdateBlockNumber: BigInt
   latestUpdateHash: String
   ruleValidation: Boolean!
-  ebc: EbcsUpdated! @derivedFrom(field: "ruleLatest") # EBCs
+  ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
   ruleSnapshot: ruleTypes! @derivedFrom(field: "ruleLatest") # ruleTypes
 }
@@ -369,7 +371,7 @@ type ChainTokenUpdated @entity(immutable: true) {
 type ORManger @entity{
   id: ID!  # Manger ID
   chainInfoManager: [ChainInfoUpdated!]! # ChainInfo
-  ebcManager: [EbcsUpdated!]! # EBCs
+  ebcManager: [ebcRel!]! # EBCs
 }
 
 type ChallengeUserRatioUpdated @entity(immutable: true) {
@@ -381,7 +383,7 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
 }
 
 # using entity, binding in contract Event
-type EbcsUpdated @entity {
+type ebcRel @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
   rulesList: [ruleTypes!]! # list all rules Snapshot!! who bind this ebc

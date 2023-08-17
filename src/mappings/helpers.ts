@@ -17,7 +17,7 @@ import {
     ColumnArrayUpdated,
     Dealer,
     DealerMapping,
-    EbcsUpdated, 
+    ebcRel, 
     MDC, 
     MDCBindChainId, 
     dealerSnapshot, 
@@ -41,7 +41,18 @@ import {
 import { 
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
-import { createBindID, createEventID, createHashID, decodeInputData, decodeInputDataNoPrefix, entityConcatID, getFunctionSelector, inputdataPrefix, removeFunctionSelector } from './utils'
+import { 
+    createBindID, 
+    createEventID, 
+    createHashID, 
+    decodeInputData, 
+    decodeInputDataNoPrefix, 
+    entityConcatID, 
+    getFunctionSelector, 
+    inputdataPrefix, 
+    intConverHexString, 
+    removeFunctionSelector } from './utils'
+import { functionrResponseMakerMockinput } from '../../tests/mock-data'
 
 export const isProduction = true
 export const debugLog = false
@@ -71,6 +82,7 @@ export const func_updateRulesRootSelector = `(${selectorSetting})`
 export const func_updateRulesRootERC20Selector = `(${selectorSetting},address)`
 export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
 export const func_updateColumnArraySelector = "(uint64,address[],address[],uint64[])"
+export const func_updateResponseMakersSelector = "(uint64,bytes[])"
 
 
 export enum updateRulesRootMode {
@@ -125,10 +137,10 @@ export function ebcManagerUpdate(
     event: ethereum.Event
 ) :void{
     let ebcId = ebcAddress.toHexString()
-    let ebc = EbcsUpdated.load(ebcId)
+    let ebc = ebcRel.load(ebcId)
     if (ebc == null) {
         log.info('create new EBC, ebc: {}, status: {}', [ebcId, status.toString()])
-        ebc = new EbcsUpdated(ebcId)
+        ebc = new ebcRel(ebcId)
         ebc.mdcList = []
         ebc.rulesList = []
         ebc.ruleLatest = []
@@ -141,7 +153,7 @@ export function ebcManagerUpdate(
 }
 
 function saveEBCMgr2ORMgr(
-    _EBCManager: EbcsUpdated
+    _EBCManager: ebcRel
 ): void{
     let _ORManger = ORManger.load(ORMangerID)
     if(_ORManger == null){
@@ -176,7 +188,7 @@ function saveChainInfoMgr2ORMgr(
 
 
 export function ebcSave(
-    ebc: EbcsUpdated,
+    ebc: ebcRel,
     mdc: MDC,
 ): void {
     saveMDC2EBC(ebc, mdc)
@@ -220,7 +232,7 @@ export function getRuleEntity(
     ruleTypes: ruleTypes,
     i: i32,
     mdc: MDC,
-    ebc: EbcsUpdated,
+    ebc: ebcRel,
     event: ethereum.Event
 ):rule {
     const id =  createBindID([ruleTypes.id, i.toString()])
@@ -267,18 +279,18 @@ export function getFactoryEntity(
 export function getEBCEntityNew(
     ebcAddress: string,
     event: ethereum.Event
-): EbcsUpdated {
-    let ebc = EbcsUpdated.load(ebcAddress)
+): ebcRel {
+    let ebc = ebcRel.load(ebcAddress)
     if (ebc == null) {
         log.info('create new EBC, ebc: {}', [ebcAddress])
-        ebc = new EbcsUpdated(ebcAddress)
+        ebc = new ebcRel(ebcAddress)
         ebc.mdcList = []
         ebc.rulesList = []
         ebc.ruleLatest = []
         ebc.statuses = true
     }
     ebc.latestUpdateHash = event.transaction.hash.toHexString()
-    return ebc as EbcsUpdated
+    return ebc as ebcRel
 }
 
 
@@ -369,7 +381,6 @@ export function getChainTokenUpdatedEntity(
     token: BigInt,
     event: ethereum.Event
 ): ChainTokenUpdated {
-    // let tokenId = id.toString() + "-" + token.toString()
     const tokenId = createBindID([id.toString(), token.toHexString()])
     let chainInfo = getChainInfoEntity(event, id)
     let tokenInfo = ChainTokenUpdated.load(tokenId)
@@ -648,7 +659,7 @@ function removeMDCFromEBC(
     const ebc = getMDCLatestEBCs(mdc)
 
     for(let i = 0; i < ebc.length; i++){
-        let _ebc = EbcsUpdated.load(ebc[i])
+        let _ebc = ebcRel.load(ebc[i])
         if(_ebc != null){
             log.info("remove mdc from ebc {}/{}, ebc: {}, mdc: {}", [(i+1).toString(), ebc.length.toString(), ebc[i], mdc.id])
             let _mdcs = _ebc.mdcList
@@ -863,11 +874,14 @@ export function mdcStoreResponseMaker(
     event: ethereum.Event
 ): void{
     const id = createEventID(event)
+    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionrResponseMakerMockinput) as Bytes
+    const enableTimestamp = decodeEnabletime(inputdata, func_updateResponseMakersSelector)
     let responseMakers = ResponseMakersSnapshot.load(id)
     if(responseMakers == null){
         responseMakers = new ResponseMakersSnapshot(id)
         responseMakers.responseMakerList = []
         mdc.responseMakerSnapshot = mdc.responseMakerSnapshot.concat([responseMakers.id])
+        responseMakers.enableTimestamp = enableTimestamp
     }
     responseMakers.responseMakerList = responseMakersArray
     responseMakers.latestUpdateBlockNumber = event.block.number
@@ -879,7 +893,6 @@ export function mdcStoreResponseMaker(
         let _responseMaker = getResponseMakerEntity(responseMakersArray[i], mdc, event)
         _responseMaker.save()
     }
-
 }    
 
 function saveColumnArray2MDC(
@@ -938,7 +951,7 @@ function saveMDC2Dealer(
 // }
 
 function saveMDC2EBC(
-    ebc: EbcsUpdated, 
+    ebc: ebcRel, 
     mdc: MDC
 ): void {
     if (ebc.mdcList == null) {
@@ -972,7 +985,7 @@ function saveLatestRule2RuleSnapshot(
 
 function saveLatestRule2MDCEBC(
     mdc: MDC,
-    ebc: EbcsUpdated,
+    ebc: ebcRel,
     ruleLatestId: string
 ): void{
     if (mdc.ruleLatest == null) {
@@ -1527,7 +1540,7 @@ function getLastRulesEntity(
 
 function getAllLatestRules(
     mdc: MDC,
-    ebc: EbcsUpdated
+    ebc: ebcRel
 ): string[] {
     let ruleIDs: string[] = [];
     if (mdc.ruleLatest != null) {
@@ -1560,7 +1573,7 @@ function updateLatestRules(
     event: ethereum.Event,
     rscRules: rscRules,
     mdc: MDC,
-    ebc: EbcsUpdated,
+    ebc: ebcRel,
     validateResult: boolean,
     ebcValidateResult: boolean,
     snapshot:ruleTypes
@@ -1594,8 +1607,8 @@ function updateLatestRules(
         _rscRuleType.chain1 = rsc.chain1;
         _rscRuleType.chain0Status = rsc.chain0Status.toI32();
         _rscRuleType.chain1Status = rsc.chain1Status.toI32();
-        _rscRuleType.chain0Token = AddressFmtPadZero(rsc.chain0Token.toHexString());
-        _rscRuleType.chain1Token = AddressFmtPadZero(rsc.chain1Token.toHexString());
+        _rscRuleType.chain0Token = intConverHexString(rsc.chain0Token);
+        _rscRuleType.chain1Token = intConverHexString(rsc.chain1Token);
         _rscRuleType.chain0minPrice = rsc.chain0minPrice;
         _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
         _rscRuleType.chain1minPrice = rsc.chain1minPrice;
@@ -1633,7 +1646,7 @@ function saveRuleSnapshotRelation(
     event: ethereum.Event,
     ruleSnapshot: ruleTypes,
     mdc: MDC,
-    ebc: EbcsUpdated
+    ebc: ebcRel
 ): void{
     // let ebc = getEBCEntityNew(mdc.ebc._id, event)
     // let dealer = getDealerEntity(Bytes.fromHexString(mdc.dealer._id), event)
@@ -1667,7 +1680,7 @@ function saveRuleSnapshotRelation(
 function getRuleSnapshotEntity(
     event: ethereum.Event,
     mdc: MDC,
-    ebc: EbcsUpdated
+    ebc: ebcRel
 ): ruleTypes {
     // const snapshotId = createBindID([mdc.id, ebc.id, createEventID(event)])
     const snapshotId = createHashID([mdc.id, ebc.id, createEventID(event)])
@@ -1742,7 +1755,7 @@ export function mdcStoreRuleSnapshot(
     event: ethereum.Event,
     updateRulesRootEntity: rscRules,
     mdc: MDC,
-    ebc: EbcsUpdated
+    ebc: ebcRel
 ): void {
     let ruleSnapshot = getRuleSnapshotEntity(event, mdc, ebc)
     saveRuleSnapshotRelation(event, ruleSnapshot, mdc, ebc)

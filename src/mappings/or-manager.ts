@@ -13,10 +13,7 @@ import {
   SubmitterFeeUpdated as SubmitterFeeUpdatedEvent
 } from "../types/ORManager/ORManager"
 import {
-  ChainInfoUpdated,
-  ChainTokenUpdated,
   ChallengeUserRatioUpdated,
-  EbcsUpdated,
   FeeChallengeSecondUpdated,
   FeeTakeOnChallengeSecondUpdated,
   MaxMDCLimitUpdated,

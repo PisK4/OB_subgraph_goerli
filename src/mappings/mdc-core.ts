@@ -241,16 +241,11 @@ export function handleResponseMakersUpdatedEvent(
 ): void {
   const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
-  // let responseMakersBytes = new Array<Bytes>()
-  // for(let i = 0; i < responseMakers.length; i++){
-  //   // log.info('mdc{} update responseMakers: {}', [mdcAddress.toHexString(), responseMakers[i].toString()])
-  //   responseMakersBytes.push(Address.fromHexString(AddressFmtPadZero(responseMakers[i].toHexString())) as Bytes)
-  // }
-  // mdcStoreResponseMaker(mdc, responseMakersBytes, event)
   let responseMakersArray = new Array<string>()
   for(let i = 0; i < responseMakers.length; i++){
     responseMakersArray.push(AddressFmtPadZero(responseMakers[i].toHexString()))
   }
+
   mdcStoreResponseMaker(mdc, responseMakersArray, event)
   mdc.save()
 }

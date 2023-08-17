@@ -157,7 +157,7 @@ describe("Describe check MDC rule snaptShot", () => {
     // )
 
     assert.fieldEquals(
-      "EbcsUpdated",
+      "ebcRel",
       ebcAddress.toLowerCase(),
       "mdcList",
       `[${mockMdcAddr.toLowerCase()}]`
@@ -193,7 +193,7 @@ describe("Describe check MDC rule snaptShot", () => {
 
     // check EBC relation
     assert.fieldEquals(
-      "EbcsUpdated",
+      "ebcRel",
       ebcAddress.toLowerCase(), // this id depends on the transaction input EBC data field
       "rulesList",
       `[${ruleSnapshotId}]`

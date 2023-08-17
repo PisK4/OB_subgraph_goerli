@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xA709742c7787544Dc19E05cc82c6D5e5cf80C42D"
       abi: MDCFactory
-      startBlock: 9526800
+      startBlock: 9526600
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -28,7 +28,7 @@ dataSources:
     source:
       address: "0xC7D9e808Cd42d42d7A7B6A6f84AA9754Fc18B6A5"
       abi: ORManager
-      startBlock: 9526800
+      startBlock: 9526600
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
