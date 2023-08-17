@@ -13,6 +13,9 @@ import {
     ValueKind
 } from '@graphprotocol/graph-ts'
 
+export const tupleprefix = "0x0000000000000000000000000000000000000000000000000000000000000020"
+
+
 export function entityConcatID(
     entity: string[],
     id: string
@@ -39,7 +42,6 @@ export function createBindID(
     return id
 }
 
-
 export function encode(values: Array<ethereum.Value>): Bytes {
     const tuple = changetype<ethereum.Tuple>(new ArrayBuffer(32 * values.length));
     for (let i = 0; i < values.length; i++) {
@@ -58,3 +60,64 @@ export function createHashID(ids: Array<string>): string {
     return key.toHexString();
 }
 
+export function createEventID(
+    event: ethereum.Event
+): string {
+    return (
+        event.transaction.hash.toHexString() +
+        "-" +
+        event.logIndex.toString()
+    );
+}
+
+export function getFunctionSelector(data: Bytes): Bytes {
+    let _data = data.toHexString().slice(2, 10);
+    // log.debug("selector: {}", [_data])
+    return Bytes.fromHexString(_data);
+}
+
+export function removeFunctionSelector(data: Bytes): Bytes {
+    let _data = data.toHexString().slice(10, data.length);
+    return Bytes.fromHexString(_data);
+}
+
+export function inputdataPrefix(data: Bytes): Bytes {
+    const dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
+    const Prefix = ByteArray.fromHexString(tupleprefix);
+    const functionInputAsTuple = new Uint8Array(
+        Prefix.length + dataWithoutSelector.length
+    );
+    functionInputAsTuple.set(Prefix, 0);
+    functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
+    if (functionInputAsTuple.length < 32) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
+    return tupleInputBytes
+}
+
+export function decodeInputData(data: Bytes, types: string): ethereum.Tuple {
+    const tupleInputBytes = inputdataPrefix(data)
+    const decoded = ethereum.decode(
+        types,
+        tupleInputBytes
+    ) as ethereum.Value;
+    if (!decoded) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    let tuple = decoded.toTuple();
+    return tuple
+}
+
+export function decodeInputDataNoPrefix(data: Bytes, types: string): ethereum.Tuple {
+    // const tupleInputBytes = inputdataPrefix(data)
+    const decoded = ethereum.decode(
+        types,
+        data
+    ) as ethereum.Value;
+    if (!decoded) {
+        log.error("Failed to decode transaction input data", ["error"])
+    }
+    let tuple = decoded.toTuple();
+    return tuple
+}

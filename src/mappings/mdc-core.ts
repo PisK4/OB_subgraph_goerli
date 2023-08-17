@@ -19,7 +19,6 @@ import {
     getMDCFactory,
     getMDCEntity,
     getONEBytes,
-    tupleprefix,
     updateRulesRootMode,
     isProduction,
     ebcSave,
@@ -29,7 +28,6 @@ import {
     ebcManagerUpdate,
     AddressFmtPadZero,
     getChainInfoEntity,
-    getFunctionSelector,
     ChainInfoUpdatedMode,
     compareChainInfoUpdatedSelector,
     parseChainInfoUpdatedInputData,
@@ -45,7 +43,9 @@ import {
     mdcStoreRuleSnapshot,
     getEBCEntityNew,
     getEBCSnapshotEntity,
-    getChainIdSnapshotEntity
+    getChainIdSnapshotEntity,
+    decodeEnabletime,
+    func_updateColumnArraySelector
 } from "./helpers"
 import { 
     FactoryManger
@@ -56,9 +56,11 @@ import {
   mockMdcAddr, 
   funcETHRootMockInput2,
   functionUpdateChainSpvsMockinput,
-  functionRegisterChainMockinput
+  functionRegisterChainMockinput,
+  functionupdateColumnArrayMockinput
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
+import { getFunctionSelector } from "./utils";
 
 
 
@@ -71,20 +73,17 @@ export function handleupdateRulesRootEvent(
 ): void{
       const _mdcAddress = event.address.toHexString()
       const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
-      let updateRulesRootEntity = isProduction ? 
-      parseTransactionInputData(event.transaction.input, mdcAddress) :
-      parseTransactionInputData(Bytes.fromHexString(funcERC20RootMockInput) as Bytes, mdcAddress)
-      
+      const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(funcERC20RootMockInput) as Bytes
+      const updateRulesRootEntity = parseTransactionInputData(inputData, mdcAddress)      
       const ebcAddress = updateRulesRootEntity.ebcAddress
-      // log.info('ready to update, mdcAddress: {}, ebcAddress: {}', [mdcAddress, ebcAddress])
-      let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event) // # for production
+      let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event)
       let factoryAddress = Bytes.fromHexString(mdc.factory._id)
-      // log.info('mdcAddress: {}, ebcAddress: {}, factoryAddress{}', [mdcAddress, ebcAddress, factoryAddress.toHexString()])
       let factory = FactoryManger.load(factoryAddress.toHexString())
 
-      log.info('inputdata decode: ebc: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
+      log.info('inputdata decode: ebc: {}, enableTime: {}, root: {}, version: {}, sourceChainIds:{}, pledgeAmounts: {}, tokenAddress :{}',
       [
         ebcAddress,
+        updateRulesRootEntity.enableTimestamp.toString(),
         updateRulesRootEntity.root,
         updateRulesRootEntity.version.toString(),
         updateRulesRootEntity.sourceChainIds.toString(),
@@ -93,11 +92,7 @@ export function handleupdateRulesRootEvent(
       ])
       
       if(ebcAddress != null){
-        // let ebc = getEBCEntity(mdc, Address.fromString(ebcAddress), event)
         const ebcEntity = getEBCEntityNew(ebcAddress, event)
-    
-        // save ebcs ruletype
-        // if(updateRulesRootEntity.rscType != null){
         mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
         ebcSave(ebcEntity, mdc)
         ebcEntity.save()
@@ -118,39 +113,33 @@ export function handleColumnArrayUpdatedEvent (
 ): void{
     const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
     let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
+    const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(functionupdateColumnArrayMockinput) as Bytes
+    const enableTimestamp = decodeEnabletime(inputData, func_updateColumnArraySelector)
     
     // process dealers
     let uniqueDealers = removeDuplicates(dealers)
-    // let dealersBytes = new Array<Bytes>()
-    // for(let i = 0; i < uniqueDealers.length; i++){
-    //     dealersBytes.push(Address.fromHexString(uniqueDealers[i].toHexString()) as Bytes)
-    // }
     let dealerArray = new Array<string>()
     for(let i = 0; i < uniqueDealers.length; i++){
       dealerArray.push(uniqueDealers[i].toHexString())
     }
     const dealerSnapshot = getdealerSnapshotEntity(mdc, event)
-    mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealerArray, event)
+    mdcStoreDealerNewMapping(mdc, dealerSnapshot, dealerArray, event, enableTimestamp)
     dealerSnapshot.save()
 
     // process chainIds
     let uniqueChainIds = removeDuplicatesBigInt(chainIds)
     const chainIdSnapshot = getChainIdSnapshotEntity(mdc, event)
-    mdcStoreChainIdNewMapping(mdc, chainIdSnapshot, uniqueChainIds, event)
+    mdcStoreChainIdNewMapping(mdc, chainIdSnapshot, uniqueChainIds, event, enableTimestamp)
     chainIdSnapshot.save()
 
     // process ebcs
     let uniqueEbcs = removeDuplicates(ebcs)
-    // let ebcsBytes = new Array<Bytes>()
-    // for(let i = 0; i < uniqueEbcs.length; i++){
-    //     ebcsBytes.push(Address.fromHexString(uniqueEbcs[i].toHexString()) as Bytes)
-    // }
     let ebcsArray = new Array<string>()
     for(let i = 0; i < uniqueEbcs.length; i++){
       ebcsArray.push(uniqueEbcs[i].toHexString())
     }
     const ebcSnapshot = getEBCSnapshotEntity(mdc, event)
-    mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsArray, event)
+    mdcStoreEBCNewMapping(mdc, ebcSnapshot, ebcsArray, event, enableTimestamp)
     ebcSnapshot.save()
 
     // process ColumnArray

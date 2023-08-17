@@ -1395,6 +1395,23 @@ export class ebcMapping extends Entity {
     }
   }
 
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get latestUpdateBlockNumber(): BigInt | null {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1444,6 +1461,177 @@ export class ebcMapping extends Entity {
     } else {
       this.set("latestUpdateHash", Value.fromString(<string>value));
     }
+  }
+
+  get mdcmapping(): MDCMappingLoader {
+    return new MDCMappingLoader(
+      "ebcMapping",
+      this.get("id")!.toString(),
+      "mdcmapping"
+    );
+  }
+}
+
+export class ebcMappingSnapshot extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ebcMappingSnapshot entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ebcMappingSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("ebcMappingSnapshot", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ebcMappingSnapshot | null {
+    return changetype<ebcMappingSnapshot | null>(
+      store.get_in_block("ebcMappingSnapshot", id)
+    );
+  }
+
+  static load(id: string): ebcMappingSnapshot | null {
+    return changetype<ebcMappingSnapshot | null>(
+      store.get("ebcMappingSnapshot", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get ebcAddr(): string {
+    let value = this.get("ebcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ebcAddr(value: string) {
+    this.set("ebcAddr", Value.fromString(value));
+  }
+
+  get ebcIndex(): BigInt | null {
+    let value = this.get("ebcIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set ebcIndex(value: BigInt | null) {
+    if (!value) {
+      this.unset("ebcIndex");
+    } else {
+      this.set("ebcIndex", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get ebcSnapshot(): ebcSnapshotLoader {
+    return new ebcSnapshotLoader(
+      "ebcMappingSnapshot",
+      this.get("id")!.toString(),
+      "ebcSnapshot"
+    );
   }
 }
 
@@ -1579,8 +1767,8 @@ export class dealerSnapshot extends Entity {
     this.set("dealerList", Value.fromStringArray(value));
   }
 
-  get dealerMapping(): Array<string> {
-    let value = this.get("dealerMapping");
+  get dealerMappingSnapshot(): Array<string> {
+    let value = this.get("dealerMappingSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1588,8 +1776,8 @@ export class dealerSnapshot extends Entity {
     }
   }
 
-  set dealerMapping(value: Array<string>) {
-    this.set("dealerMapping", Value.fromStringArray(value));
+  set dealerMappingSnapshot(value: Array<string>) {
+    this.set("dealerMappingSnapshot", Value.fromStringArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -1702,8 +1890,8 @@ export class ebcSnapshot extends Entity {
     this.set("ebcList", Value.fromStringArray(value));
   }
 
-  get ebcMapping(): Array<string> {
-    let value = this.get("ebcMapping");
+  get ebcMappingSnapshot(): Array<string> {
+    let value = this.get("ebcMappingSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1711,8 +1899,8 @@ export class ebcSnapshot extends Entity {
     }
   }
 
-  set ebcMapping(value: Array<string>) {
-    this.set("ebcMapping", Value.fromStringArray(value));
+  set ebcMappingSnapshot(value: Array<string>) {
+    this.set("ebcMappingSnapshot", Value.fromStringArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -1825,8 +2013,8 @@ export class chainIdSnapshot extends Entity {
     this.set("chainIdList", Value.fromBigIntArray(value));
   }
 
-  get chainIdMapping(): Array<string> {
-    let value = this.get("chainIdMapping");
+  get chainIdMappingSnapshot(): Array<string> {
+    let value = this.get("chainIdMappingSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1834,8 +2022,8 @@ export class chainIdSnapshot extends Entity {
     }
   }
 
-  set chainIdMapping(value: Array<string>) {
-    this.set("chainIdMapping", Value.fromStringArray(value));
+  set chainIdMappingSnapshot(value: Array<string>) {
+    this.set("chainIdMappingSnapshot", Value.fromStringArray(value));
   }
 
   get mdc(): MDCLoader {
@@ -1978,6 +2166,189 @@ export class DealerMapping extends Entity {
     }
   }
 
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get MDCMapping(): MDCMappingLoader {
+    return new MDCMappingLoader(
+      "DealerMapping",
+      this.get("id")!.toString(),
+      "MDCMapping"
+    );
+  }
+}
+
+export class DealerMappingSnapshot extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save DealerMappingSnapshot entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type DealerMappingSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("DealerMappingSnapshot", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): DealerMappingSnapshot | null {
+    return changetype<DealerMappingSnapshot | null>(
+      store.get_in_block("DealerMappingSnapshot", id)
+    );
+  }
+
+  static load(id: string): DealerMappingSnapshot | null {
+    return changetype<DealerMappingSnapshot | null>(
+      store.get("DealerMappingSnapshot", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get dealerAddr(): string {
+    let value = this.get("dealerAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set dealerAddr(value: string) {
+    this.set("dealerAddr", Value.fromString(value));
+  }
+
+  get dealerIndex(): BigInt | null {
+    let value = this.get("dealerIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set dealerIndex(value: BigInt | null) {
+    if (!value) {
+      this.unset("dealerIndex");
+    } else {
+      this.set("dealerIndex", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get latestUpdateBlockNumber(): BigInt | null {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2031,17 +2402,9 @@ export class DealerMapping extends Entity {
 
   get dealerSnapshot(): dealerSnapshotLoader {
     return new dealerSnapshotLoader(
-      "DealerMapping",
+      "DealerMappingSnapshot",
       this.get("id")!.toString(),
       "dealerSnapshot"
-    );
-  }
-
-  get MDCMapping(): MDCMappingLoader {
-    return new MDCMappingLoader(
-      "DealerMapping",
-      this.get("id")!.toString(),
-      "MDCMapping"
     );
   }
 }
@@ -2253,6 +2616,23 @@ export class chainIdMapping extends Entity {
     }
   }
 
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get latestUpdateBlockNumber(): BigInt | null {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -2309,6 +2689,172 @@ export class chainIdMapping extends Entity {
       "chainIdMapping",
       this.get("id")!.toString(),
       "MDCBindChainId"
+    );
+  }
+}
+
+export class chainIdMappingSnapshot extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save chainIdMappingSnapshot entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type chainIdMappingSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("chainIdMappingSnapshot", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): chainIdMappingSnapshot | null {
+    return changetype<chainIdMappingSnapshot | null>(
+      store.get_in_block("chainIdMappingSnapshot", id)
+    );
+  }
+
+  static load(id: string): chainIdMappingSnapshot | null {
+    return changetype<chainIdMappingSnapshot | null>(
+      store.get("chainIdMappingSnapshot", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get chainId(): BigInt {
+    let value = this.get("chainId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chainId(value: BigInt) {
+    this.set("chainId", Value.fromBigInt(value));
+  }
+
+  get chainIdIndex(): BigInt | null {
+    let value = this.get("chainIdIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chainIdIndex(value: BigInt | null) {
+    if (!value) {
+      this.unset("chainIdIndex");
+    } else {
+      this.set("chainIdIndex", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get chainIdSnapshot(): chainIdSnapshotLoader {
+    return new chainIdSnapshotLoader(
+      "chainIdMappingSnapshot",
+      this.get("id")!.toString(),
+      "chainIdSnapshot"
     );
   }
 }
@@ -4776,24 +5322,6 @@ export class responseMakerLoader extends Entity {
   }
 }
 
-export class dealerSnapshotLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): dealerSnapshot[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<dealerSnapshot[]>(value);
-  }
-}
-
 export class MDCMappingLoader extends Entity {
   _entity: string;
   _field: string;
@@ -4812,6 +5340,42 @@ export class MDCMappingLoader extends Entity {
   }
 }
 
+export class ebcSnapshotLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ebcSnapshot[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ebcSnapshot[]>(value);
+  }
+}
+
+export class dealerSnapshotLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): dealerSnapshot[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<dealerSnapshot[]>(value);
+  }
+}
+
 export class MDCBindChainIdLoader extends Entity {
   _entity: string;
   _field: string;
@@ -4827,6 +5391,24 @@ export class MDCBindChainIdLoader extends Entity {
   load(): MDCBindChainId[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<MDCBindChainId[]>(value);
+  }
+}
+
+export class chainIdSnapshotLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): chainIdSnapshot[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<chainIdSnapshot[]>(value);
   }
 }
 

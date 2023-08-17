@@ -33,16 +33,20 @@ import {
     ebcSnapshot,
     chainIdSnapshot,
     responseMaker,
-    FactoryManger
+    FactoryManger,
+    ebcMappingSnapshot,
+    DealerMappingSnapshot,
+    chainIdMappingSnapshot
 } from '../types/schema'
 import { 
     MDC as mdcContract
 } from "../types/templates/MDC/MDC"
-import { createBindID, createHashID, entityConcatID } from './utils'
+import { createBindID, createEventID, createHashID, decodeInputData, decodeInputDataNoPrefix, entityConcatID, getFunctionSelector, inputdataPrefix, removeFunctionSelector } from './utils'
 
 export const isProduction = true
-export const debugLog = true
-export const debugLogCreateRules = true
+export const debugLog = false
+export const debugLogCreateRules = false
+const debugLogMapping = true
 
 export const ZERO_BI = BigInt.fromI32(0)
 export const ONE_BI = BigInt.fromI32(1)
@@ -52,19 +56,21 @@ export const BI_18 = BigInt.fromI32(18)
 export const STRING_INVALID = 'invalid'
 export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
 export const ONE_NUM = 0xffffffff
-export const tupleprefix = "0x0000000000000000000000000000000000000000000000000000000000000020"
 export const ONE_BYTES = new Bytes(32);
 // function selectors
 export const func_updateRulesRoot =  "0x0a8f5190"
 export const func_updateRulesRootERC20 = "0x9a6781dc"
 export const func_registerChains ="0xba6051a5"
 export const func_updateChainSpvs = "0xf0373f91"
+// export const func_updateColumnArray = "0x8f5520d9"
+
 // function selectors for decode
 export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)[]"
 export const selectorSetting = `uint64,address,${RSCDataFmt},(bytes32,uint32),uint64[],uint256[]`
 export const func_updateRulesRootSelector = `(${selectorSetting})`
 export const func_updateRulesRootERC20Selector = `(${selectorSetting},address)`
 export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
+export const func_updateColumnArraySelector = "(uint64,address[],address[],uint64[])"
 
 
 export enum updateRulesRootMode {
@@ -425,7 +431,7 @@ export function getdealerSnapshotEntity(
         log.info('create new dealerSnapshot, id: {}', [id])
         dealer = new dealerSnapshot(id)
         dealer.dealerList = []
-        dealer.dealerMapping = []
+        dealer.dealerMappingSnapshot = []
         mdc.dealerSnapshot = mdc.dealerSnapshot.concat([dealer.id])
     }
     dealer.latestUpdateBlockNumber = event.block.number
@@ -444,7 +450,7 @@ export function getEBCSnapshotEntity(
         log.info('create new ebcSnapshot, id: {}', [id])
         ebc = new ebcSnapshot(id)
         ebc.ebcList = []
-        ebc.ebcMapping = []
+        ebc.ebcMappingSnapshot = []
         mdc.ebcSnapshot = mdc.ebcSnapshot.concat([ebc.id])
     }
     ebc.latestUpdateBlockNumber = event.block.number
@@ -463,7 +469,7 @@ export function getChainIdSnapshotEntity(
         log.info('create new chainIdSnapshot, id: {}', [id])
         chainId = new chainIdSnapshot(id)
         chainId.chainIdList = []
-        chainId.chainIdMapping = []
+        chainId.chainIdMappingSnapshot = []
         mdc.chainIdSnapshot = mdc.chainIdSnapshot.concat([chainId.id])
     }
     chainId.latestUpdateBlockNumber = event.block.number
@@ -492,20 +498,6 @@ export function getMDCBindChainIdEntity(
 function getMDCLatestDealers(
     mdc: MDC
 ): string[]{
-    // let dealer = new Array<Bytes>()
-    // let mdcMapping = MDCMapping.load(mdc.id)
-    // if(mdcMapping != null){
-    //     log.info("MDC: {} mapping dealerCnt: {}", [mdc.id, mdcMapping.dealerMapping.length.toString()])
-    //     for(let i = 0; i < mdcMapping.dealerMapping.length; i++){
-    //         let _dealerMapping = DealerMapping.load(mdcMapping.dealerMapping[i])
-    //         if (_dealerMapping != null) {
-    //             if (_dealerMapping.dealerAddr.length > 0){
-    //                 dealer = dealer.concat([_dealerMapping.dealerAddr])
-    //             }
-    //         }
-    //     }
-    // }
-    // return dealer
     let dealer = new Array<string>()
     let mdcMapping = MDCMapping.load(mdc.id)
     if(mdcMapping != null){
@@ -600,7 +592,8 @@ export function mdcStoreDealerNewMapping(
     mdc: MDC,
     _MDCBindDealer: dealerSnapshot,
     newDealers: string[],
-    event: ethereum.Event
+    event: ethereum.Event,
+    enableTimestamp: BigInt
 ): void{
     let mdcMapping = getMDCMappingEntity(mdc, event)
     let latesMappingTmp = [] as string[]
@@ -608,7 +601,7 @@ export function mdcStoreDealerNewMapping(
     removeMDCFromDealer(mdc, event)
     mdcMapping.dealerMapping = []
     _MDCBindDealer.dealerList = newDealers
-    _MDCBindDealer.dealerMapping = []
+    _MDCBindDealer.dealerMappingSnapshot = []
     for(let mappingIndex = 0 ; mappingIndex < newDealers.length; mappingIndex++){
         // const latestMappingId = mdc.id + "-" + newDealers[mappingIndex].toHexString()
         const latestMappingId = createBindID([mdc.id, newDealers[mappingIndex]])
@@ -617,38 +610,33 @@ export function mdcStoreDealerNewMapping(
             _dealerMapping = new DealerMapping(latestMappingId)
             _dealerMapping.owner = mdc.owner
             _dealerMapping.dealerAddr = STRING_INVALID
-            
-            // mdcMapping.save()
         }
-        // const snapshotId = _MDCBindDealer.id + "-" + newDealers[mappingIndex].toHexString()
         const snapshotId = createBindID([_MDCBindDealer.id, newDealers[mappingIndex]])
-        let _MDCBindDealerSnapshot = DealerMapping.load(snapshotId)
+        let _MDCBindDealerSnapshot = DealerMappingSnapshot.load(snapshotId)
         if(_MDCBindDealerSnapshot == null){
-            _MDCBindDealerSnapshot = new DealerMapping(snapshotId)
+            _MDCBindDealerSnapshot = new DealerMappingSnapshot(snapshotId)
             _MDCBindDealerSnapshot.owner = mdc.owner
         }
 
         log.info('update dealerMapping, id: {}', [latestMappingId])
+        log.info('update dealerMappingSnapshot, id: {}', [snapshotId])
         _MDCBindDealerSnapshot.dealerAddr = _dealerMapping.dealerAddr = newDealers[mappingIndex]
         _MDCBindDealerSnapshot.dealerIndex = _dealerMapping.dealerIndex = BigInt.fromI32(mappingIndex+1)
         _MDCBindDealerSnapshot.latestUpdateBlockNumber = _dealerMapping.latestUpdateBlockNumber = event.block.number
         _MDCBindDealerSnapshot.latestUpdateTimestamp =  _dealerMapping.latestUpdateTimestamp = event.block.timestamp
         _MDCBindDealerSnapshot.latestUpdateHash = _dealerMapping.latestUpdateHash = event.transaction.hash.toHexString()
-        // _MDCBindDealer.dealerMapping = _MDCBindDealer.dealerMapping.concat([_MDCBindDealerSnapshot.id])
-        // mdcMapping.dealerMapping = mdcMapping.dealerMapping.concat([latestMappingId])
+        _MDCBindDealerSnapshot.enableTimestamp = _dealerMapping.enableTimestamp = enableTimestamp
         snapshotMappingTmp = snapshotMappingTmp.concat([snapshotId])
         latesMappingTmp = latesMappingTmp.concat([latestMappingId])
         
         _dealerMapping.save()
         _MDCBindDealerSnapshot.save()
         let _dealer = getDealerEntity(newDealers[mappingIndex], event)
-        // saveMDC2Dealer(_dealer, mdc.id)
-        // entityConcatID(_dealer.mdcs, mdc.id)
         _dealer.mdcs = entityConcatID(_dealer.mdcs, mdc.id)
         _dealer.save()
     }
     mdcMapping.dealerMapping = latesMappingTmp
-    _MDCBindDealer.dealerMapping = snapshotMappingTmp
+    _MDCBindDealer.dealerMappingSnapshot = snapshotMappingTmp
     mdcMapping.save()
 }
 
@@ -699,117 +687,59 @@ function getEBCMappingEntity(
     return _ebcMapping as ebcMapping
 }
 
+function getebcMappingSnapshotEntity(
+    id: string,
+    mdc: MDC,
+    event: ethereum.Event,
+): ebcMappingSnapshot {
+    let _ebcMapping = ebcMappingSnapshot.load(id)
+    if(_ebcMapping == null){
+        _ebcMapping = new ebcMappingSnapshot(id)
+        _ebcMapping.ebcAddr = STRING_INVALID
+        _ebcMapping.owner = mdc.owner
+    }
+    return _ebcMapping as ebcMappingSnapshot
+}
 
 export function mdcStoreEBCNewMapping(
     mdc: MDC,
     ebcSnapshot: ebcSnapshot,
     newEBCs: string[],
-    event: ethereum.Event
-): void{
+    event: ethereum.Event,
+    enableTimestamp: BigInt
+): void {
     let mdcMapping = getMDCMappingEntity(mdc, event)
     let latesMappingTmp = [] as string[]
     let snapshotMappingTmp = [] as string[]
     removeMDCFromEBC(mdc, event)
     mdcMapping.ebcMapping = []
     ebcSnapshot.ebcList = newEBCs
-    ebcSnapshot.ebcMapping = []
+    ebcSnapshot.ebcMappingSnapshot = []
     for(let mappingIndex = 0 ; mappingIndex < newEBCs.length; mappingIndex++){
-        // const latestMappingId = mdc.id + "-" + newEBCs[mappingIndex].toHexString()
-        
-        // let _ebcMapping = ebcMapping.load(latestMappingId)
-        // if(_ebcMapping == null){
-        //     _ebcMapping = new ebcMapping(latestMappingId)
-        //     _ebcMapping.ebcAddr = new Bytes(0)
-            
-        //     // mdcMapping.save()
-        // }
         const latestMappingId = createBindID([mdc.id, newEBCs[mappingIndex]])
         let _ebcMapping = getEBCMappingEntity(latestMappingId, mdc, event)
 
-        
-        // const snapshotId = ebcSnapshot.id + "-" + newEBCs[mappingIndex].toHexString()
-        // let _ebcSnapshot = ebcMapping.load(snapshotId)
-        // if(_ebcSnapshot == null){
-        //     _ebcSnapshot = new ebcMapping(snapshotId)
-        // }
-        const snapshotId = createBindID([ebcSnapshot.id, newEBCs[mappingIndex]])
-        let _ebcSnapshot = getEBCMappingEntity(snapshotId, mdc, event)
+        const snapshotId = createHashID([ebcSnapshot.id, newEBCs[mappingIndex]])
+        let _ebcSnapshot = getebcMappingSnapshotEntity(snapshotId, mdc, event)
 
         log.info('update ebcMapping, id: {}', [latestMappingId])
         _ebcSnapshot.ebcAddr = _ebcMapping.ebcAddr = newEBCs[mappingIndex]
         _ebcSnapshot.ebcIndex = _ebcMapping.ebcIndex = BigInt.fromI32(mappingIndex+1)
-        // _ebcSnapshot.latestUpdateBlockNumber = _ebcMapping.latestUpdateBlockNumber = event.block.number
-        // _ebcSnapshot.latestUpdateTimestamp =  _ebcMapping.latestUpdateTimestamp = event.block.timestamp
-        // _ebcSnapshot.latestUpdateHash = _ebcMapping.latestUpdateHash = event.transaction.hash
-        // _ebcSnapshot.ebcMapping = _ebcMapping.ebcMapping.concat([_ebcSnapshot.id])
-        // mdcMapping.ebcMapping = mdcMapping.ebcMapping.concat([latestMappingId])
+        _ebcSnapshot.enableTimestamp = _ebcMapping.enableTimestamp = enableTimestamp
         snapshotMappingTmp = snapshotMappingTmp.concat([snapshotId])
         latesMappingTmp = latesMappingTmp.concat([latestMappingId])
         
         _ebcMapping.save()
         _ebcSnapshot.save()
         let _ebc = getEBCEntityNew(newEBCs[mappingIndex], event)
-        // saveMDC2EBC(_ebc, mdc)
-        // entityConcatID(_ebc.mdcList, mdc.id)
         _ebc.mdcList = entityConcatID(_ebc.mdcList, mdc.id)
         _ebc.save()
         mdc.save()
     }
     mdcMapping.ebcMapping = latesMappingTmp
-    ebcSnapshot.ebcMapping = snapshotMappingTmp
+    ebcSnapshot.ebcMappingSnapshot = snapshotMappingTmp
     mdcMapping.save()
 }
-
-// export function mdcStoreChainIdNewMapping(
-//     mdc: MDC,
-//     chainIdSnapshot: chainIdSnapshot,
-//     newChainIds: BigInt[],
-//     event: ethereum.Event
-// ): void{
-//     let mdcMapping = getMDCMappingEntity(mdc, event)
-//     let latesMappingTmp = [] as string[]
-//     let snapshotMappingTmp = [] as string[]
-//     mdcMapping.chainIdMapping = []
-//     chainIdSnapshot.chainIdList = newChainIds
-//     chainIdSnapshot.chainIdMapping = []
-//     for(let mappingIndex = 0 ; mappingIndex < newChainIds.length; mappingIndex++){
-//         const latestMappingId = mdc.id + "-" + newChainIds[mappingIndex].toString()
-
-//         let _chainIdMapping = chainIdMapping.load(latestMappingId)
-//         if(_chainIdMapping == null){
-//             _chainIdMapping = new chainIdMapping(latestMappingId)
-//             _chainIdMapping.chainId = new BigInt(0)
-
-//             // mdcMapping.save()
-//         }
-//         const snapshotId = chainIdSnapshot.id + "-" + newChainIds[mappingIndex].toString()
-//         let _chainIdSnapshot = chainIdMapping.load(snapshotId)
-//         if(_chainIdSnapshot == null){
-//             _chainIdSnapshot = new chainIdMapping(snapshotId)
-//         }
-
-//         log.info('update chainIdMapping, id: {}', [latestMappingId])
-//         _chainIdSnapshot.chainId = _chainIdMapping.chainId = newChainIds[mappingIndex]
-//         _chainIdSnapshot.chainIdIndex = _chainIdMapping.chainIdIndex = BigInt.fromI32(mappingIndex+1)
-//         _chainIdSnapshot.latestUpdateBlockNumber = _chainIdMapping.latestUpdateBlockNumber = event.block.number
-//         _chainIdSnapshot.latestUpdateTimestamp =  _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
-//         _chainIdSnapshot.latestUpdateHash = _chainIdMapping.latestUpdateHash = event.transaction.hash
-//         // _chainIdSnapshot.chainIdMapping = _chainIdMapping.chainIdMapping.concat([_chainIdSnapshot.id])
-//         // mdcMapping.chainIdMapping = mdcMapping.chainIdMapping.concat([latestMappingId])
-//         snapshotMappingTmp = snapshotMappingTmp.concat([snapshotId])
-//         latesMappingTmp = latesMappingTmp.concat([latestMappingId])
-        
-//         _chainIdMapping.save()
-//         _chainIdSnapshot.save()
-//         // let _chainId = getChainInfoEntity(event, newChainIds[mappingIndex])
-//         // saveMDC2ChainId(_chainId, mdc)
-//         // _chainId.save()
-//         mdc.save()
-//     }
-//     mdcMapping.chainIdMapping = latesMappingTmp
-//     chainIdSnapshot.chainIdMapping = snapshotMappingTmp
-//     mdcMapping.save()
-// }
 
 function getchainIdMappingEntity(
     id: string,
@@ -828,32 +758,50 @@ function getchainIdMappingEntity(
     return _chainIdMapping as chainIdMapping
 }
 
+function getchainIdMappingSnapshotEntity(
+    id: string,
+    mdc: MDC,
+    event: ethereum.Event
+): chainIdMappingSnapshot{
+    let _chainIdMapping = chainIdMappingSnapshot.load(id)
+    if(_chainIdMapping == null){
+        _chainIdMapping = new chainIdMappingSnapshot(id)
+        _chainIdMapping.chainId = new BigInt(0)
+        _chainIdMapping.owner = mdc.owner
+    }
+    _chainIdMapping.latestUpdateBlockNumber = event.block.number
+    _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
+    _chainIdMapping.latestUpdateHash = event.transaction.hash.toHexString()    
+    return _chainIdMapping as chainIdMappingSnapshot
+}
+
 export function mdcStoreChainIdNewMapping(
     mdc: MDC,
     chainIdSnapshot: chainIdSnapshot,
     newChainIds: BigInt[],
-    event: ethereum.Event
+    event: ethereum.Event,
+    enableTimestamp: BigInt
 ): void {
     let mdcMapping = getMDCMappingEntity(mdc, event);
     let latestMappingIds: string[] = [];
     let snapshotMappingIds: string[] = [];
     mdcMapping.chainIdMapping = [];
     chainIdSnapshot.chainIdList = newChainIds;
-    chainIdSnapshot.chainIdMapping = [];
+    chainIdSnapshot.chainIdMappingSnapshot = [];
 
     for (let i = 0; i < newChainIds.length; i++) {
         const chainId = newChainIds[i];
         const latestMappingId = createBindID([mdc.id, chainId.toString()])
         const snapshotMappingId = createBindID([chainIdSnapshot.id, chainId.toString()])
         let latestMapping = getchainIdMappingEntity(latestMappingId, mdc, event)
-        let snapshotMapping = getchainIdMappingEntity(snapshotMappingId, mdc, event)
+        let snapshotMapping = getchainIdMappingSnapshotEntity(snapshotMappingId, mdc, event)
 
         latestMapping.chainId = snapshotMapping.chainId = chainId;
         latestMapping.chainIdIndex = snapshotMapping.chainIdIndex = BigInt.fromI32(i + 1);
         latestMapping.latestUpdateBlockNumber = snapshotMapping.latestUpdateBlockNumber = event.block.number;
         latestMapping.latestUpdateTimestamp = snapshotMapping.latestUpdateTimestamp = event.block.timestamp;
         latestMapping.latestUpdateHash = snapshotMapping.latestUpdateHash = event.transaction.hash.toHexString();
-
+        latestMapping.enableTimestamp = snapshotMapping.enableTimestamp = enableTimestamp;
         latestMapping.save();
         snapshotMapping.save();
 
@@ -862,7 +810,7 @@ export function mdcStoreChainIdNewMapping(
     }
 
     mdcMapping.chainIdMapping = latestMappingIds;
-    chainIdSnapshot.chainIdMapping = snapshotMappingIds;
+    chainIdSnapshot.chainIdMappingSnapshot = snapshotMappingIds;
 
     mdcMapping.save();
 }
@@ -886,32 +834,6 @@ export function getDealerEntity(
     }
     return _dealer as Dealer
 }
-
-// export function mdcStoreChainIdNewMapping(
-//     mdc: MDC,
-//     _MDCBindChainId: MDCBindChainId,
-//     newChainIds: BigInt[],
-//     event: ethereum.Event
-// ): void{
-//     _MDCBindChainId.chainIdList = newChainIds
-//     _MDCBindChainId.chainIdMapping = []
-//     for(let mappingIndex = 0 ; mappingIndex < newChainIds.length; mappingIndex++){
-//         const id = mdc.id + "-" + newChainIds[mappingIndex].toString()
-//         let _chainIdMapping = chainIdMapping.load(id)
-//         if(_chainIdMapping == null){
-//             _chainIdMapping = new chainIdMapping(id)
-//             _chainIdMapping.chainId = new BigInt(0)
-//         }
-//         log.info('update chainIdMapping, id: {}', [id])
-//         _chainIdMapping.chainId = newChainIds[mappingIndex]
-//         _chainIdMapping.chainIdIndex = BigInt.fromI32(mappingIndex+1)
-//         _chainIdMapping.latestUpdateBlockNumber = event.block.number
-//         _chainIdMapping.latestUpdateTimestamp = event.block.timestamp
-//         _chainIdMapping.latestUpdateHash = event.transaction.hash
-//         _MDCBindChainId.chainIdMapping = _MDCBindChainId.chainIdMapping.concat([_chainIdMapping.id])
-//         _chainIdMapping.save()
-//     }
-// }
 
 function getResponseMakerEntity(
     responseMakerID: string,
@@ -940,8 +862,6 @@ export function mdcStoreResponseMaker(
     responseMakersArray: string[],
     event: ethereum.Event
 ): void{
-    // id = txhash + logIndex
-    // let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
     const id = createEventID(event)
     let responseMakers = ResponseMakersSnapshot.load(id)
     if(responseMakers == null){
@@ -1080,6 +1000,7 @@ function saveSPV2MDC(
 }
 
 export class rscRules {
+    enableTimestamp: BigInt;
     ebcAddress: string;
     rsc: Array<ethereum.Value>;
     rscType : rscRuleType[];
@@ -1090,6 +1011,7 @@ export class rscRules {
     tokenAddr: string;
     selector: updateRulesRootMode;
     constructor(
+        enableTimestamp: BigInt,
         mdcAddress: string,
         ebcAddress: string,
         rsc: Array<ethereum.Value>,
@@ -1100,6 +1022,7 @@ export class rscRules {
         tokenAddress: string,
         selector: updateRulesRootMode 
     ) {
+        this.enableTimestamp = enableTimestamp;
         this.ebcAddress = ebcAddress;
         this.rsc = rsc;
         this.rscType = parseRSC(rsc, mdcAddress, ebcAddress, version, selector);
@@ -1360,35 +1283,21 @@ function parseRSC(
     return rscRules;
 }
 
-export function inputdataPrefix(data: Bytes): Bytes {
-    const dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
-    const Prefix = ByteArray.fromHexString(tupleprefix);
-    const functionInputAsTuple = new Uint8Array(
-        Prefix.length + dataWithoutSelector.length
-    );
-    functionInputAsTuple.set(Prefix, 0);
-    functionInputAsTuple.set(dataWithoutSelector, Prefix.length);
-    if (functionInputAsTuple.length < 32) {
-        log.error("Failed to decode transaction input data", ["error"])
-    }
-    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
-    return tupleInputBytes
-}
-
 
 export function parseChainInfoUpdatedInputData(
     data: Bytes,
     _chainInfoUpdated: ChainInfoUpdated
 ): void {
-    let dataUnderPrefix = inputdataPrefix(data)
-    const decoded = ethereum.decode(
-        func_updateChainSpvsSelector,
-        dataUnderPrefix
-    ) as ethereum.Value;
-    if (!decoded) {
-        log.error("Failed to decode transaction input data", ["error"])
-    }
-    let tuple = decoded.toTuple();
+    // let dataUnderPrefix = inputdataPrefix(data)
+    // const decoded = ethereum.decode(
+    //     func_updateChainSpvsSelector,
+    //     dataUnderPrefix
+    // ) as ethereum.Value;
+    // if (!decoded) {
+    //     log.error("Failed to decode transaction input data", ["error"])
+    // }
+    // let tuple = decoded.toTuple();
+    let tuple = decodeInputData(data, func_updateChainSpvsSelector)
 
     if(debugLog){
         log.debug("chainInfoUpdated kind[0]:{}, kind[1]:{}, kind[2]:{}", [
@@ -1493,24 +1402,10 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     let selectorofFunc = "0x000000"
     if(func == updateRulesRootMode.ETH) {
         selectorofFunc = func_updateRulesRootSelector
-        // log.debug("func:ETH {}", [func.toString()])
     }else if(func == updateRulesRootMode.ERC20) {
         selectorofFunc = func_updateRulesRootERC20Selector
-        // log.debug("func:ERC20 {}", [func.toString()])
     }
-    const tupleInputBytes = inputdataPrefix(data)
-    
-    if (tupleInputBytes.length < 32) {
-        log.error("Failed to decode transaction input data", ["error"])
-    }
-    let decoded = ethereum.decode(
-        selectorofFunc,
-        tupleInputBytes
-    ) as ethereum.Value;
-    if (!decoded) {
-        log.error("Failed to decode transaction input data", ["error"])
-    }
-    let tuple = decoded.toTuple();
+    let tuple = decodeInputData(data, selectorofFunc)
     if (debugLog){
         for(let i = 0; i< tuple.length; i++){
             log.debug("tuple[{}].kind:{}", [i.toString(), tuple[i].kind.toString()])
@@ -1518,8 +1413,7 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     }
 
     let rsc = new Array<ethereum.Value>()
-    // let rsc = new Array<BigInt>()
-    let enableTimestamp = STRING_INVALID
+    let enableTimestamp = BigInt.fromI32(0)
     let ebcAddress = STRING_INVALID
     let rootWithVersion = new ethereum.Tuple()
     let root = STRING_INVALID
@@ -1529,7 +1423,7 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     let tokenAddress = STRING_INVALID
 
     if(tuple[0].kind == ethereum.ValueKind.UINT) {
-        enableTimestamp = tuple[0].toBigInt().toString();
+        enableTimestamp = tuple[0].toBigInt()
     }
 
     if(tuple[1].kind == ethereum.ValueKind.ADDRESS) {
@@ -1576,6 +1470,7 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     }
 
     let updateRulesRootEntity = new rscRules(
+        enableTimestamp,
         mdcAddress,
         ebcAddress,
         rsc,
@@ -1663,13 +1558,15 @@ function getRulePaddingID(
 function updateLatestRules( 
     rsc: rscRuleType,
     event: ethereum.Event,
-    version: number,
+    rscRules: rscRules,
     mdc: MDC,
     ebc: EbcsUpdated,
     validateResult: boolean,
     ebcValidateResult: boolean,
     snapshot:ruleTypes
 ):void{
+    const version = rscRules.version;
+    const enableTimestamp = rscRules.enableTimestamp;
     let token0 = rsc.chain0Token;
     let token1 = rsc.chain1Token;
     if(rsc.selector === updateRulesRootMode.ETH){
@@ -1711,7 +1608,7 @@ function updateLatestRules(
         _rscRuleType.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
         _rscRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
         _rscRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
-        _rscRuleType.enableTimestamp = rsc.enableTimestamp;
+        _rscRuleType.enableTimestamp = enableTimestamp;
         _rscRuleType.ruleValidation = validateResult && ebcValidateResult;
         _rscRuleType.latestUpdateTimestamp = event.block.timestamp;
         _rscRuleType.latestUpdateBlockNumber = event.block.number;
@@ -1877,13 +1774,13 @@ export function mdcStoreRuleSnapshot(
             _rule.chain1ResponseTime = updateRulesRootEntity.rscType[i].chain1ResponseTime.toI32()
             _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
-            _rule.enableTimestamp = updateRulesRootEntity.rscType[i].enableTimestamp
+            _rule.enableTimestamp = updateRulesRootEntity.enableTimestamp
             _rule.ruleValidation = validateResult && EBCValidation
             _rule.save()
             updateLatestRules(
                 updateRulesRootEntity.rscType[i],
                 event,
-                updateRulesRootEntity.version,
+                updateRulesRootEntity,
                 mdc,
                 ebc,
                 validateResult,
@@ -1952,12 +1849,7 @@ export function removeDuplicatesBigInt(data: Array<BigInt>): Array<BigInt> {
     }
     return uniques;
 }
-  
-export function getFunctionSelector(data: Bytes): Bytes {
-    let _data = data.toHexString().slice(2, 10);
-    // log.debug("selector: {}", [_data])
-    return Bytes.fromHexString(_data);
-}
+
 
 export function compareUpdateRulesRootSelector(selector: Bytes): updateRulesRootMode {
     return selector == Bytes.fromHexString(func_updateRulesRoot) ? updateRulesRootMode.ETH : selector == Bytes.fromHexString(func_updateRulesRootERC20) ? updateRulesRootMode.ERC20 : updateRulesRootMode.INV
@@ -1967,14 +1859,19 @@ export function compareChainInfoUpdatedSelector(selector: Bytes): ChainInfoUpdat
     return selector == Bytes.fromHexString(func_registerChains) ? ChainInfoUpdatedMode.registerChains : selector == Bytes.fromHexString(func_updateChainSpvs) ? ChainInfoUpdatedMode.updateChainSpvs : ChainInfoUpdatedMode.INV
 }
 
-export function createEventID(
-    event: ethereum.Event
-): string {
-    return (
-        event.transaction.hash.toHexString() +
-        "-" +
-        event.logIndex.toString()
-    );
+export function decodeEnabletime(inputData: Bytes, type: string): BigInt {
+    let tuple = decodeInputData(inputData, type)
+    if (debugLogMapping){
+        for(let i = 0; i< tuple.length; i++){
+            log.debug("tuple[{}].kind:{}", [i.toString(), tuple[i].kind.toString()])
+        }
+    }
+
+    let enableTimestamp: BigInt = BigInt.fromI32(0)
+    if(tuple[0].kind == ethereum.ValueKind.UINT){
+        enableTimestamp = tuple[0].toBigInt()
+    }
+    return enableTimestamp
 }
 
 

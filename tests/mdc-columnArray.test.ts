@@ -169,7 +169,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     assert.fieldEquals(
       "dealerSnapshot",
       MDCBindDealerId,
-      "dealerMapping",
+      "dealerMappingSnapshot",
       "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
   })
@@ -247,7 +247,8 @@ describe("Describe ColumnArrayUpdated assertions", () => {
   })
 
   test("DealerMapping created and stored", () => {
-    assert.entityCount("DealerMapping", 8)
+    assert.entityCount("DealerMapping", 4)
+    assert.entityCount("DealerMappingSnapshot", 4)
 
     assert.fieldEquals(
       "DealerMapping",
@@ -258,13 +259,6 @@ describe("Describe ColumnArrayUpdated assertions", () => {
 
     assert.fieldEquals(
       "DealerMapping",
-      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
-      "dealerSnapshot",
-      "[]"
-    )
-
-    assert.fieldEquals(
-      "DealerMapping",
       "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4",
       "MDCMapping",
       "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
@@ -278,19 +272,11 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )
 
     assert.fieldEquals(
-      "DealerMapping",
+      "DealerMappingSnapshot",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
       "dealerSnapshot",
       "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
     )    
-
-    // un-bind dealer msut be removed in dealerSnapshot
-    assert.fieldEquals(
-      "DealerMapping",
-      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x12346f7b0cd1633348877043ae92302139796686",
-      "dealerSnapshot",
-      "[]"
-    )
 
     // un-bind dealer msut be removed in dealerSnapshot
     assert.fieldEquals(
@@ -301,7 +287,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )    
 
     assert.fieldEquals(
-      "DealerMapping",
+      "DealerMappingSnapshot",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
       "owner",
       makerAddress.toLowerCase()
@@ -309,7 +295,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
   })
 
   test("ChainIdMapping created and stored", () => {
-    assert.entityCount("chainIdMapping", 6)
+    assert.entityCount("chainIdMapping", 3)
 
     assert.fieldEquals(
       "chainIdMapping",
