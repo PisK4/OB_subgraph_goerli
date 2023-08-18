@@ -36,7 +36,8 @@ import {
     FactoryManger,
     ebcMappingSnapshot,
     DealerMappingSnapshot,
-    chainIdMappingSnapshot
+    chainIdMappingSnapshot,
+    latestRuleSnapshot
 } from '../types/schema'
 import { 
     MDC as mdcContract
@@ -838,6 +839,7 @@ export function getDealerEntity(
         _dealer.mdcs = []
         _dealer.rules = []
         _dealer.register = false
+        _dealer.feeRatio = new BigInt(0)
         _dealer.latestUpdateHash = event.transaction.hash.toHexString()
         _dealer.latestUpdateBlockNumber = event.block.number
         _dealer.latestUpdateTimestamp = event.block.timestamp
@@ -1521,19 +1523,17 @@ function getLastRulesEntity(
         lastRule.ruleValidation = false
     }
 
-    // if (id.startsWith('0xERC20')) {
-    //     lastRule.type = 'ERC20'
-    //     log.info('create LatestERC20 rule: {}', [id]);
-    // } else if (id.startsWith('0xETH')) {
-    //     lastRule.type = 'ETH'
-    //     log.info('create LatestETH rule: {}', [id]);
-    // }        
+    return lastRule
+}
 
-    // if(rsc.selector === updateRulesRootMode.ERC20){
-    //     _snapshotLatestRule.type = _rule.type = 'ERC20'
-    // }else if(rsc.selector === updateRulesRootMode.ETH){
-    //     _snapshotLatestRule.type = _rule.type = 'ETH'
-    // } 
+function getLastRulesSnapshotEntity(
+    id: string
+): latestRuleSnapshot {
+    let lastRule = latestRuleSnapshot.load(id)
+    if(lastRule == null){
+        lastRule = new latestRuleSnapshot(id)
+        lastRule.ruleValidation = false
+    }
 
     return lastRule
 }
@@ -1596,42 +1596,74 @@ function updateLatestRules(
     ]);
 
     const _rule = getLastRulesEntity(id);
-    const _snapshotLatestRule = getLastRulesEntity(snapshot.id);
+    const _snapshotLatestRule = getLastRulesSnapshotEntity(snapshot.id);
 
-    for (let i = 0; i < 2; i++) {
-        const _rscRuleType = i === 0 ? _rule : _snapshotLatestRule;
-        _rscRuleType.owner = mdc.owner;
-        _rscRuleType.mdcAddr = mdc.id;
-        _rscRuleType.ebcAddr = ebc.id;
-        _rscRuleType.chain0 = rsc.chain0;
-        _rscRuleType.chain1 = rsc.chain1;
-        _rscRuleType.chain0Status = rsc.chain0Status.toI32();
-        _rscRuleType.chain1Status = rsc.chain1Status.toI32();
-        _rscRuleType.chain0Token = intConverHexString(rsc.chain0Token);
-        _rscRuleType.chain1Token = intConverHexString(rsc.chain1Token);
-        _rscRuleType.chain0minPrice = rsc.chain0minPrice;
-        _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
-        _rscRuleType.chain1minPrice = rsc.chain1minPrice;
-        _rscRuleType.chain1maxPrice = rsc.chain1maxPrice;
-        _rscRuleType.chain0WithholdingFee = rsc.chain0WithholdingFee;
-        _rscRuleType.chain1WithholdingFee = rsc.chain1WithholdingFee;
-        _rscRuleType.chain0TradeFee = rsc.chain0TradeFee.toI32();
-        _rscRuleType.chain1TradeFee = rsc.chain1TradeFee.toI32();
-        _rscRuleType.chain0ResponseTime = rsc.chain0ResponseTime.toI32();
-        _rscRuleType.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
-        _rscRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
-        _rscRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
-        _rscRuleType.enableTimestamp = enableTimestamp;
-        _rscRuleType.ruleValidation = validateResult && ebcValidateResult;
-        _rscRuleType.latestUpdateTimestamp = event.block.timestamp;
-        _rscRuleType.latestUpdateBlockNumber = event.block.number;
-        _rscRuleType.latestUpdateHash = event.transaction.hash.toHexString();
-        _rscRuleType.latestUpdateVersion = version as i32;
-        if(rsc.selector === updateRulesRootMode.ETH){
-            _rscRuleType.type = 'ETH'
-        }else if(rsc.selector === updateRulesRootMode.ERC20){
-            _rscRuleType.type = 'ERC20'
-        }
+    const _rscRuleType = _rule;
+    _rscRuleType.owner = mdc.owner;
+    _rscRuleType.mdcAddr = mdc.id;
+    _rscRuleType.ebcAddr = ebc.id;
+    _rscRuleType.chain0 = rsc.chain0;
+    _rscRuleType.chain1 = rsc.chain1;
+    _rscRuleType.chain0Status = rsc.chain0Status.toI32();
+    _rscRuleType.chain1Status = rsc.chain1Status.toI32();
+    _rscRuleType.chain0Token = intConverHexString(rsc.chain0Token);
+    _rscRuleType.chain1Token = intConverHexString(rsc.chain1Token);
+    _rscRuleType.chain0minPrice = rsc.chain0minPrice;
+    _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
+    _rscRuleType.chain1minPrice = rsc.chain1minPrice;
+    _rscRuleType.chain1maxPrice = rsc.chain1maxPrice;
+    _rscRuleType.chain0WithholdingFee = rsc.chain0WithholdingFee;
+    _rscRuleType.chain1WithholdingFee = rsc.chain1WithholdingFee;
+    _rscRuleType.chain0TradeFee = rsc.chain0TradeFee.toI32();
+    _rscRuleType.chain1TradeFee = rsc.chain1TradeFee.toI32();
+    _rscRuleType.chain0ResponseTime = rsc.chain0ResponseTime.toI32();
+    _rscRuleType.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
+    _rscRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
+    _rscRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
+    _rscRuleType.enableTimestamp = enableTimestamp;
+    _rscRuleType.ruleValidation = validateResult && ebcValidateResult;
+    _rscRuleType.latestUpdateTimestamp = event.block.timestamp;
+    _rscRuleType.latestUpdateBlockNumber = event.block.number;
+    _rscRuleType.latestUpdateHash = event.transaction.hash.toHexString();
+    _rscRuleType.latestUpdateVersion = version as i32;
+    if (rsc.selector === updateRulesRootMode.ETH) {
+      _rscRuleType.type = 'ETH';
+    } else if (rsc.selector === updateRulesRootMode.ERC20) {
+      _rscRuleType.type = 'ERC20';
+    }
+    
+    const _snapshotLatestRuleType = _snapshotLatestRule;
+    _snapshotLatestRuleType.owner = mdc.owner;
+    _snapshotLatestRuleType.mdcAddr = mdc.id;
+    _snapshotLatestRuleType.ebcAddr = ebc.id;
+    _snapshotLatestRuleType.chain0 = rsc.chain0;
+    _snapshotLatestRuleType.chain1 = rsc.chain1;
+    _snapshotLatestRuleType.chain0Status = rsc.chain0Status.toI32();
+    _snapshotLatestRuleType.chain1Status = rsc.chain1Status.toI32();
+    _snapshotLatestRuleType.chain0Token = intConverHexString(rsc.chain0Token);
+    _snapshotLatestRuleType.chain1Token = intConverHexString(rsc.chain1Token);
+    _snapshotLatestRuleType.chain0minPrice = rsc.chain0minPrice;
+    _snapshotLatestRuleType.chain0maxPrice = rsc.chain0maxPrice;
+    _snapshotLatestRuleType.chain1minPrice = rsc.chain1minPrice;
+    _snapshotLatestRuleType.chain1maxPrice = rsc.chain1maxPrice;
+    _snapshotLatestRuleType.chain0WithholdingFee = rsc.chain0WithholdingFee;
+    _snapshotLatestRuleType.chain1WithholdingFee = rsc.chain1WithholdingFee;
+    _snapshotLatestRuleType.chain0TradeFee = rsc.chain0TradeFee.toI32();
+    _snapshotLatestRuleType.chain1TradeFee = rsc.chain1TradeFee.toI32();
+    _snapshotLatestRuleType.chain0ResponseTime = rsc.chain0ResponseTime.toI32();
+    _snapshotLatestRuleType.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
+    _snapshotLatestRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
+    _snapshotLatestRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
+    _snapshotLatestRuleType.enableTimestamp = enableTimestamp;
+    _snapshotLatestRuleType.ruleValidation = validateResult && ebcValidateResult;
+    _snapshotLatestRuleType.latestUpdateTimestamp = event.block.timestamp;
+    _snapshotLatestRuleType.latestUpdateBlockNumber = event.block.number;
+    _snapshotLatestRuleType.latestUpdateHash = event.transaction.hash.toHexString();
+    _snapshotLatestRuleType.latestUpdateVersion = version as i32;
+    if (rsc.selector === updateRulesRootMode.ETH) {
+      _snapshotLatestRuleType.type = 'ETH';
+    } else if (rsc.selector === updateRulesRootMode.ERC20) {
+      _snapshotLatestRuleType.type = 'ERC20';
     }
     saveLatestRule2MDCEBC(mdc, ebc, _rule.id);
     saveLatestRule2RuleSnapshot(snapshot, _snapshotLatestRule.id);
@@ -1887,5 +1919,15 @@ export function decodeEnabletime(inputData: Bytes, type: string): BigInt {
     return enableTimestamp
 }
 
+export function handleDealerUpdatedEvent(
+    dealer: Address,
+    feeRatio: BigInt,
+    event: ethereum.Event
+):void{
+    let dealerEntity = getDealerEntity(dealer.toHexString(), event)
+    dealerEntity.feeRatio = feeRatio
+    dealerEntity.register = true
+    dealerEntity.save()
+}
 
 

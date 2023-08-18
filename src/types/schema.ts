@@ -1042,6 +1042,19 @@ export class Dealer extends Entity {
     this.set("rules", Value.fromStringArray(value));
   }
 
+  get feeRatio(): BigInt {
+    let value = this.get("feeRatio");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set feeRatio(value: BigInt) {
+    this.set("feeRatio", Value.fromBigInt(value));
+  }
+
   get register(): boolean {
     let value = this.get("register");
     if (!value || value.kind == ValueKind.NULL) {
@@ -3922,10 +3935,478 @@ export class latestRule extends Entity {
   get mdc(): MDCLoader {
     return new MDCLoader("latestRule", this.get("id")!.toString(), "mdc");
   }
+}
+
+export class latestRuleSnapshot extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save latestRuleSnapshot entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type latestRuleSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("latestRuleSnapshot", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): latestRuleSnapshot | null {
+    return changetype<latestRuleSnapshot | null>(
+      store.get_in_block("latestRuleSnapshot", id)
+    );
+  }
+
+  static load(id: string): latestRuleSnapshot | null {
+    return changetype<latestRuleSnapshot | null>(
+      store.get("latestRuleSnapshot", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get mdcAddr(): string {
+    let value = this.get("mdcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set mdcAddr(value: string) {
+    this.set("mdcAddr", Value.fromString(value));
+  }
+
+  get ebcAddr(): string {
+    let value = this.get("ebcAddr");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ebcAddr(value: string) {
+    this.set("ebcAddr", Value.fromString(value));
+  }
+
+  get type(): string | null {
+    let value = this.get("type");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set type(value: string | null) {
+    if (!value) {
+      this.unset("type");
+    } else {
+      this.set("type", Value.fromString(<string>value));
+    }
+  }
+
+  get chain0(): BigInt | null {
+    let value = this.get("chain0");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain0(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain0");
+    } else {
+      this.set("chain0", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain1(): BigInt | null {
+    let value = this.get("chain1");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain1(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain1");
+    } else {
+      this.set("chain1", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain0Status(): i32 {
+    let value = this.get("chain0Status");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain0Status(value: i32) {
+    this.set("chain0Status", Value.fromI32(value));
+  }
+
+  get chain1Status(): i32 {
+    let value = this.get("chain1Status");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain1Status(value: i32) {
+    this.set("chain1Status", Value.fromI32(value));
+  }
+
+  get chain0Token(): string | null {
+    let value = this.get("chain0Token");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set chain0Token(value: string | null) {
+    if (!value) {
+      this.unset("chain0Token");
+    } else {
+      this.set("chain0Token", Value.fromString(<string>value));
+    }
+  }
+
+  get chain1Token(): string | null {
+    let value = this.get("chain1Token");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set chain1Token(value: string | null) {
+    if (!value) {
+      this.unset("chain1Token");
+    } else {
+      this.set("chain1Token", Value.fromString(<string>value));
+    }
+  }
+
+  get chain0minPrice(): BigInt | null {
+    let value = this.get("chain0minPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain0minPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain0minPrice");
+    } else {
+      this.set("chain0minPrice", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain1minPrice(): BigInt | null {
+    let value = this.get("chain1minPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain1minPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain1minPrice");
+    } else {
+      this.set("chain1minPrice", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain0maxPrice(): BigInt | null {
+    let value = this.get("chain0maxPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain0maxPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain0maxPrice");
+    } else {
+      this.set("chain0maxPrice", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain1maxPrice(): BigInt | null {
+    let value = this.get("chain1maxPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain1maxPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain1maxPrice");
+    } else {
+      this.set("chain1maxPrice", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain0WithholdingFee(): BigInt | null {
+    let value = this.get("chain0WithholdingFee");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain0WithholdingFee(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain0WithholdingFee");
+    } else {
+      this.set("chain0WithholdingFee", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain1WithholdingFee(): BigInt | null {
+    let value = this.get("chain1WithholdingFee");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set chain1WithholdingFee(value: BigInt | null) {
+    if (!value) {
+      this.unset("chain1WithholdingFee");
+    } else {
+      this.set("chain1WithholdingFee", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get chain0TradeFee(): i32 {
+    let value = this.get("chain0TradeFee");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain0TradeFee(value: i32) {
+    this.set("chain0TradeFee", Value.fromI32(value));
+  }
+
+  get chain1TradeFee(): i32 {
+    let value = this.get("chain1TradeFee");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain1TradeFee(value: i32) {
+    this.set("chain1TradeFee", Value.fromI32(value));
+  }
+
+  get chain0ResponseTime(): i32 {
+    let value = this.get("chain0ResponseTime");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain0ResponseTime(value: i32) {
+    this.set("chain0ResponseTime", Value.fromI32(value));
+  }
+
+  get chain1ResponseTime(): i32 {
+    let value = this.get("chain1ResponseTime");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain1ResponseTime(value: i32) {
+    this.set("chain1ResponseTime", Value.fromI32(value));
+  }
+
+  get chain0CompensationRatio(): i32 {
+    let value = this.get("chain0CompensationRatio");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain0CompensationRatio(value: i32) {
+    this.set("chain0CompensationRatio", Value.fromI32(value));
+  }
+
+  get chain1CompensationRatio(): i32 {
+    let value = this.get("chain1CompensationRatio");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set chain1CompensationRatio(value: i32) {
+    this.set("chain1CompensationRatio", Value.fromI32(value));
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateVersion(): i32 {
+    let value = this.get("latestUpdateVersion");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set latestUpdateVersion(value: i32) {
+    this.set("latestUpdateVersion", Value.fromI32(value));
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get ruleValidation(): boolean {
+    let value = this.get("ruleValidation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set ruleValidation(value: boolean) {
+    this.set("ruleValidation", Value.fromBoolean(value));
+  }
 
   get ruleSnapshot(): ruleTypesLoader {
     return new ruleTypesLoader(
-      "latestRule",
+      "latestRuleSnapshot",
       this.get("id")!.toString(),
       "ruleSnapshot"
     );
@@ -5210,6 +5691,501 @@ export class SubmitterFeeUpdated extends Entity {
 
   set submitter(value: Bytes) {
     this.set("submitter", Value.fromBytes(value));
+  }
+
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
+
+export class DealerUpdated extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save DealerUpdated entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type DealerUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("DealerUpdated", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): DealerUpdated | null {
+    return changetype<DealerUpdated | null>(
+      store.get_in_block("DealerUpdated", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): DealerUpdated | null {
+    return changetype<DealerUpdated | null>(
+      store.get("DealerUpdated", id.toHexString())
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get dealer(): Bytes {
+    let value = this.get("dealer");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set dealer(value: Bytes) {
+    this.set("dealer", Value.fromBytes(value));
+  }
+
+  get feeRatio(): BigInt {
+    let value = this.get("feeRatio");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set feeRatio(value: BigInt) {
+    this.set("feeRatio", Value.fromBigInt(value));
+  }
+
+  get extraInfo(): Bytes {
+    let value = this.get("extraInfo");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set extraInfo(value: Bytes) {
+    this.set("extraInfo", Value.fromBytes(value));
+  }
+
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
+
+export class ORFeeManagerOwnershipTransferred extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ORFeeManagerOwnershipTransferred entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type ORFeeManagerOwnershipTransferred must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set(
+        "ORFeeManagerOwnershipTransferred",
+        id.toBytes().toHexString(),
+        this
+      );
+    }
+  }
+
+  static loadInBlock(id: Bytes): ORFeeManagerOwnershipTransferred | null {
+    return changetype<ORFeeManagerOwnershipTransferred | null>(
+      store.get_in_block("ORFeeManagerOwnershipTransferred", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): ORFeeManagerOwnershipTransferred | null {
+    return changetype<ORFeeManagerOwnershipTransferred | null>(
+      store.get("ORFeeManagerOwnershipTransferred", id.toHexString())
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get previousOwner(): Bytes {
+    let value = this.get("previousOwner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set previousOwner(value: Bytes) {
+    this.set("previousOwner", Value.fromBytes(value));
+  }
+
+  get newOwner(): Bytes {
+    let value = this.get("newOwner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set newOwner(value: Bytes) {
+    this.set("newOwner", Value.fromBytes(value));
+  }
+
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
+
+export class SubmissionUpdated extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SubmissionUpdated entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type SubmissionUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("SubmissionUpdated", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): SubmissionUpdated | null {
+    return changetype<SubmissionUpdated | null>(
+      store.get_in_block("SubmissionUpdated", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): SubmissionUpdated | null {
+    return changetype<SubmissionUpdated | null>(
+      store.get("SubmissionUpdated", id.toHexString())
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get submissionHash(): Bytes {
+    let value = this.get("submissionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set submissionHash(value: Bytes) {
+    this.set("submissionHash", Value.fromBytes(value));
+  }
+
+  get stratBlock(): BigInt {
+    let value = this.get("stratBlock");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set stratBlock(value: BigInt) {
+    this.set("stratBlock", Value.fromBigInt(value));
+  }
+
+  get endBlock(): BigInt {
+    let value = this.get("endBlock");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set endBlock(value: BigInt) {
+    this.set("endBlock", Value.fromBigInt(value));
+  }
+
+  get profitRoot(): Bytes {
+    let value = this.get("profitRoot");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set profitRoot(value: Bytes) {
+    this.set("profitRoot", Value.fromBytes(value));
+  }
+
+  get stateTransTreeRoot(): Bytes {
+    let value = this.get("stateTransTreeRoot");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set stateTransTreeRoot(value: Bytes) {
+    this.set("stateTransTreeRoot", Value.fromBytes(value));
+  }
+
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get blockTimestamp(): BigInt {
+    let value = this.get("blockTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set blockTimestamp(value: BigInt) {
+    this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
+
+export class SubmitterRegistered extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SubmitterRegistered entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type SubmitterRegistered must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("SubmitterRegistered", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): SubmitterRegistered | null {
+    return changetype<SubmitterRegistered | null>(
+      store.get_in_block("SubmitterRegistered", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): SubmitterRegistered | null {
+    return changetype<SubmitterRegistered | null>(
+      store.get("SubmitterRegistered", id.toHexString())
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get submiter(): Bytes {
+    let value = this.get("submiter");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set submiter(value: Bytes) {
+    this.set("submiter", Value.fromBytes(value));
+  }
+
+  get marginAmount(): BigInt {
+    let value = this.get("marginAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set marginAmount(value: BigInt) {
+    this.set("marginAmount", Value.fromBigInt(value));
   }
 
   get blockNumber(): BigInt {

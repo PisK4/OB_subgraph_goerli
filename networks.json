@@ -6,6 +6,9 @@
     },
     "ORManager": {
       "address": "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
+    },
+    "ORFeeManager": {
+      "address": "0x461997C4C2414eD903fD62FFF9D2e62A8eAb299e"
     }
   }
 }

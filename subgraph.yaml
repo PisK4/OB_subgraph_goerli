@@ -73,6 +73,35 @@ dataSources:
         - event: SubmitterFeeUpdated(address)
           handler: handleSubmitterFeeUpdated
       file: ./src/mappings/or-manager.ts
+  - kind: ethereum
+    name: ORFeeManager
+    network: goerli
+    source:
+      address: "0x461997C4C2414eD903fD62FFF9D2e62A8eAb299e"
+      abi: ORFeeManager
+      startBlock: 9526600
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DealerUpdated
+        - ORFeeManagerOwnershipTransferred
+        - SubmissionUpdated
+        - SubmitterRegistered
+      abis:
+        - name: ORFeeManager
+          file: ./abis/ORFeeManager.json
+      eventHandlers:
+        - event: DealerUpdated(indexed address,uint256,bytes)
+          handler: handleDealerUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SubmissionUpdated(indexed bytes32,uint256,uint256,bytes32,bytes32)
+          handler: handleSubmissionUpdated
+        - event: SubmitterRegistered(indexed address,uint256)
+          handler: handleSubmitterRegistered
+      file: ./src/mappings/or-fee-manager.ts
 templates:
   - kind: ethereum
     name: MDC
@@ -93,7 +122,8 @@ templates:
         - name: MDC
           file: ./abis/MDC.json
       eventHandlers:
-        - event: ChallengeInfoUpdated(indexed bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
+        - event: ChallengeInfoUpdated(indexed
+            bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
           handler: handleChallengeInfoUpdated
         - event: ColumnArrayUpdated(indexed address,bytes32,address[],address[],uint64[])
           handler: handleColumnArrayUpdated

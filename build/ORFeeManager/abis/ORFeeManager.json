@@ -1,8 +1,16 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "owner_", "type": "address" },
-      { "internalType": "address", "name": "manager_", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "owner_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager_",
+        "type": "address"
+      },
       {
         "internalType": "contract IVerifier",
         "name": "_verifier",
@@ -115,7 +123,13 @@
   {
     "inputs": [],
     "name": "WITHDRAW_DELAY",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -133,9 +147,21 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "dealerAddr",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -150,7 +176,11 @@
             "name": "stratBlock",
             "type": "uint256"
           },
-          { "internalType": "uint256", "name": "endBlock", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "endBlock",
+            "type": "uint256"
+          },
           {
             "internalType": "bytes32",
             "name": "profitRoot",
@@ -172,13 +202,21 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "dealer", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "dealer",
+        "type": "address"
+      }
     ],
     "name": "getDealerInfo",
     "outputs": [
       {
         "components": [
-          { "internalType": "uint256", "name": "feeRatio", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "feeRatio",
+            "type": "uint256"
+          },
           {
             "internalType": "bytes32",
             "name": "extraInfoHash",
@@ -196,14 +234,28 @@
   {
     "inputs": [],
     "name": "lastSubmissionHash",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "marginAmount", "type": "uint256" },
-      { "internalType": "address", "name": "submitter", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "marginAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "submitter",
+        "type": "address"
+      }
     ],
     "name": "offlineSubmitter",
     "outputs": [],
@@ -213,14 +265,28 @@
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "marginAmount", "type": "uint256" },
-      { "internalType": "address", "name": "submitter", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "marginAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "submitter",
+        "type": "address"
+      }
     ],
     "name": "registerSubmitter",
     "outputs": [],
@@ -236,7 +302,11 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes", "name": "response", "type": "bytes" }
+      {
+        "internalType": "bytes",
+        "name": "response",
+        "type": "bytes"
+      }
     ],
     "name": "responsePositioning",
     "outputs": [],
@@ -245,8 +315,16 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "marginAmount", "type": "uint256" },
-      { "internalType": "address", "name": "submitter", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "marginAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "submitter",
+        "type": "address"
+      }
     ],
     "name": "startChallenge",
     "outputs": [],
@@ -254,12 +332,30 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "name": "submissions",
     "outputs": [
-      { "internalType": "uint256", "name": "stratBlock", "type": "uint256" },
-      { "internalType": "uint256", "name": "endBlock", "type": "uint256" },
-      { "internalType": "bytes32", "name": "profitRoot", "type": "bytes32" },
+      {
+        "internalType": "uint256",
+        "name": "stratBlock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endBlock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "profitRoot",
+        "type": "bytes32"
+      },
       {
         "internalType": "bytes32",
         "name": "stateTransTreeRoot",
@@ -271,9 +367,21 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "stratBlock", "type": "uint256" },
-      { "internalType": "uint256", "name": "endBlock", "type": "uint256" },
-      { "internalType": "bytes32", "name": "profitRoot", "type": "bytes32" },
+      {
+        "internalType": "uint256",
+        "name": "stratBlock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endBlock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "profitRoot",
+        "type": "bytes32"
+      },
       {
         "internalType": "bytes32",
         "name": "stateTransTreeRoot",
@@ -287,7 +395,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -296,8 +408,16 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "feeRatio", "type": "uint256" },
-      { "internalType": "bytes", "name": "extraInfo", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "feeRatio",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "extraInfo",
+        "type": "bytes"
+      }
     ],
     "name": "updateDealer",
     "outputs": [],
@@ -305,16 +425,34 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "withdrawLock",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "withdrawTime",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -325,14 +463,29 @@
         "name": "proofs",
         "type": "bytes32[][]"
       },
-      { "internalType": "uint64[]", "name": "chainIds", "type": "uint64[]" },
-      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
-      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
+      {
+        "internalType": "uint64[]",
+        "name": "chainIds",
+        "type": "uint64[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "tokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      }
     ],
     "name": "withdrawVerification",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
-  { "stateMutability": "payable", "type": "receive" }
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
 ]
