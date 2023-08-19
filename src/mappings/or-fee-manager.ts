@@ -5,25 +5,19 @@ import {
   SubmitterRegistered as SubmitterRegisteredEvent
 } from "../types/ORFeeManager/ORFeeManager"
 import {
-  DealerUpdated,
   OwnershipTransferred,
   SubmissionUpdated,
   SubmitterRegistered
 } from "../types/schema"
+import { handleDealerUpdatedEvent } from "./helpers"
 
 export function handleDealerUpdated(event: DealerUpdatedEvent): void {
-  let entity = new DealerUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealer = event.params.dealer
-  entity.feeRatio = event.params.feeRatio
-  entity.extraInfo = event.params.extraInfo
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  handleDealerUpdatedEvent(
+    event.params.dealer,
+    event.params.feeRatio,
+    event.params.extraInfo,
+    event
+    )
 }
 
 export function handleOwnershipTransferred(

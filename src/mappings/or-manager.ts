@@ -33,20 +33,6 @@ export function handleChainInfoUpdated(event: ChainInfoUpdatedEvent): void {
 }
 
 export function handleChainTokenUpdated(event: ChainTokenUpdatedEvent): void {
-  // let entity = new ChainTokenUpdated(
-  //   event.transaction.hash.concatI32(event.logIndex.toI32())
-  // )
-  // entity.inputId = event.params.id
-  // entity.token = event.params.tokenInfo.token
-  // entity.mainnetToken = event.params.tokenInfo.mainnetToken
-  // entity.decimals = event.params.tokenInfo.decimals
-
-  // entity.blockNumber = event.block.number
-  // entity.blockTimestamp = event.block.timestamp
-  // entity.transactionHash = event.transaction.hash
-
-  // entity.save()
-
   handleChainTokenUpdatedEvent(
     event,
     event.params.id,

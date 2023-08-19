@@ -7,6 +7,7 @@ import { DealerMapping, FactoryManger } from "../types/schema";
 import { log } from '@graphprotocol/graph-ts'
 import { MDCCreated as MDCCreatedEvent } from "../types/MDCFactory/MDCFactory"
 import { MDC as MDCTemplate} from "../types/templates"
+
 import {
   ONE_ADDRESS,
   ONE_NUM,
@@ -59,6 +60,7 @@ export function factoryCreateMDC(
         mdcNew.save()
         factory.save()
         MDCTemplate.create(mdc)
+        
         // }
 
 

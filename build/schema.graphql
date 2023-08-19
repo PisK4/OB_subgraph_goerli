@@ -81,14 +81,13 @@ type MDCMapping @entity{
   latestUpdateBlockNumber: BigInt
 }
 
-
-
 # customed using entity
 type Dealer @entity{
   id: ID! # dealer address
   mdcs: [MDC!]! # binding MDC
   rules: [ruleTypes!]! # binding ruleSnapshot
   feeRatio: BigInt! # uint
+  extraInfo: String! # string
   register: Boolean!
   latestUpdateHash: String!
   latestUpdateTimestamp: BigInt!
@@ -375,9 +374,9 @@ type latestRuleSnapshot @entity { # latest rule
 }
 
 # using entity, binding in contract Event
-type ChainInfoUpdated @entity{
+type chainRel @entity{
   id: ID! # chainId
-  tokens: [ChainTokenUpdated!]! # ChainToken
+  tokens: [tokenRel!]! # ChainToken
   spvs: [String!]! # address[]
   batchLimit: BigInt # uint192
   minVerifyChallengeSourceTxSecond: BigInt # uint64
@@ -391,22 +390,24 @@ type ChainInfoUpdated @entity{
 }
 
 # using entity, binding in contract Event
-type ChainTokenUpdated @entity(immutable: true) {
-  id: ID! # chainId - token
-  # inputId: BigInt # uint64
-  token: String! # uint
+type tokenRel @entity{
+  id: ID! # hash(chain - token Address)
+  tokenAddress: String! # address
+  chainId: String! # chainId
+  symbol: String! # string
+  name: String! # string
   mainnetToken: String # address
   decimals: Int # uint8
-  chain: ChainInfoUpdated! @derivedFrom(field: "tokens") # ChainInfo
+  chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
-  latestUpdateHash: String!
+  latestUpdateHash: String!  
 }
 
 # customed using entity
 type ORManger @entity{
   id: ID!  # Manger ID
-  chainInfoManager: [ChainInfoUpdated!]! # ChainInfo
+  chainInfoManager: [chainRel!]! # ChainInfo
   ebcManager: [ebcRel!]! # EBCs
 }
 
@@ -485,15 +486,16 @@ type SubmitterFeeUpdated @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
-type DealerUpdated @entity(immutable: true) {
-  id: Bytes!
-  dealer: Bytes! # address
-  feeRatio: BigInt! # uint256
-  extraInfo: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
+
+# type DealerUpdated @entity(immutable: true) {
+#   id: Bytes!
+#   dealer: Bytes! # address
+#   feeRatio: BigInt! # uint256
+#   extraInfo: Bytes! # bytes
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
 
 type ORFeeManagerOwnershipTransferred @entity(immutable: true) {
   id: Bytes!
@@ -520,6 +522,25 @@ type SubmitterRegistered @entity(immutable: true) {
   id: Bytes!
   submiter: Bytes! # address
   marginAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  value: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -31,7 +31,7 @@ import {
     ChainInfoUpdatedMode,
     compareChainInfoUpdatedSelector,
     parseChainInfoUpdatedInputData,
-    getChainTokenUpdatedEntity,
+    getTokenEntity,
     getColumnArrayUpdatedEntity,
     getMDCBindSPVEntity,
     getdealerSnapshotEntity,
@@ -45,7 +45,8 @@ import {
     getEBCSnapshotEntity,
     getChainIdSnapshotEntity,
     decodeEnabletime,
-    func_updateColumnArraySelector
+    func_updateColumnArraySelector,
+    STRING_INVALID
 } from "./helpers"
 import { 
     FactoryManger
@@ -61,6 +62,7 @@ import {
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
 import { getFunctionSelector } from "./utils";
+import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20utils";
 
 
 
@@ -223,15 +225,17 @@ export function handleChainTokenUpdatedEvent(
   chainId: BigInt,
   tokenInfo: ChainTokenUpdatedTokenInfoStruct
 ): void {
-  let token = tokenInfo.token
-  let mainnetToken = tokenInfo.mainnetToken
-  let decimals = tokenInfo.decimals
-  let chainToken = getChainTokenUpdatedEntity(chainId, token, event)
-  chainToken.token = token.toHexString()
-  chainToken.mainnetToken = AddressFmtPadZero(mainnetToken.toHexString())
-  chainToken.decimals = decimals
-  chainToken.save()  
-
+  const token = tokenInfo.token.toHexString()
+  const decimals = tokenInfo.decimals
+  const mainnetToken = tokenInfo.mainnetToken
+  const ERC20Token = mainnetToken.toHexString() != "0x0000000000000000000000000000000000000000" ? mainnetToken.toHexString() : token
+  let Token = getTokenEntity(chainId, token, event)
+  Token.mainnetToken = mainnetToken.toHexString()
+  Token.name = fetchTokenName(Address.fromString(ERC20Token))
+  Token.symbol = fetchTokenSymbol(Address.fromString(ERC20Token))
+  const fetchTokenDecimal = fetchTokenDecimals(Address.fromString(ERC20Token)).toI32()
+  Token.decimals = fetchTokenDecimal != 0 ? fetchTokenDecimal : decimals
+  Token.save()  
 }
 
 export function handleResponseMakersUpdatedEvent(

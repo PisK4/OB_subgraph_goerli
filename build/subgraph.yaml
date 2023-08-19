@@ -48,6 +48,8 @@ dataSources:
       abis:
         - name: ORManager
           file: ORManager/abis/ORManager.json
+        - name: ERC20
+          file: ORManager/abis/ERC20.json
       eventHandlers:
         - event: ChainInfoUpdated(indexed
             uint64,(uint64,uint192,uint64,uint64,uint64,uint64,address[]))

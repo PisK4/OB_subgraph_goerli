@@ -12,8 +12,8 @@ import {
     ValueKind
 } from '@graphprotocol/graph-ts'
 import { 
-    ChainInfoUpdated,
-    ChainTokenUpdated,
+    chainRel,
+    tokenRel,
     ColumnArrayUpdated,
     Dealer,
     DealerMapping,
@@ -56,9 +56,12 @@ import {
 import { functionrResponseMakerMockinput } from '../../tests/mock-data'
 
 export const isProduction = true
+
+/*****debug log*****/
 export const debugLog = false
-export const debugLogCreateRules = false
+const debugLogCreateRules = false
 const debugLogMapping = true
+/*****debug log*****/
 
 export const ZERO_BI = BigInt.fromI32(0)
 export const ONE_BI = BigInt.fromI32(1)
@@ -69,14 +72,15 @@ export const STRING_INVALID = 'invalid'
 export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
 export const ONE_NUM = 0xffffffff
 export const ONE_BYTES = new Bytes(32);
-// function selectors
+
+/**** function selectors ****/
 export const func_updateRulesRoot =  "0x0a8f5190"
 export const func_updateRulesRootERC20 = "0x9a6781dc"
 export const func_registerChains ="0xba6051a5"
 export const func_updateChainSpvs = "0xf0373f91"
-// export const func_updateColumnArray = "0x8f5520d9"
+/**** function selectors ****/
 
-// function selectors for decode
+/**** decode selectors ****/
 export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint16,uint16,uint32,uint32,uint32,uint32)[]"
 export const selectorSetting = `uint64,address,${RSCDataFmt},(bytes32,uint32),uint64[],uint256[]`
 export const func_updateRulesRootSelector = `(${selectorSetting})`
@@ -84,7 +88,7 @@ export const func_updateRulesRootERC20Selector = `(${selectorSetting},address)`
 export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
 export const func_updateColumnArraySelector = "(uint64,address[],address[],uint64[])"
 export const func_updateResponseMakersSelector = "(uint64,bytes[])"
-
+/**** decode selectors ****/
 
 export enum updateRulesRootMode {
     ETH = 0,
@@ -171,7 +175,7 @@ function saveEBCMgr2ORMgr(
 }
 
 function saveChainInfoMgr2ORMgr(
-    _ChainInfoMgr: ChainInfoUpdated
+    _ChainInfoMgr: chainRel
 ): void{
     let _ORManger = ORManger.load(ORMangerID)
     if(_ORManger == null){
@@ -325,12 +329,12 @@ export function getMDCEntity(
 export function getChainInfoEntity(
     event: ethereum.Event,
     _id: BigInt
-): ChainInfoUpdated {
+): chainRel {
     let id = _id.toString()
-    let _chainInfo = ChainInfoUpdated.load(id)
+    let _chainInfo = chainRel.load(id)
     if (_chainInfo == null) {
         log.info('create new ChainInfo, id: {}', [id])
-        _chainInfo = new ChainInfoUpdated(id)
+        _chainInfo = new chainRel(id)
         _chainInfo.tokens = []
         _chainInfo.spvs = []
         saveChainInfoMgr2ORMgr(_chainInfo)
@@ -338,7 +342,7 @@ export function getChainInfoEntity(
     _chainInfo.latestUpdateHash = event.transaction.hash.toHexString()
     _chainInfo.latestUpdateBlockNumber = event.block.number
     _chainInfo.latestUpdateTimestamp = event.block.timestamp
-    return _chainInfo as ChainInfoUpdated
+    return _chainInfo as chainRel
 }
 
 
@@ -362,14 +366,14 @@ export function getMDCMappingEntity(
 function getTokenFromChainInfoUpdated(
     chainid: BigInt,
 ): Array<string> {
-    let _chainInfo = ChainInfoUpdated.load(chainid.toString())
+    let _chainInfo = chainRel.load(chainid.toString())
     let tokens = [] as Array<string>
     if(_chainInfo != null){
         for(let i = 0; i < _chainInfo.tokens.length; i++){
             const ChainTokenUpdatedID = _chainInfo.tokens[i].toString()
-            let _ChainTokenUpdated = ChainTokenUpdated.load(ChainTokenUpdatedID)
+            let _ChainTokenUpdated = tokenRel.load(ChainTokenUpdatedID)
             if(_ChainTokenUpdated != null){
-                tokens = tokens.concat([_ChainTokenUpdated.token])
+                tokens = tokens.concat([_ChainTokenUpdated.id])
                 // log.debug("token: {}", [_ChainTokenUpdated.token.toString()])
             }
         }
@@ -377,25 +381,27 @@ function getTokenFromChainInfoUpdated(
     return tokens
 }
 
-export function getChainTokenUpdatedEntity(
-    id: BigInt,
-    token: BigInt,
+export function getTokenEntity(
+    chainId: BigInt,
+    token: string,
     event: ethereum.Event
-): ChainTokenUpdated {
-    const tokenId = createBindID([id.toString(), token.toHexString()])
-    let chainInfo = getChainInfoEntity(event, id)
-    let tokenInfo = ChainTokenUpdated.load(tokenId)
+): tokenRel {
+    const tokenId = createHashID([chainId.toString(), token])
+    let chainInfo = getChainInfoEntity(event, chainId)
+    let tokenInfo = tokenRel.load(tokenId)
     if (tokenInfo == null) {
-        log.info('create new ChainTokenUpdated, id: {}', [tokenId])
-        tokenInfo = new ChainTokenUpdated(tokenId)
-        tokenInfo.token = token.toHexString()
-        saveTokenInfo2ChainInfo(chainInfo, tokenId)
+        log.info('create new token: {}, chain: {}', [token, chainId.toString()])
+        tokenInfo = new tokenRel(tokenId)
+        tokenInfo.tokenAddress = token
+        tokenInfo.chainId = chainId.toString()
+        // saveTokenInfo2ChainInfo(chainInfo, tokenId)
+        chainInfo.tokens = entityConcatID(chainInfo.tokens, tokenId)
         chainInfo.save()
     }
     tokenInfo.latestUpdateBlockNumber = event.block.number
     tokenInfo.latestUpdateTimestamp = event.block.timestamp
     tokenInfo.latestUpdateHash = event.transaction.hash.toHexString()
-    return tokenInfo as ChainTokenUpdated
+    return tokenInfo as tokenRel
 }
 
 export function getColumnArrayUpdatedEntity(
@@ -839,6 +845,7 @@ export function getDealerEntity(
         _dealer.mdcs = []
         _dealer.rules = []
         _dealer.register = false
+        _dealer.extraInfo = STRING_INVALID
         _dealer.feeRatio = new BigInt(0)
         _dealer.latestUpdateHash = event.transaction.hash.toHexString()
         _dealer.latestUpdateBlockNumber = event.block.number
@@ -909,7 +916,7 @@ function saveColumnArray2MDC(
 }
 
 function saveTokenInfo2ChainInfo(
-    chainInfo: ChainInfoUpdated,
+    chainInfo: chainRel,
     tokenId: string
 ): void {
     if (chainInfo.tokens == null) {
@@ -1301,7 +1308,7 @@ function parseRSC(
 
 export function parseChainInfoUpdatedInputData(
     data: Bytes,
-    _chainInfoUpdated: ChainInfoUpdated
+    _chainInfoUpdated: chainRel
 ): void {
     // let dataUnderPrefix = inputdataPrefix(data)
     // const decoded = ethereum.decode(
@@ -1734,17 +1741,6 @@ function getRuleSnapshotEntity(
     return ruleSnapshot
 }
 
-// function storeMDCMapping2RuleSnapshot(
-//     event: ethereum.Event,
-//     ruleSnapshot: ruleTypes,
-//     mdc: MDC
-// ): void{
-//     let  currentMDCMapping = getMDCMappingEntity(mdc, event)
-//     const dealers = getMDCLatestDealers(mdc)
-//     const ebc = getMDCLatestEBCs(mdc)
-//     const chainId = getMDCLatestChainIds(mdc)
-// }
-
 function ruleValidationEBCSchema(
     ebcAddr: string,
     mdc: MDC
@@ -1777,6 +1773,12 @@ function ruleValidationSchema(
     const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
     const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
     if(!chain0TokenArray.includes(chain0Token) || !chain1TokenArray.includes(chain1Token)){
+        return false
+    }
+
+    const chain0Status = rsc.chain0Status
+    const chain1Status = rsc.chain1Status
+    if(chain0Status === chain1Status === false){
         return false
     }
 
@@ -1922,10 +1924,12 @@ export function decodeEnabletime(inputData: Bytes, type: string): BigInt {
 export function handleDealerUpdatedEvent(
     dealer: Address,
     feeRatio: BigInt,
+    extraInfo: Bytes,
     event: ethereum.Event
 ):void{
     let dealerEntity = getDealerEntity(dealer.toHexString(), event)
     dealerEntity.feeRatio = feeRatio
+    dealerEntity.extraInfo = extraInfo.toString()
     dealerEntity.register = true
     dealerEntity.save()
 }

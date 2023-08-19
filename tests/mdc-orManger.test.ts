@@ -187,21 +187,35 @@ describe("Describe check ChainTokenUpdated Event", () => {
       clearStore()
     })
 
-    test("ChainTokenUpdated created and stored", () => {
-      assert.entityCount("ChainTokenUpdated", 1)
+    test("tokenRel created and stored", () => {
+      assert.entityCount("tokenRel", 1)
 
       assert.fieldEquals(
-        "ChainTokenUpdated",
-        Chainid.toString() + "-" + mockTokenHex,
+        "tokenRel",
+        mockTokenHex,
         "id",
-        Chainid.toString() + "-" + mockTokenHex
+        mockTokenHex
       )
 
       assert.fieldEquals(
-        "ChainTokenUpdated",
-        Chainid.toString() + "-" + mockTokenHex,
-        "token",
-        mockTokenHex
+        "chainRel",
+        Chainid,
+        "tokens",
+        `[${mockTokenHex}]`
+      )
+
+      // assert.fieldEquals(
+      //   "tokenRel",
+      //   mockTokenHex,
+      //   "chain",
+      //   Chainid.toString()
+      // )
+
+      assert.fieldEquals(
+        "tokenRel",
+        mockTokenHex,
+        "symbol",
+        "MOCK1"
       )
     })
 })

@@ -9,6 +9,9 @@
     },
     "ORFeeManager": {
       "address": "0x461997C4C2414eD903fD62FFF9D2e62A8eAb299e"
+    },
+    "ERC20": {
+      "address": "0xA3a8A6b323E3d38f5284db9337e7c6d74Af3366a"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "OBCabin",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "ct": "graph codegen --output-dir src/types/ && graph build && graph test",
     "codegen": "graph codegen --output-dir src/types/",
@@ -13,6 +13,8 @@
     "deploy-local2": "graph deploy CABIN --debug --ipfs http://localhost:5001 --node http://0.0.0.0:8020",
     "create-local3": "graph create CABIN --node http://192.168.1.6:8020",
     "deploy-local3": "graph deploy CABIN --node http://192.168.1.6:8020/ --ipfs http://192.168.1.6:5001",
+    "create-local4": "graph create CABIN --node http://106.53.133.224:8020/",
+    "deploy-local4": "graph deploy CABIN --node http://106.53.133.224:8020/ --ipfs http://106.53.133.224:5001",
 
     "test": "graph test"
   },
