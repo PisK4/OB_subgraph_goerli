@@ -126,6 +126,7 @@ export function intConverHexString(value: BigInt) : string{
     if(value){
         return value.toHexString()
     }else{
-        return "0x0000000000000000000000000000000000000000"
+        const address = Address.fromString("0x0000000000000000000000000000000000000000")
+        return address.toHexString()
     }
 }

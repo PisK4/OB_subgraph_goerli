@@ -52,7 +52,7 @@ type MDC @entity {
   dealerSnapshot: [dealerSnapshot!]!        #snapshot
   ebcSnapshot: [ebcSnapshot!]!              #snapshot
   chainIdSnapshot: [chainIdSnapshot!]!      #snapshot
-  ruleSnapshot: [ruleTypes!]!               #snapshot
+  ruleSnapshot: [ruleRel!]!               #snapshot
   ruleLatest: [latestRule!]!                #latestData
   bindChainIds: MDCBindChainId
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
@@ -85,7 +85,7 @@ type MDCMapping @entity{
 type Dealer @entity{
   id: ID! # dealer address
   mdcs: [MDC!]! # binding MDC
-  rules: [ruleTypes!]! # binding ruleSnapshot
+  rules: [ruleRel!]! # binding ruleSnapshot
   feeRatio: BigInt! # uint
   extraInfo: String! # string
   register: Boolean!
@@ -245,11 +245,11 @@ type chainIdMappingSnapshot @entity{
 }
 
 # customed using entity
-type ruleTypes @entity {  #contain all rules snapshot
+type ruleRel @entity {  #contain all rules snapshot
   # As MDC snapshot, id: hash(mdc-ecb-transactionHash-logIndex)
-  # As MDC LatestRuleSnapshot, id: mdc-ebc-chain0ID-chain1ID
   id: ID!
   rules: [rule!]! # rules in input Data   
+  type: String! # ETH/ERC20
   ruleLatest: [latestRuleSnapshot!]! # all latest rules
   root: String! # String
   version: Int! # uint32  
@@ -269,7 +269,7 @@ type ruleTypes @entity {  #contain all rules snapshot
 }
 
 # customed using entitys
-type rule @entity { # only one rule in ruleTypes
+type rule @entity { # only one rule in ruleRel
   id: ID! #chain0-chain1
   owner: String! # address
   ebcAddr: String! # address
@@ -293,10 +293,11 @@ type rule @entity { # only one rule in ruleTypes
   chain1CompensationRatio: Int! # uint32
   enableTimestamp: BigInt! # uint64
   ruleValidation: Boolean!
+  ruleValidationErrorstatus: String!
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdatetransactionHash: String!
-  ruletypes: ruleTypes! @derivedFrom(field: "rules") # ruleTypes
+  ruleRel: ruleRel! @derivedFrom(field: "rules") # ruleRel
 }
 
 # customed using entitys
@@ -331,9 +332,9 @@ type latestRule @entity { # latest rule
   latestUpdateBlockNumber: BigInt
   latestUpdateHash: String
   ruleValidation: Boolean!
+  ruleValidationErrorstatus: String!
   ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
-  # ruleSnapshot: ruleTypes! @derivedFrom(field: "ruleLatest") # ruleTypes
 }
 
 # customed using entitys
@@ -368,9 +369,10 @@ type latestRuleSnapshot @entity { # latest rule
   latestUpdateBlockNumber: BigInt
   latestUpdateHash: String
   ruleValidation: Boolean!
+  ruleValidationErrorstatus: String!
   # ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   # mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
-  ruleSnapshot: ruleTypes! @derivedFrom(field: "ruleLatest") # ruleTypes
+  ruleRelSnapshot: ruleRel! @derivedFrom(field: "ruleLatest") # ruleRel
 }
 
 # using entity, binding in contract Event
@@ -378,6 +380,7 @@ type chainRel @entity{
   id: ID! # chainId
   tokens: [tokenRel!]! # ChainToken
   spvs: [String!]! # address[]
+  nativeToken: String! # address
   batchLimit: BigInt # uint192
   minVerifyChallengeSourceTxSecond: BigInt # uint64
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
@@ -397,6 +400,7 @@ type tokenRel @entity{
   symbol: String! # string
   name: String! # string
   mainnetToken: String # address
+  isNative: Boolean! # bool
   decimals: Int # uint8
   chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
@@ -423,7 +427,7 @@ type ChallengeUserRatioUpdated @entity(immutable: true) {
 type ebcRel @entity {
   id: ID! #ebc address
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
-  rulesList: [ruleTypes!]! # list all rules Snapshot!! who bind this ebc
+  rulesList: [ruleRel!]! # list all rules Snapshot!! who bind this ebc
   ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
   statuses: Boolean!
   manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager

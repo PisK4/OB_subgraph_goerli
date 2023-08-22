@@ -29,7 +29,7 @@ import {
     ebcMapping,
     latestRule,
     rule,
-    ruleTypes,
+    ruleRel,
     ebcSnapshot,
     chainIdSnapshot,
     responseMaker,
@@ -59,7 +59,7 @@ export const isProduction = true
 
 /*****debug log*****/
 export const debugLog = false
-const debugLogCreateRules = false
+const debugLogCreateRules = true
 const debugLogMapping = true
 /*****debug log*****/
 
@@ -69,6 +69,12 @@ export const ZERO_BD = BigDecimal.fromString('0')
 export const ONE_BD = BigDecimal.fromString('1')
 export const BI_18 = BigInt.fromI32(18)
 export const STRING_INVALID = 'invalid'
+export const RULEVALIDA_NOERROR = 'no error'
+export const RULEVALIDA_EBCNOTFOUND = 'ebc not found'
+export const RULEVALIDA_CHAINIDNOTFOUND = 'chainId not found'
+export const RULEVALIDA_TOKENNOTFOUND = 'token not found'
+export const RULEVALIDA_CHAINIDMISSMATCH = 'chainId miss match'
+export const RULEVALIDA_SERVICECLOSED = 'service closed'
 export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
 export const ONE_NUM = 0xffffffff
 export const ONE_BYTES = new Bytes(32);
@@ -200,7 +206,7 @@ export function ebcSave(
 }
 
 export function initRulesEntity(
-    _rules: ruleTypes
+    _rules: ruleRel
 ): void {
     _rules.root = STRING_INVALID
     _rules.version = 0
@@ -230,11 +236,12 @@ export function initRuleEntity(
     _rules.chain1ResponseTime = ZERO_BI.toI32()
     _rules.chain0CompensationRatio = ZERO_BI.toI32()
     _rules.chain1CompensationRatio = ZERO_BI.toI32()
-    _rules.ruleValidation = false
+    _rules.ruleValidation = true
+    _rules.ruleValidationErrorstatus = RULEVALIDA_NOERROR
 }
 
 export function getRuleEntity(
-    ruleTypes: ruleTypes,
+    ruleTypes: ruleRel,
     i: i32,
     mdc: MDC,
     ebc: ebcRel,
@@ -247,8 +254,6 @@ export function getRuleEntity(
         initRuleEntity(_rule)
         _rule.owner = mdc.owner
         _rule.ebcAddr = ebc.id
-        // saveRules2Rules(ruleTypes, _rule)
-        // entityConcatID(ruleTypes.rules, _rule.id)
         ruleTypes.rules = entityConcatID(ruleTypes.rules, _rule.id)
         if(debugLogCreateRules){
             log.info('create new rule, rule: {}', [_rule.id])
@@ -369,12 +374,13 @@ function getTokenFromChainInfoUpdated(
     let _chainInfo = chainRel.load(chainid.toString())
     let tokens = [] as Array<string>
     if(_chainInfo != null){
+        log.info('chainInfo.tokens.length: {}', [_chainInfo.tokens.length.toString()])
         for(let i = 0; i < _chainInfo.tokens.length; i++){
-            const ChainTokenUpdatedID = _chainInfo.tokens[i].toString()
-            let _ChainTokenUpdated = tokenRel.load(ChainTokenUpdatedID)
+            const tokenId = _chainInfo.tokens[i]
+            log.info('load token: {}', [tokenId])
+            const _ChainTokenUpdated = tokenRel.load(tokenId)
             if(_ChainTokenUpdated != null){
-                tokens = tokens.concat([_ChainTokenUpdated.id])
-                // log.debug("token: {}", [_ChainTokenUpdated.token.toString()])
+                tokens = tokens.concat([_ChainTokenUpdated.tokenAddress])
             }
         }
     }
@@ -390,7 +396,7 @@ export function getTokenEntity(
     let chainInfo = getChainInfoEntity(event, chainId)
     let tokenInfo = tokenRel.load(tokenId)
     if (tokenInfo == null) {
-        log.info('create new token: {}, chain: {}', [token, chainId.toString()])
+        log.info('create new token: {}, chain: {}, id: {}', [token, chainId.toString(),tokenId])
         tokenInfo = new tokenRel(tokenId)
         tokenInfo.tokenAddress = token
         tokenInfo.chainId = chainId.toString()
@@ -559,8 +565,11 @@ function getMDCLatestChainIds(
     if(mdcMapping != null){
         log.info("MDC: {} mapping chainIdCnt: {}", [mdc.id, mdcMapping.chainIdMapping.length.toString()])
         for(let i = 0; i < mdcMapping.chainIdMapping.length; i++){
-            let _chainIdMapping = chainIdMapping.load(mdcMapping.chainIdMapping[i])
+            const latestMappingId = mdcMapping.chainIdMapping[i]
+            log.info("load MDC: {} mappingId: {}", [mdc.id, latestMappingId])
+            let _chainIdMapping = chainIdMapping.load(latestMappingId)
             if (_chainIdMapping != null) {
+                log.info("chainId: {}", [_chainIdMapping.chainId.toString()])
                 if (_chainIdMapping.chainId.length > 0){
                     chainIds = chainIds.concat([_chainIdMapping.chainId])
                 }
@@ -927,7 +936,7 @@ function saveTokenInfo2ChainInfo(
 }
 
 function saveRules2Rules(
-    _rules: ruleTypes,
+    _rules: ruleRel,
     rule: rule
 ): void{
     if (_rules.rules == null) {
@@ -970,19 +979,8 @@ function saveMDC2EBC(
     }
 }
 
-// function saveRule2EBC(
-//     ebc: MDCBindEBC,
-//     rule: ruleTypes
-// ): void{
-//     if (ebc.rulesWithRootVersion == null) {
-//         ebc.rulesWithRootVersion = [rule.id];
-//     } else if (!ebc.rulesWithRootVersion.includes(rule.id)) {
-//         ebc.rulesWithRootVersion = ebc.rulesWithRootVersion.concat([rule.id])
-//     }
-// }
-
 function saveLatestRule2RuleSnapshot(
-    ruleSnapshot: ruleTypes,
+    ruleSnapshot: ruleRel,
     releLatestId: string
 ): void{
     if (ruleSnapshot.ruleLatest == null) {
@@ -1527,7 +1525,8 @@ function getLastRulesEntity(
     let lastRule = latestRule.load(id)
     if(lastRule == null){
         lastRule = new latestRule(id)
-        lastRule.ruleValidation = false
+        lastRule.ruleValidation = true
+        lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
     }
 
     return lastRule
@@ -1539,7 +1538,8 @@ function getLastRulesSnapshotEntity(
     let lastRule = latestRuleSnapshot.load(id)
     if(lastRule == null){
         lastRule = new latestRuleSnapshot(id)
-        lastRule.ruleValidation = false
+        lastRule.ruleValidation = true
+        lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
     }
 
     return lastRule
@@ -1581,9 +1581,9 @@ function updateLatestRules(
     rscRules: rscRules,
     mdc: MDC,
     ebc: ebcRel,
-    validateResult: boolean,
-    ebcValidateResult: boolean,
-    snapshot:ruleTypes
+    validateResult: string,
+    validateBool: boolean,
+    snapshot:ruleRel
 ):void{
     const version = rscRules.version;
     const enableTimestamp = rscRules.enableTimestamp;
@@ -1628,15 +1628,19 @@ function updateLatestRules(
     _rscRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
     _rscRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
     _rscRuleType.enableTimestamp = enableTimestamp;
-    _rscRuleType.ruleValidation = validateResult && ebcValidateResult;
+    _rscRuleType.ruleValidation = validateBool;
+    _rscRuleType.ruleValidationErrorstatus = validateResult;
     _rscRuleType.latestUpdateTimestamp = event.block.timestamp;
     _rscRuleType.latestUpdateBlockNumber = event.block.number;
     _rscRuleType.latestUpdateHash = event.transaction.hash.toHexString();
     _rscRuleType.latestUpdateVersion = version as i32;
     if (rsc.selector === updateRulesRootMode.ETH) {
       _rscRuleType.type = 'ETH';
+      snapshot.type = 'ETH';
+      snapshot.token = intConverHexString(BigInt.fromI32(0));
     } else if (rsc.selector === updateRulesRootMode.ERC20) {
       _rscRuleType.type = 'ERC20';
+      snapshot.type = 'ERC20';
     }
     
     const _snapshotLatestRuleType = _snapshotLatestRule;
@@ -1662,7 +1666,8 @@ function updateLatestRules(
     _snapshotLatestRuleType.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
     _snapshotLatestRuleType.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
     _snapshotLatestRuleType.enableTimestamp = enableTimestamp;
-    _snapshotLatestRuleType.ruleValidation = validateResult && ebcValidateResult;
+    _snapshotLatestRuleType.ruleValidation = validateBool;
+    _snapshotLatestRuleType.ruleValidationErrorstatus = validateResult;
     _snapshotLatestRuleType.latestUpdateTimestamp = event.block.timestamp;
     _snapshotLatestRuleType.latestUpdateBlockNumber = event.block.number;
     _snapshotLatestRuleType.latestUpdateHash = event.transaction.hash.toHexString();
@@ -1683,7 +1688,7 @@ function updateLatestRules(
 
 function saveRuleSnapshotRelation(
     event: ethereum.Event,
-    ruleSnapshot: ruleTypes,
+    ruleSnapshot: ruleRel,
     mdc: MDC,
     ebc: ebcRel
 ): void{
@@ -1720,12 +1725,11 @@ function getRuleSnapshotEntity(
     event: ethereum.Event,
     mdc: MDC,
     ebc: ebcRel
-): ruleTypes {
-    // const snapshotId = createBindID([mdc.id, ebc.id, createEventID(event)])
+): ruleRel {
     const snapshotId = createHashID([mdc.id, ebc.id, createEventID(event)])
-    let ruleSnapshot = ruleTypes.load(snapshotId)
+    let ruleSnapshot = ruleRel.load(snapshotId)
     if(ruleSnapshot == null){
-        ruleSnapshot = new ruleTypes(snapshotId)
+        ruleSnapshot = new ruleRel(snapshotId)
         ruleSnapshot.root = STRING_INVALID
         ruleSnapshot.version = 0
         ruleSnapshot.rules = []
@@ -1744,45 +1748,76 @@ function getRuleSnapshotEntity(
 function ruleValidationEBCSchema(
     ebcAddr: string,
     mdc: MDC
-): boolean{
+): string{
     const EBCArray = getMDCLatestEBCs(mdc)
     if(!EBCArray.includes(ebcAddr)){
-        return false
+        log.warning("rule EBC not bind in mdc: {}, EBC: {}, length: {}", [mdc.id, ebcAddr, EBCArray.length.toString()])
+        return RULEVALIDA_EBCNOTFOUND
     }
-    return true
+    return RULEVALIDA_NOERROR
 }
 
 function ruleValidationSchema(
     rsc: rscRuleType,
     mdc: MDC,
-): boolean{
+    ebcAddr: string
+): string{
+    // EBC validation
+    const EBCArray = getMDCLatestEBCs(mdc)
+    if(!EBCArray.includes(ebcAddr)){
+        log.warning("rule EBC not bind in mdc: {}, EBC: {}, length: {}", [mdc.id, ebcAddr, EBCArray.length.toString()])
+        return RULEVALIDA_EBCNOTFOUND
+    }
+
     // chainID validation
     const chain0 = rsc.chain0
     const chain1 = rsc.chain1
     if(chain0 >= chain1){
-        return false
+        log.warning("chain0: {} >= chain1: {}", [chain0.toString(), chain1.toString()])
+        return RULEVALIDA_CHAINIDMISSMATCH
     }
     const chainIds = getMDCLatestChainIds(mdc)
     if(!chainIds.includes(chain0) || !chainIds.includes(chain1)){
-        return false
+        log.warning("chainId not bind in mdc: {}, chain0: {}, chain1: {}, length: {}", [mdc.id, chain0.toString(), chain1.toString(), chainIds.length.toString()])
+        for(let i = 0; i < chainIds.length; i++){
+            log.warning("chainId bind in mdc: {}", [chainIds[i].toString()])
+        }
+        return RULEVALIDA_CHAINIDNOTFOUND
     }
 
     // token validation
-    const chain0Token = rsc.chain0Token.toHexString()
-    const chain1Token = rsc.chain1Token.toHexString()
-    const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
-    const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
-    if(!chain0TokenArray.includes(chain0Token) || !chain1TokenArray.includes(chain1Token)){
-        return false
-    }
+    if(rsc.chain0Token != BigInt.fromI32(0) ){
+        const chain0Token = rsc.chain0Token.toHexString()
+        const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
+        if(!chain0TokenArray.includes(chain0Token)){
+            log.warning("token not bind in chainInfoUpdated: {}, chain0: {}, length: {}", [mdc.id, chain0Token, chain0TokenArray.length.toString()])
+            for(let i = 0; i < chain0TokenArray.length; i++){
+                log.warning("token bind in chainInfoUpdated: {}", [chain0TokenArray[i]])
+            }
+            return RULEVALIDA_TOKENNOTFOUND
+        }
+    }   
+
+    if(rsc.chain1Token != BigInt.fromI32(0)){
+        const chain1Token = rsc.chain1Token.toHexString()
+        const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
+        if(!chain1TokenArray.includes(chain1Token)){
+            log.warning("token not bind in chainInfoUpdated: {}, chain1: {}, length: {}", [mdc.id, chain1Token, chain1TokenArray.length.toString()])
+            for(let i = 0; i < chain1TokenArray.length; i++){
+                log.warning("token bind in chainInfoUpdated: {}", [chain1TokenArray[i]])
+            }
+            return RULEVALIDA_TOKENNOTFOUND
+        }
+    }    
 
     const chain0Status = rsc.chain0Status
     const chain1Status = rsc.chain1Status
-    if(chain0Status === chain1Status === false){
-        return false
+    if(chain0Status == BigInt.fromI32(0) && chain1Status == BigInt.fromI32(0)){
+        log.info("maker {} shutdown service, chain: {} - {} ", [mdc.id, chain0.toString(), chain1.toString()])
+        return RULEVALIDA_SERVICECLOSED
     }
 
-    return true
+    return RULEVALIDA_NOERROR
 }
 
 export function mdcStoreRuleSnapshot(
@@ -1791,6 +1826,7 @@ export function mdcStoreRuleSnapshot(
     mdc: MDC,
     ebc: ebcRel
 ): void {
+    let validateBool = true;
     let ruleSnapshot = getRuleSnapshotEntity(event, mdc, ebc)
     saveRuleSnapshotRelation(event, ruleSnapshot, mdc, ebc)
     ruleSnapshot.root = updateRulesRootEntity.root
@@ -1798,11 +1834,11 @@ export function mdcStoreRuleSnapshot(
     ruleSnapshot.sourceChainIds = updateRulesRootEntity.sourceChainIds
     ruleSnapshot.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
     ruleSnapshot.token = updateRulesRootEntity.tokenAddr
-    const EBCValidation = ruleValidationEBCSchema(updateRulesRootEntity.ebcAddress, mdc)
+    // const EBCValidation = ruleValidationEBCSchema(updateRulesRootEntity.ebcAddress, mdc)
     if(updateRulesRootEntity.rscType.length > 0){
         for(let i = 0; i < updateRulesRootEntity.rscType.length; i++){
             let _rule = getRuleEntity(ruleSnapshot, i, mdc, ebc, event)    
-            const validateResult = ruleValidationSchema(updateRulesRootEntity.rscType[i], mdc)      
+            const validateResult = ruleValidationSchema(updateRulesRootEntity.rscType[i], mdc, updateRulesRootEntity.ebcAddress)      
             _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
             _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
             _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
@@ -1822,7 +1858,13 @@ export function mdcStoreRuleSnapshot(
             _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
             _rule.enableTimestamp = updateRulesRootEntity.enableTimestamp
-            _rule.ruleValidation = validateResult && EBCValidation
+            if(validateResult != RULEVALIDA_NOERROR){
+                _rule.ruleValidation = validateBool = false
+                log.warning("rule validation failed, rule index: {}, error code: {}", [i.toString(), validateResult.toString()])
+            }else{
+                _rule.ruleValidation = validateBool = true
+            }
+            _rule.ruleValidationErrorstatus = validateResult
             _rule.save()
             updateLatestRules(
                 updateRulesRootEntity.rscType[i],
@@ -1831,7 +1873,7 @@ export function mdcStoreRuleSnapshot(
                 mdc,
                 ebc,
                 validateResult,
-                EBCValidation,
+                validateBool,
                 ruleSnapshot
             )
             if(debugLogCreateRules){

@@ -169,7 +169,7 @@ describe("Describe check MDC rule snaptShot", () => {
 
     // check new create snapshot relation
     assert.fieldEquals(
-      "ruleTypes",
+      "ruleRel",
       ruleSnapshotId,
       "mdc",
       `[${inputMDC.toLowerCase()}]`
@@ -177,7 +177,7 @@ describe("Describe check MDC rule snaptShot", () => {
 
     // check new create snapshot relation
     assert.fieldEquals(
-      "ruleTypes",
+      "ruleRel",
       ruleSnapshotId,
       "ebc",
       `[${ebcAddress.toLowerCase()}]`
@@ -206,7 +206,7 @@ describe("Describe check MDC rule snaptShot", () => {
     assert.fieldEquals(
       "rule",
       `${ruleSnapshotId}-1`,
-      "ruletypes",
+      "ruleRel",
       `[${ruleSnapshotId}]`
     )
 
@@ -228,7 +228,7 @@ describe("Describe check MDC rule snaptShot", () => {
     // check rule relation
     // could be insert many rules in one transaction, hard to coding, so we mark this code...
     assert.fieldEquals(
-      "ruleTypes",
+      "ruleRel",
       ruleSnapshotId,
       "rules",
       `[${rules}\]`

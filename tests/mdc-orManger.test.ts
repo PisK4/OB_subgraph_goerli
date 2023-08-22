@@ -35,6 +35,7 @@ import {
 import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"
 import { handleChainInfoUpdated, handleChainTokenUpdated, handleEbcsUpdated } from "../src/mappings/or-manager"
+import { createHashID } from "../src/mappings/utils"
 
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
@@ -45,6 +46,7 @@ describe("Describe check responseMakers Event", () => {
   // ]
   const responseMakers1 = "186258217070866900924478871193601082399096503291"
   const responseMakers2 = "905852841822203005801390459791760958298983703480"
+  
 
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
@@ -161,8 +163,9 @@ describe("Describe check ChainTokenUpdated Event", () => {
     const mockToken = "196376302172346843968590065221485113559586934957"
     // ccover mockToken to HexString
     const mockTokenHex = "0x2265d16498efe5e63e08fa50f4344a2668db90ad"
-    const mockMainnetToken = "0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb"
+    const mockMainnetToken = "0x0000000000000000000000000000000000000000"
     const Chainid = "985"
+    const mockHashId = "0xe6b5c9271e7031a864385601683bb80828af43d88858e17c2d0f5f9788109e73"  // hash("985-0x2265d16498efe5e63e08fa50f4344a2668db90ad")
     beforeAll(() => {
       let _chainId = BigInt.fromString(Chainid)
       let token = BigInt.fromString(mockToken)
@@ -192,16 +195,16 @@ describe("Describe check ChainTokenUpdated Event", () => {
 
       assert.fieldEquals(
         "tokenRel",
-        mockTokenHex,
+        mockHashId,
         "id",
-        mockTokenHex
+        mockHashId
       )
 
       assert.fieldEquals(
         "chainRel",
         Chainid,
         "tokens",
-        `[${mockTokenHex}]`
+        `[${mockHashId}]`
       )
 
       // assert.fieldEquals(
@@ -213,7 +216,7 @@ describe("Describe check ChainTokenUpdated Event", () => {
 
       assert.fieldEquals(
         "tokenRel",
-        mockTokenHex,
+        mockHashId,
         "symbol",
         "MOCK1"
       )

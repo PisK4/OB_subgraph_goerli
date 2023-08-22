@@ -2919,7 +2919,7 @@ export class chainIdMappingSnapshot extends Entity {
   }
 }
 
-export class ruleTypes extends Entity {
+export class ruleRel extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -2927,22 +2927,22 @@ export class ruleTypes extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save ruleTypes entity without an ID");
+    assert(id != null, "Cannot save ruleRel entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type ruleTypes must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ruleRel must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ruleTypes", id.toString(), this);
+      store.set("ruleRel", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ruleTypes | null {
-    return changetype<ruleTypes | null>(store.get_in_block("ruleTypes", id));
+  static loadInBlock(id: string): ruleRel | null {
+    return changetype<ruleRel | null>(store.get_in_block("ruleRel", id));
   }
 
-  static load(id: string): ruleTypes | null {
-    return changetype<ruleTypes | null>(store.get("ruleTypes", id));
+  static load(id: string): ruleRel | null {
+    return changetype<ruleRel | null>(store.get("ruleRel", id));
   }
 
   get id(): string {
@@ -2969,6 +2969,19 @@ export class ruleTypes extends Entity {
 
   set rules(value: Array<string>) {
     this.set("rules", Value.fromStringArray(value));
+  }
+
+  get type(): string {
+    let value = this.get("type");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set type(value: string) {
+    this.set("type", Value.fromString(value));
   }
 
   get ruleLatest(): Array<string> {
@@ -3050,11 +3063,11 @@ export class ruleTypes extends Entity {
   }
 
   get mdc(): MDCLoader {
-    return new MDCLoader("ruleTypes", this.get("id")!.toString(), "mdc");
+    return new MDCLoader("ruleRel", this.get("id")!.toString(), "mdc");
   }
 
   get ebc(): ebcRelLoader {
-    return new ebcRelLoader("ruleTypes", this.get("id")!.toString(), "ebc");
+    return new ebcRelLoader("ruleRel", this.get("id")!.toString(), "ebc");
   }
 
   get latestUpdateHash(): string | null {
@@ -3434,6 +3447,19 @@ export class rule extends Entity {
     this.set("ruleValidation", Value.fromBoolean(value));
   }
 
+  get ruleValidationErrorstatus(): string {
+    let value = this.get("ruleValidationErrorstatus");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ruleValidationErrorstatus(value: string) {
+    this.set("ruleValidationErrorstatus", Value.fromString(value));
+  }
+
   get latestUpdateBlockNumber(): BigInt {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -3473,8 +3499,8 @@ export class rule extends Entity {
     this.set("latestUpdatetransactionHash", Value.fromString(value));
   }
 
-  get ruletypes(): ruleTypesLoader {
-    return new ruleTypesLoader("rule", this.get("id")!.toString(), "ruletypes");
+  get ruleRel(): ruleRelLoader {
+    return new ruleRelLoader("rule", this.get("id")!.toString(), "ruleRel");
   }
 }
 
@@ -3939,6 +3965,19 @@ export class latestRule extends Entity {
 
   set ruleValidation(value: boolean) {
     this.set("ruleValidation", Value.fromBoolean(value));
+  }
+
+  get ruleValidationErrorstatus(): string {
+    let value = this.get("ruleValidationErrorstatus");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ruleValidationErrorstatus(value: string) {
+    this.set("ruleValidationErrorstatus", Value.fromString(value));
   }
 
   get ebc(): ebcRelLoader {
@@ -4417,11 +4456,24 @@ export class latestRuleSnapshot extends Entity {
     this.set("ruleValidation", Value.fromBoolean(value));
   }
 
-  get ruleSnapshot(): ruleTypesLoader {
-    return new ruleTypesLoader(
+  get ruleValidationErrorstatus(): string {
+    let value = this.get("ruleValidationErrorstatus");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ruleValidationErrorstatus(value: string) {
+    this.set("ruleValidationErrorstatus", Value.fromString(value));
+  }
+
+  get ruleRelSnapshot(): ruleRelLoader {
+    return new ruleRelLoader(
       "latestRuleSnapshot",
       this.get("id")!.toString(),
-      "ruleSnapshot"
+      "ruleRelSnapshot"
     );
   }
 }
@@ -4489,6 +4541,19 @@ export class chainRel extends Entity {
 
   set spvs(value: Array<string>) {
     this.set("spvs", Value.fromStringArray(value));
+  }
+
+  get nativeToken(): string {
+    let value = this.get("nativeToken");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nativeToken(value: string) {
+    this.set("nativeToken", Value.fromString(value));
   }
 
   get batchLimit(): BigInt | null {
@@ -4738,6 +4803,19 @@ export class tokenRel extends Entity {
     } else {
       this.set("mainnetToken", Value.fromString(<string>value));
     }
+  }
+
+  get isNative(): boolean {
+    let value = this.get("isNative");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isNative(value: boolean) {
+    this.set("isNative", Value.fromBoolean(value));
   }
 
   get decimals(): i32 {
@@ -6562,7 +6640,7 @@ export class chainIdSnapshotLoader extends Entity {
   }
 }
 
-export class ruleTypesLoader extends Entity {
+export class ruleRelLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -6574,9 +6652,9 @@ export class ruleTypesLoader extends Entity {
     this._field = field;
   }
 
-  load(): ruleTypes[] {
+  load(): ruleRel[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<ruleTypes[]>(value);
+    return changetype<ruleRel[]>(value);
   }
 }
 
