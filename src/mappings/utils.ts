@@ -130,3 +130,36 @@ export function intConverHexString(value: BigInt) : string{
         return address.toHexString()
     }
 }
+export function padZeroToUint(hexString: string): string {
+  const uint256Length = 64;
+  let paddedHexString = hexString;
+  if (paddedHexString.startsWith('0x')) {
+    paddedHexString = paddedHexString.slice(2);
+  }
+  const hexStringLength = paddedHexString.length;
+  if (hexStringLength < uint256Length) {
+    const paddingLength = uint256Length - hexStringLength;
+    const padding = '0'.repeat(paddingLength);
+    paddedHexString = padding + paddedHexString;
+  } else if (hexStringLength > uint256Length) {
+    throw new Error('Invalid hex string length');
+  }
+  return '0x' + paddedHexString;
+}
+
+export function padZeroToAddress(hexString: string): string {
+    const uint256Length = 40;
+    let paddedHexString = hexString;
+    if (paddedHexString.startsWith('0x')) {
+      paddedHexString = paddedHexString.slice(2);
+    }
+    const hexStringLength = paddedHexString.length;
+    if (hexStringLength < uint256Length) {
+      const paddingLength = uint256Length - hexStringLength;
+      const padding = '0'.repeat(paddingLength);
+      paddedHexString = padding + paddedHexString;
+    } else if (hexStringLength > uint256Length) {
+      throw new Error('Invalid hex string length');
+    }
+    return '0x' + paddedHexString;
+  }

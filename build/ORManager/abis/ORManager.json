@@ -52,6 +52,11 @@
             "type": "uint64"
           },
           {
+            "internalType": "uint256",
+            "name": "nativeToken",
+            "type": "uint256"
+          },
+          {
             "internalType": "address[]",
             "name": "spvs",
             "type": "address[]"
@@ -351,6 +356,11 @@
             "type": "uint64"
           },
           {
+            "internalType": "uint256",
+            "name": "nativeToken",
+            "type": "uint256"
+          },
+          {
             "internalType": "address[]",
             "name": "spvs",
             "type": "address[]"
@@ -532,6 +542,11 @@
             "internalType": "uint64",
             "name": "maxVerifyChallengeDestTxSecond",
             "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nativeToken",
+            "type": "uint256"
           },
           {
             "internalType": "address[]",

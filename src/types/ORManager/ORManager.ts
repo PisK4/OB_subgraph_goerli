@@ -59,8 +59,12 @@ export class ChainInfoUpdatedChainInfoStruct extends ethereum.Tuple {
     return this[5].toBigInt();
   }
 
+  get nativeToken(): BigInt {
+    return this[6].toBigInt();
+  }
+
   get spvs(): Array<Address> {
-    return this[6].toAddressArray();
+    return this[7].toAddressArray();
   }
 }
 
@@ -319,8 +323,12 @@ export class ORManager__getChainInfoResultValue0Struct extends ethereum.Tuple {
     return this[5].toBigInt();
   }
 
+  get nativeToken(): BigInt {
+    return this[6].toBigInt();
+  }
+
   get spvs(): Array<Address> {
-    return this[6].toAddressArray();
+    return this[7].toAddressArray();
   }
 }
 
@@ -459,7 +467,7 @@ export class ORManager extends ethereum.SmartContract {
   getChainInfo(id: BigInt): ORManager__getChainInfoResultValue0Struct {
     let result = super.call(
       "getChainInfo",
-      "getChainInfo(uint64):((uint64,uint192,uint64,uint64,uint64,uint64,address[]))",
+      "getChainInfo(uint64):((uint64,uint192,uint64,uint64,uint64,uint64,uint256,address[]))",
       [ethereum.Value.fromUnsignedBigInt(id)]
     );
 
@@ -473,7 +481,7 @@ export class ORManager extends ethereum.SmartContract {
   ): ethereum.CallResult<ORManager__getChainInfoResultValue0Struct> {
     let result = super.tryCall(
       "getChainInfo",
-      "getChainInfo(uint64):((uint64,uint192,uint64,uint64,uint64,uint64,address[]))",
+      "getChainInfo(uint64):((uint64,uint192,uint64,uint64,uint64,uint64,uint256,address[]))",
       [ethereum.Value.fromUnsignedBigInt(id)]
     );
     if (result.reverted) {
@@ -757,8 +765,12 @@ export class RegisterChainsCallChains_Struct extends ethereum.Tuple {
     return this[5].toBigInt();
   }
 
+  get nativeToken(): BigInt {
+    return this[6].toBigInt();
+  }
+
   get spvs(): Array<Address> {
-    return this[6].toAddressArray();
+    return this[7].toAddressArray();
   }
 }
 

@@ -4805,19 +4805,6 @@ export class tokenRel extends Entity {
     }
   }
 
-  get isNative(): boolean {
-    let value = this.get("isNative");
-    if (!value || value.kind == ValueKind.NULL) {
-      return false;
-    } else {
-      return value.toBoolean();
-    }
-  }
-
-  set isNative(value: boolean) {
-    this.set("isNative", Value.fromBoolean(value));
-  }
-
   get decimals(): i32 {
     let value = this.get("decimals");
     if (!value || value.kind == ValueKind.NULL) {

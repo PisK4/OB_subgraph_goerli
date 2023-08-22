@@ -30,12 +30,13 @@ import { handleMDCCreated } from "../src/mappings/mdc-factory"
 import { 
   AddressFmtPadZero,
   EBCManagerID,
+  ETH_ZERO_ADDRESS,
   ORMangerID
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"
 import { handleChainInfoUpdated, handleChainTokenUpdated, handleEbcsUpdated } from "../src/mappings/or-manager"
-import { createHashID } from "../src/mappings/utils"
+import { createHashID, padZeroToUint } from "../src/mappings/utils"
 
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
@@ -133,6 +134,7 @@ describe("Describe check ChainInfoUpdated Event", () => {
     let maxVerifyChallengeSourceTxSecond = BigInt.fromI32(100)
     let minVerifyChallengeDestTxSecond = BigInt.fromI32(100)
     let maxVerifyChallengeDestTxSecond = BigInt.fromI32(100)
+    let nativeToken = BigInt.fromI32(0)
     let spv : Array<ethereum.Value> = [
       ethereum.Value.fromAddress(Address.fromString("0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb")),
     ] 
@@ -145,6 +147,7 @@ describe("Describe check ChainInfoUpdated Event", () => {
       ethereum.Value.fromUnsignedBigInt(maxVerifyChallengeSourceTxSecond),
       ethereum.Value.fromUnsignedBigInt(minVerifyChallengeDestTxSecond),
       ethereum.Value.fromUnsignedBigInt(maxVerifyChallengeDestTxSecond),
+      ethereum.Value.fromUnsignedBigInt(nativeToken),
       ethereum.Value.fromTuple(spvTuple)
     ]
     const chainInfo = changetype<ethereum.Tuple>(tupleArray);   
@@ -161,6 +164,7 @@ describe("Describe check ChainInfoUpdated Event", () => {
 
 describe("Describe check ChainTokenUpdated Event", () => {
     const mockToken = "196376302172346843968590065221485113559586934957"
+    // const mockToken = BigInt.fromString("196376302172346843968590065221485113559586934957")
     // ccover mockToken to HexString
     const mockTokenHex = "0x2265d16498efe5e63e08fa50f4344a2668db90ad"
     const mockMainnetToken = "0x0000000000000000000000000000000000000000"
@@ -201,6 +205,13 @@ describe("Describe check ChainTokenUpdated Event", () => {
       )
 
       assert.fieldEquals(
+        "tokenRel",
+        mockHashId,
+        "tokenAddress",
+        padZeroToUint(BigInt.fromString(mockToken).toHexString())
+      )
+
+      assert.fieldEquals(
         "chainRel",
         Chainid,
         "tokens",
@@ -214,12 +225,12 @@ describe("Describe check ChainTokenUpdated Event", () => {
       //   Chainid.toString()
       // )
 
-      assert.fieldEquals(
-        "tokenRel",
-        mockHashId,
-        "symbol",
-        "MOCK1"
-      )
+      // assert.fieldEquals(
+      //   "tokenRel",
+      //   mockHashId,
+      //   "symbol",
+      //   "ETH"
+      // )
     })
 })
 

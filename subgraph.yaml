@@ -6,9 +6,9 @@ dataSources:
     name: MDCFactory
     network: goerli
     source:
-      address: "0xA709742c7787544Dc19E05cc82c6D5e5cf80C42D"
+      address: "0x863a5C6ADF480c84E9364D86F7a59584f5BfAb00"
       abi: MDCFactory
-      startBlock: 9526600
+      startBlock: 9560500
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -26,9 +26,9 @@ dataSources:
     name: ORManager
     network: goerli
     source:
-      address: "0xC7D9e808Cd42d42d7A7B6A6f84AA9754Fc18B6A5"
+      address: "0x5a2bf466c59C7DCD149E80EF5CB480596E4BCb53"
       abi: ORManager
-      startBlock: 9526600
+      startBlock: 9560500
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -51,8 +51,7 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        - event: ChainInfoUpdated(indexed
-            uint64,(uint64,uint192,uint64,uint64,uint64,uint64,address[]))
+        - event: ChainInfoUpdated(indexed uint64,(uint64,uint192,uint64,uint64,uint64,uint64,uint256,address[]))
           handler: handleChainInfoUpdated
         - event: ChainTokenUpdated(indexed uint64,(uint256,address,uint8))
           handler: handleChainTokenUpdated
@@ -79,9 +78,9 @@ dataSources:
     name: ORFeeManager
     network: goerli
     source:
-      address: "0x461997C4C2414eD903fD62FFF9D2e62A8eAb299e"
+      address: "0x450121C75057E92E3a851D64d2E35E80231cC074"
       abi: ORFeeManager
-      startBlock: 9526600
+      startBlock: 9560500
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

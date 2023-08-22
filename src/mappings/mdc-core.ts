@@ -46,7 +46,8 @@ import {
     getChainIdSnapshotEntity,
     decodeEnabletime,
     func_updateColumnArraySelector,
-    STRING_INVALID
+    STRING_INVALID,
+    ETH_ZERO_ADDRESS
 } from "./helpers"
 import { 
     FactoryManger
@@ -61,7 +62,7 @@ import {
   functionupdateColumnArrayMockinput
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
-import { getFunctionSelector } from "./utils";
+import { getFunctionSelector, padZeroToUint } from "./utils";
 import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20utils";
 
 
@@ -188,6 +189,7 @@ export function handleChainInfoUpdatedEvent(
 ): void{
   // log.debug("handleChainInfoUpdated id:{}", [chainInfoId.toString()])
     let _chainInfo = getChainInfoEntity(event, chainInfoId)
+    _chainInfo.nativeToken = padZeroToUint(chainInfo.nativeToken.toHexString())
     let batchLimit = chainInfo.batchLimit
     let minVerifyChallengeSourceTxSecond = chainInfo.minVerifyChallengeSourceTxSecond
     let maxVerifyChallengeSourceTxSecond = chainInfo.maxVerifyChallengeSourceTxSecond
@@ -228,13 +230,24 @@ export function handleChainTokenUpdatedEvent(
   const token = tokenInfo.token.toHexString()
   const decimals = tokenInfo.decimals
   const mainnetToken = tokenInfo.mainnetToken
-  const ERC20Token = mainnetToken.toHexString() != "0x0000000000000000000000000000000000000000" ? mainnetToken.toHexString() : token
-  let Token = getTokenEntity(chainId, token, event)
+  const ERC20Token 
+  = mainnetToken.toHexString() != ETH_ZERO_ADDRESS 
+  ? mainnetToken.toHexString() : token
+  let Token = getTokenEntity(chainId, tokenInfo.token.toHexString(), event)
   Token.mainnetToken = mainnetToken.toHexString()
-  Token.name = fetchTokenName(Address.fromString(ERC20Token))
-  Token.symbol = fetchTokenSymbol(Address.fromString(ERC20Token))
-  const fetchTokenDecimal = fetchTokenDecimals(Address.fromString(ERC20Token)).toI32()
-  Token.decimals = fetchTokenDecimal != 0 ? fetchTokenDecimal : decimals
+  if(mainnetToken.toHexString() == ETH_ZERO_ADDRESS){
+    log.info("native token is ether",[])
+    Token.name = "Ether"
+    Token.symbol = "ETH"
+    Token.decimals = decimals
+  } else{
+    log.info("ERC20Token is {}, mainnetToken is {}", [ERC20Token, mainnetToken.toHexString()])
+    Token.name = fetchTokenName(Address.fromString(ERC20Token))
+    Token.symbol = fetchTokenSymbol(Address.fromString(ERC20Token))
+    const fetchTokenDecimal = fetchTokenDecimals(Address.fromString(ERC20Token)).toI32()
+    Token.decimals = fetchTokenDecimal != 0 ? fetchTokenDecimal : decimals
+  }
+
   Token.save()  
 }
 

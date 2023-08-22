@@ -400,7 +400,7 @@ type tokenRel @entity{
   symbol: String! # string
   name: String! # string
   mainnetToken: String # address
-  isNative: Boolean! # bool
+  # isNative: Boolean! # bool
   decimals: Int # uint8
   chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!

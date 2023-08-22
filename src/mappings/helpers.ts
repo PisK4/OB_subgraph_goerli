@@ -52,6 +52,7 @@ import {
     getFunctionSelector, 
     inputdataPrefix, 
     intConverHexString, 
+    padZeroToUint, 
     removeFunctionSelector } from './utils'
 import { functionrResponseMakerMockinput } from '../../tests/mock-data'
 
@@ -76,6 +77,7 @@ export const RULEVALIDA_TOKENNOTFOUND = 'token not found'
 export const RULEVALIDA_CHAINIDMISSMATCH = 'chainId miss match'
 export const RULEVALIDA_SERVICECLOSED = 'service closed'
 export const ONE_ADDRESS = '0xffffffffffffffffffffffffffffffffffffffff'
+export const ETH_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as string
 export const ONE_NUM = 0xffffffff
 export const ONE_BYTES = new Bytes(32);
 
@@ -396,13 +398,14 @@ export function getTokenEntity(
     let chainInfo = getChainInfoEntity(event, chainId)
     let tokenInfo = tokenRel.load(tokenId)
     if (tokenInfo == null) {
-        log.info('create new token: {}, chain: {}, id: {}', [token, chainId.toString(),tokenId])
         tokenInfo = new tokenRel(tokenId)
-        tokenInfo.tokenAddress = token
+        tokenInfo.tokenAddress = padZeroToUint(token)
         tokenInfo.chainId = chainId.toString()
         // saveTokenInfo2ChainInfo(chainInfo, tokenId)
         chainInfo.tokens = entityConcatID(chainInfo.tokens, tokenId)
         chainInfo.save()
+        log.info('create new token: {}, chain: {}, id: {}', [tokenInfo.tokenAddress, chainId.toString(),tokenId])
+
     }
     tokenInfo.latestUpdateBlockNumber = event.block.number
     tokenInfo.latestUpdateTimestamp = event.block.timestamp
@@ -1613,9 +1616,8 @@ function updateLatestRules(
     _rscRuleType.chain1 = rsc.chain1;
     _rscRuleType.chain0Status = rsc.chain0Status.toI32();
     _rscRuleType.chain1Status = rsc.chain1Status.toI32();
-    _rscRuleType.chain0Token = intConverHexString(rsc.chain0Token);
-    _rscRuleType.chain1Token = intConverHexString(rsc.chain1Token);
-    _rscRuleType.chain0minPrice = rsc.chain0minPrice;
+    _rscRuleType.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
+    _rscRuleType.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
     _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
     _rscRuleType.chain1minPrice = rsc.chain1minPrice;
     _rscRuleType.chain1maxPrice = rsc.chain1maxPrice;
@@ -1637,7 +1639,7 @@ function updateLatestRules(
     if (rsc.selector === updateRulesRootMode.ETH) {
       _rscRuleType.type = 'ETH';
       snapshot.type = 'ETH';
-      snapshot.token = intConverHexString(BigInt.fromI32(0));
+      snapshot.token = padZeroToUint("0");
     } else if (rsc.selector === updateRulesRootMode.ERC20) {
       _rscRuleType.type = 'ERC20';
       snapshot.type = 'ERC20';
@@ -1787,7 +1789,7 @@ function ruleValidationSchema(
 
     // token validation
     if(rsc.chain0Token != BigInt.fromI32(0) ){
-        const chain0Token = rsc.chain0Token.toHexString()
+        const chain0Token = padZeroToUint(rsc.chain0Token.toHexString())
         const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
         if(!chain0TokenArray.includes(chain0Token)){
             log.warning("token not bind in chainInfoUpdated: {}, chain0: {}, length: {}", [mdc.id, chain0Token, chain0TokenArray.length.toString()])
@@ -1799,7 +1801,7 @@ function ruleValidationSchema(
     }   
 
     if(rsc.chain1Token != BigInt.fromI32(0)){
-        const chain1Token = rsc.chain1Token.toHexString()
+        const chain1Token = padZeroToUint(rsc.chain1Token.toHexString())
         const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
         if(!chain1TokenArray.includes(chain1Token)){
             log.warning("token not bind in chainInfoUpdated: {}, chain1: {}, length: {}", [mdc.id, chain1Token, chain1TokenArray.length.toString()])
@@ -1843,8 +1845,8 @@ export function mdcStoreRuleSnapshot(
             _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
             _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
             _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()    
-            _rule.chain0Token = (AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain0Token.toHexString()))
-            _rule.chain1Token = (AddressFmtPadZero(updateRulesRootEntity.rscType[i].chain1Token.toHexString()))
+            _rule.chain0Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain0Token.toHexString())
+            _rule.chain1Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain1Token.toHexString())
             _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice
             _rule.chain0maxPrice = updateRulesRootEntity.rscType[i].chain0maxPrice
             _rule.chain1minPrice = updateRulesRootEntity.rscType[i].chain1minPrice

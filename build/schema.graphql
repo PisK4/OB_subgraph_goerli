@@ -380,6 +380,7 @@ type chainRel @entity{
   id: ID! # chainId
   tokens: [tokenRel!]! # ChainToken
   spvs: [String!]! # address[]
+  nativeToken: String! # address
   batchLimit: BigInt # uint192
   minVerifyChallengeSourceTxSecond: BigInt # uint64
   maxVerifyChallengeSourceTxSecond: BigInt # uint64
@@ -399,6 +400,7 @@ type tokenRel @entity{
   symbol: String! # string
   name: String! # string
   mainnetToken: String # address
+  # isNative: Boolean! # bool
   decimals: Int # uint8
   chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
