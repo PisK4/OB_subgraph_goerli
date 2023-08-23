@@ -427,7 +427,7 @@ export class ColumnArrayUpdated extends Entity {
   }
 }
 
-export class ResponseMakersSnapshot extends Entity {
+export class responseMakersMapping extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -437,26 +437,26 @@ export class ResponseMakersSnapshot extends Entity {
     let id = this.get("id");
     assert(
       id != null,
-      "Cannot save ResponseMakersSnapshot entity without an ID"
+      "Cannot save responseMakersMapping entity without an ID"
     );
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type ResponseMakersSnapshot must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type responseMakersMapping must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ResponseMakersSnapshot", id.toString(), this);
+      store.set("responseMakersMapping", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ResponseMakersSnapshot | null {
-    return changetype<ResponseMakersSnapshot | null>(
-      store.get_in_block("ResponseMakersSnapshot", id)
+  static loadInBlock(id: string): responseMakersMapping | null {
+    return changetype<responseMakersMapping | null>(
+      store.get_in_block("responseMakersMapping", id)
     );
   }
 
-  static load(id: string): ResponseMakersSnapshot | null {
-    return changetype<ResponseMakersSnapshot | null>(
-      store.get("ResponseMakersSnapshot", id)
+  static load(id: string): responseMakersMapping | null {
+    return changetype<responseMakersMapping | null>(
+      store.get("responseMakersMapping", id)
     );
   }
 
@@ -503,28 +503,41 @@ export class ResponseMakersSnapshot extends Entity {
     }
   }
 
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
   get mdc(): MDCLoader {
     return new MDCLoader(
-      "ResponseMakersSnapshot",
+      "responseMakersMapping",
       this.get("id")!.toString(),
       "mdc"
     );
   }
 
-  get latestUpdateHash(): Bytes | null {
+  get latestUpdateHash(): string | null {
     let value = this.get("latestUpdateHash");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set latestUpdateHash(value: Bytes | null) {
+  set latestUpdateHash(value: string | null) {
     if (!value) {
       this.unset("latestUpdateHash");
     } else {
-      this.set("latestUpdateHash", Value.fromBytes(<Bytes>value));
+      this.set("latestUpdateHash", Value.fromString(<string>value));
     }
   }
 
@@ -628,8 +641,8 @@ export class MDC extends Entity {
     this.set("factoryAddr", Value.fromString(value));
   }
 
-  get responseMakerSnapshot(): Array<string> {
-    let value = this.get("responseMakerSnapshot");
+  get responseMakersSnapshot(): Array<string> {
+    let value = this.get("responseMakersSnapshot");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -637,8 +650,8 @@ export class MDC extends Entity {
     }
   }
 
-  set responseMakerSnapshot(value: Array<string>) {
-    this.set("responseMakerSnapshot", Value.fromStringArray(value));
+  set responseMakersSnapshot(value: Array<string>) {
+    this.set("responseMakersSnapshot", Value.fromStringArray(value));
   }
 
   get dealerSnapshot(): Array<string> {
@@ -4650,6 +4663,23 @@ export class chainRel extends Entity {
         "maxVerifyChallengeDestTxSecond",
         Value.fromBigInt(<BigInt>value)
       );
+    }
+  }
+
+  get enableTimestamp(): BigInt | null {
+    let value = this.get("enableTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enableTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("enableTimestamp");
+    } else {
+      this.set("enableTimestamp", Value.fromBigInt(<BigInt>value));
     }
   }
 

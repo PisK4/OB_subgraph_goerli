@@ -304,15 +304,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-ts@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "@graphprotocol/graph-ts@npm:0.27.0"
-  dependencies:
-    assemblyscript: "npm:0.19.10"
-  checksum: 6de29751f90c1cc061854da2e435611060cac6ddf29616831584d65f3c3e5ea05809ab20b1cee5805fa09cd0038cf713d07818afb28bd8ab04283b55afaa248f
-  languageName: node
-  linkType: hard
-
 "@graphprotocol/graph-ts@npm:^0.31.0":
   version: 0.31.0
   resolution: "@graphprotocol/graph-ts@npm:0.31.0"
@@ -808,7 +799,7 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-cli": "npm:0.51.2"
     "@graphprotocol/graph-ts": "npm:^0.31.0"
-    matchstick-as: "npm:0.5.0"
+    matchstick-as: "npm:^0.5.2"
   languageName: unknown
   linkType: soft
 
@@ -854,13 +845,11 @@ __metadata:
   linkType: hard
 
 "agentkeepalive@npm:^4.2.1":
-  version: 4.3.0
-  resolution: "agentkeepalive@npm:4.3.0"
+  version: 4.5.0
+  resolution: "agentkeepalive@npm:4.5.0"
   dependencies:
-    debug: "npm:^4.1.0"
-    depd: "npm:^2.0.0"
     humanize-ms: "npm:^1.2.1"
-  checksum: b3cce4e2faf86c01bad23b471a67f4aa2e6001b833bc2f63a3d5a8b2a671636f8aac7d215e6f8243ce1c07c7a5d8d5fa90ab894ff0d9f0c3e05c2cda801103fb
+  checksum: edc8946e4ac83d164748853cffd381ffea5035cb24b60247d2531e2a3d8a779d9e83984441a2ab46a435bc5e5642b6eba91b6a5fd378ea2b12e68232219e4b5b
   languageName: node
   linkType: hard
 
@@ -1092,7 +1081,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"assemblyscript@npm:0.19.23, assemblyscript@npm:^0.19.20":
+"assemblyscript@npm:0.19.23":
   version: 0.19.23
   resolution: "assemblyscript@npm:0.19.23"
   dependencies:
@@ -1406,14 +1395,14 @@ __metadata:
   linkType: hard
 
 "cacache@npm:^17.0.0":
-  version: 17.1.3
-  resolution: "cacache@npm:17.1.3"
+  version: 17.1.4
+  resolution: "cacache@npm:17.1.4"
   dependencies:
     "@npmcli/fs": "npm:^3.1.0"
     fs-minipass: "npm:^3.0.0"
     glob: "npm:^10.2.2"
     lru-cache: "npm:^7.7.1"
-    minipass: "npm:^5.0.0"
+    minipass: "npm:^7.0.3"
     minipass-collect: "npm:^1.0.2"
     minipass-flush: "npm:^1.0.5"
     minipass-pipeline: "npm:^1.2.4"
@@ -1421,7 +1410,7 @@ __metadata:
     ssri: "npm:^10.0.0"
     tar: "npm:^6.1.11"
     unique-filename: "npm:^3.0.0"
-  checksum: 19b4f65a5b3e3d38aac2426b39ee5f6ad4da3afa8a40991b5784a07a480585af89904e425459d3ca335dc8ff60e2a213e95d4d4bb6a038fb6854eb9c3e777121
+  checksum: 9eeba4d7dda27e5677884b74eb9bc72cfaba56941c2336d975ce9aa716a431ffc7cb77c66ee8e4d795fc7ca131759c84c47abb7af0bc25acf1230b6ce61e0eb3
   languageName: node
   linkType: hard
 
@@ -1780,7 +1769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.3.4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:4.3.4, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -1828,13 +1817,6 @@ __metadata:
   version: 1.0.0
   resolution: "delegates@npm:1.0.0"
   checksum: 2ef8c043c6caea7f00f23236e0606b00f10d2b497657d63d230e50efdef307936b070734187b03960b9c4afe64ce9e09a77c01da60e661d42dcefec11ce41c30
-  languageName: node
-  linkType: hard
-
-"depd@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "depd@npm:2.0.0"
-  checksum: 170e90bfa90081462303140623fdf938aeba2f066b1c7a9a1c599b257ea8127d36b9d39fad5a9d71f5282a3bb5a8ca287ce4d8c6cecd0f65e6bf3779cc6091be
   languageName: node
   linkType: hard
 
@@ -2352,11 +2334,11 @@ __metadata:
   linkType: hard
 
 "fs-minipass@npm:^3.0.0":
-  version: 3.0.2
-  resolution: "fs-minipass@npm:3.0.2"
+  version: 3.0.3
+  resolution: "fs-minipass@npm:3.0.3"
   dependencies:
-    minipass: "npm:^5.0.0"
-  checksum: 2b2cd5428f9c24619f9cffd857508d55eaa3b49d4e060061f775f66c96043c9d9a54a8d05378b63d391ac7d8f9606f180c2b65124b871221d5efcf49781787fe
+    minipass: "npm:^7.0.3"
+  checksum: 20399bd43d0b52b0fdfeaaa07c25ca0d1d6dd2e0dedd9d15996b041546f06b36483a01798cdc4844df22144b59813726cd438412016eeb3f3e0a33f0a608823c
   languageName: node
   linkType: hard
 
@@ -2368,18 +2350,18 @@ __metadata:
   linkType: hard
 
 "fsevents@npm:~2.3.2":
-  version: 2.3.2
-  resolution: "fsevents@npm:2.3.2"
+  version: 2.3.3
+  resolution: "fsevents@npm:2.3.3"
   dependencies:
     node-gyp: "npm:latest"
-  checksum: c85eed7a3e0bbe6908f9feae8a823ee63a796ea2b32e20616ee33f0dda9417976f5a087a8cd2ccf228aae1c5b8b6125c9800f05dd69aaf016c34352a0567dcfb
+  checksum: 78e8273269262cc8912736a7c0be46217e3dc12a1081d077eba52c60f4d01dc8d179fd5d0ad4f82a573c3419caf8ff40cf58a4afdda7836738df4f0896c5e1c0
   conditions: os=darwin
   languageName: node
   linkType: hard
 
 "fsevents@patch:fsevents@npm%3A~2.3.2#optional!builtin<compat/fsevents>":
-  version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#optional!builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  version: 2.3.3
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#optional!builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
   dependencies:
     node-gyp: "npm:latest"
   conditions: os=darwin
@@ -3155,15 +3137,15 @@ __metadata:
   linkType: hard
 
 "jackspeak@npm:^2.0.3":
-  version: 2.2.1
-  resolution: "jackspeak@npm:2.2.1"
+  version: 2.3.0
+  resolution: "jackspeak@npm:2.3.0"
   dependencies:
     "@isaacs/cliui": "npm:^8.0.2"
     "@pkgjs/parseargs": "npm:^0.11.0"
   dependenciesMeta:
     "@pkgjs/parseargs":
       optional: true
-  checksum: b7c66988fb8575356fcf6b6c0fdcfb89a78fd0aaceb16d1318ae355fb7b6f51a456e9b8cf47ac0875bb7d6b94d82cc649762d5b819f4055ad5c5f5d617a0e20f
+  checksum: 57e1e2dfe1dc4ec5f6b24caeeb7049dcad3cb41a3635b20ee84e854bd5cb8a1621ae9a8fd009fd6ccf54ca99a8d651aa0e83c00304f83dfba10364b0211315b5
   languageName: node
   linkType: hard
 
@@ -3507,14 +3489,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"matchstick-as@npm:0.5.0":
-  version: 0.5.0
-  resolution: "matchstick-as@npm:0.5.0"
+"matchstick-as@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "matchstick-as@npm:0.5.2"
   dependencies:
-    "@graphprotocol/graph-ts": "npm:^0.27.0"
-    assemblyscript: "npm:^0.19.20"
     wabt: "npm:1.0.24"
-  checksum: bd27b941b7faba092a79093bb4ef1702fcb061654c7af63a8788652767da3b783f09b7102eee17ce440ff6d4c04822d8cc75dca009f1922e5d02e80ad0615b0b
+  checksum: e063f3e36d5ef8b4b19511ad8c90fc2c1a7b55d0f52c63ddf3f6f911c5799af24c67bd71d2c8e4eddc321b1c35641a4d2813eeaa85ae943ebafad1a926fe1cce
   languageName: node
   linkType: hard
 
@@ -3652,17 +3632,17 @@ __metadata:
   linkType: hard
 
 "minipass-fetch@npm:^3.0.0":
-  version: 3.0.3
-  resolution: "minipass-fetch@npm:3.0.3"
+  version: 3.0.4
+  resolution: "minipass-fetch@npm:3.0.4"
   dependencies:
     encoding: "npm:^0.1.13"
-    minipass: "npm:^5.0.0"
+    minipass: "npm:^7.0.3"
     minipass-sized: "npm:^1.0.3"
     minizlib: "npm:^2.1.2"
   dependenciesMeta:
     encoding:
       optional: true
-  checksum: 26c3d698b5869a2d5d7537a52b49bd2be5696f9e11b9eb982b2c5145403cdb81c1f150f59251ef1226e25e4d5fc70998ea251915535eb21854a692affa79968c
+  checksum: 6543f0eccdde517ab6349563a60d6373383bb9a45e27b89e1ab917e6fc32e4084636523a375aeb4e49e4ff483b132e22fae52f042288b63cd010e5d207dd9f55
   languageName: node
   linkType: hard
 
@@ -3720,6 +3700,13 @@ __metadata:
   version: 7.0.1
   resolution: "minipass@npm:7.0.1"
   checksum: 1b535bec098df31febc06e6a036d220ef25e953718c4bb534af947e5f4ef3ae8acaf0b460b4377cc2cab3bf0049e941e6d4fc7fc2919bfa55be6dd9d56351176
+  languageName: node
+  linkType: hard
+
+"minipass@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "minipass@npm:7.0.3"
+  checksum: a7228d2b0cb0ddf85199edd9421b5da9bc5da21f6307b35a558e51772de4679806fc7638ade4ad7aaca334607144ae0d147eb58e9584a39bf53df9c35d3a6729
   languageName: node
   linkType: hard
 
@@ -4615,9 +4602,9 @@ __metadata:
   linkType: hard
 
 "signal-exit@npm:^4.0.1":
-  version: 4.0.2
-  resolution: "signal-exit@npm:4.0.2"
-  checksum: 8d05e3167eb2b9798d10e005c8c8d011d06189089ebf5cace0400cfe20b4f7cad1a5ccc8b613c92425d25da843b08cf76e4c59827f6c6003b186a7c0c336d46c
+  version: 4.1.0
+  resolution: "signal-exit@npm:4.1.0"
+  checksum: 9925c47b50001235a771dd98519f2a5a52689d022c6554806d62e46cb53ed1aefcdaa151a10e30261e2ae24c1f53c9b3ee6c9f3e4dd428fbf3be7d46220c82f0
   languageName: node
   linkType: hard
 
@@ -4709,11 +4696,11 @@ __metadata:
   linkType: hard
 
 "ssri@npm:^10.0.0":
-  version: 10.0.4
-  resolution: "ssri@npm:10.0.4"
+  version: 10.0.5
+  resolution: "ssri@npm:10.0.5"
   dependencies:
-    minipass: "npm:^5.0.0"
-  checksum: 6c98b01cbec2953f24701a207a34b977afafdd306dd8cd1aedf1188cb7066ae656529e04aebbe29f02809510c78a8b509591b3a7ee89a4e5d2c954f07f2b2b0a
+    minipass: "npm:^7.0.3"
+  checksum: 22cfefba1f6d2963c08b448f12390c0d085d453b6c8ef9c56ae3f66132defcfb948a5e0b0fa71d07d3a9032d363623897ac387985fcd31563e7022133a1e82c4
   languageName: node
   linkType: hard
 

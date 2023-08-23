@@ -47,7 +47,9 @@ import {
     decodeEnabletime,
     func_updateColumnArraySelector,
     STRING_INVALID,
-    ETH_ZERO_ADDRESS
+    ETH_ZERO_ADDRESS,
+    func_registerChainsSelector,
+    func_updateChainSpvsSelector
 } from "./helpers"
 import { 
     FactoryManger
@@ -197,10 +199,13 @@ export function handleChainInfoUpdatedEvent(
     let maxVerifyChallengeDestTxSecond = chainInfo.maxVerifyChallengeDestTxSecond
     let spvs = isProduction ? chainInfo.spvs : [Address.fromString(mockMdcAddr)]
 
-    const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionUpdateChainSpvsMockinput) as Bytes
+    const inputdata = isProduction ? 
+    event.transaction.input : 
+    Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
     const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata)) 
     if(selector == ChainInfoUpdatedMode.registerChains){
         log.info("registerChains", ["registerChains"])
+        const enableTime = decodeEnabletime(inputdata, func_registerChainsSelector)
         _chainInfo.batchLimit = batchLimit
         _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
         _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
@@ -208,12 +213,14 @@ export function handleChainInfoUpdatedEvent(
         _chainInfo.maxVerifyChallengeDestTxSecond = maxVerifyChallengeDestTxSecond
         for (let i = 0; i < spvs.length; i++) {
           _chainInfo.spvs = _chainInfo.spvs.concat([AddressFmtPadZero(spvs[i].toHexString())]);
-          
         }
+        _chainInfo.enableTimestamp = enableTime
 
     }else if(selector == ChainInfoUpdatedMode.updateChainSpvs){
       log.info("updateChainSpvs", ["updateChainSpvs"])
+      const enableTime = decodeEnabletime(inputdata, func_updateChainSpvsSelector)
       parseChainInfoUpdatedInputData(inputdata, _chainInfo)
+      _chainInfo.enableTimestamp = enableTime
 
     }else{
       log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toHexString()])

@@ -24,7 +24,7 @@ import {
     MDCBindSPV,
     MDCMapping,
     ORManger,
-    ResponseMakersSnapshot,
+    responseMakersMapping,
     chainIdMapping,
     ebcMapping,
     latestRule,
@@ -84,8 +84,8 @@ export const ONE_BYTES = new Bytes(32);
 /**** function selectors ****/
 export const func_updateRulesRoot =  "0x0a8f5190"
 export const func_updateRulesRootERC20 = "0x9a6781dc"
-export const func_registerChains ="0xba6051a5"
-export const func_updateChainSpvs = "0xf0373f91"
+export const func_registerChains ="0x2e96565f"
+export const func_updateChainSpvs = "0x434417cf"
 /**** function selectors ****/
 
 /**** decode selectors ****/
@@ -93,7 +93,8 @@ export const RSCDataFmt ="(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,u
 export const selectorSetting = `uint64,address,${RSCDataFmt},(bytes32,uint32),uint64[],uint256[]`
 export const func_updateRulesRootSelector = `(${selectorSetting})`
 export const func_updateRulesRootERC20Selector = `(${selectorSetting},address)`
-export const func_updateChainSpvsSelector = "(uint64,address[],uint[])"
+export const func_registerChainsSelector = "(uint64,(uint64,uint192,uint64,uint64,uint64,uint64,uint,address[])[])"
+export const func_updateChainSpvsSelector = "(uint64,uint64,address[],uint[])"
 export const func_updateColumnArraySelector = "(uint64,address[],address[],uint64[])"
 export const func_updateResponseMakersSelector = "(uint64,bytes[])"
 /**** decode selectors ****/
@@ -317,7 +318,7 @@ export function getMDCEntity(
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker.toHexString()
         mdc.columnArrayUpdated = []
-        mdc.responseMakerSnapshot = []
+        mdc.responseMakersSnapshot = []
         mdc.bindSPVs = []
         mdc.dealerSnapshot = []
         mdc.ebcSnapshot = []
@@ -894,20 +895,22 @@ export function mdcStoreResponseMaker(
     responseMakersArray: string[],
     event: ethereum.Event
 ): void{
-    const id = createEventID(event)
+    const id = createHashID([mdc.id, createEventID(event)])
     const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionrResponseMakerMockinput) as Bytes
     const enableTimestamp = decodeEnabletime(inputdata, func_updateResponseMakersSelector)
-    let responseMakers = ResponseMakersSnapshot.load(id)
+    let responseMakers = responseMakersMapping.load(id)
     if(responseMakers == null){
-        responseMakers = new ResponseMakersSnapshot(id)
+        responseMakers = new responseMakersMapping(id)
+        responseMakers.owner = mdc.owner
         responseMakers.responseMakerList = []
-        mdc.responseMakerSnapshot = mdc.responseMakerSnapshot.concat([responseMakers.id])
+        mdc.responseMakersSnapshot = [responseMakers.id]
         responseMakers.enableTimestamp = enableTimestamp
+        log.info('mdc: {} create new responseMakersMapping, id: {}', [mdc.id, id])
     }
     responseMakers.responseMakerList = responseMakersArray
     responseMakers.latestUpdateBlockNumber = event.block.number
     responseMakers.latestUpdateTimestamp = event.block.timestamp
-    responseMakers.latestUpdateHash = event.transaction.hash
+    responseMakers.latestUpdateHash = event.transaction.hash.toHexString()
     responseMakers.save()
 
     for(let i = 0; i < responseMakersArray.length; i++){
@@ -1311,36 +1314,29 @@ export function parseChainInfoUpdatedInputData(
     data: Bytes,
     _chainInfoUpdated: chainRel
 ): void {
-    // let dataUnderPrefix = inputdataPrefix(data)
-    // const decoded = ethereum.decode(
-    //     func_updateChainSpvsSelector,
-    //     dataUnderPrefix
-    // ) as ethereum.Value;
-    // if (!decoded) {
-    //     log.error("Failed to decode transaction input data", ["error"])
-    // }
-    // let tuple = decoded.toTuple();
     let tuple = decodeInputData(data, func_updateChainSpvsSelector)
 
     if(debugLog){
-        log.debug("chainInfoUpdated kind[0]:{}, kind[1]:{}, kind[2]:{}", [
-            tuple[0].kind.toString(),
-            tuple[1].kind.toString(),
-            tuple[2].kind.toString()
-        ])
+        for(let i = 0; i < tuple.length; i++){
+            log.debug("chainInfoUpdated kind[{}]:{}", [
+                i.toString(),
+                tuple[i].kind.toString()
+            ])
+        }
     }
 
     let id = ZERO_BI
     let spvs = new Array<Address>()
     let indexs = new Array<BigInt>()
-    if(tuple[0].kind == ethereum.ValueKind.UINT){
-        id = tuple[0].toBigInt()
+    if(tuple[1].kind == ethereum.ValueKind.UINT){
+        id = tuple[1].toBigInt()
     }
-    if(tuple[1].kind == ethereum.ValueKind.ARRAY){
-        spvs = tuple[1].toAddressArray()
-    }
+    
     if(tuple[2].kind == ethereum.ValueKind.ARRAY){
-        indexs = tuple[2].toBigIntArray()
+        spvs = tuple[2].toAddressArray()
+    }
+    if(tuple[3].kind == ethereum.ValueKind.ARRAY){
+        indexs = tuple[3].toBigIntArray()
     }
 
     if(debugLog){
@@ -1618,6 +1614,7 @@ function updateLatestRules(
     _rscRuleType.chain1Status = rsc.chain1Status.toI32();
     _rscRuleType.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
     _rscRuleType.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
+    _rscRuleType.chain0minPrice = rsc.chain0minPrice;
     _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
     _rscRuleType.chain1minPrice = rsc.chain1minPrice;
     _rscRuleType.chain1maxPrice = rsc.chain1maxPrice;

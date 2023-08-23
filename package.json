@@ -15,7 +15,6 @@
     "deploy-local3": "graph deploy CABIN --node http://192.168.1.6:8020/ --ipfs http://192.168.1.6:5001",
     "create-local4": "graph create CABIN --node http://106.53.133.224:8020/",
     "deploy-local4": "graph deploy CABIN --node http://106.53.133.224:8020/ --ipfs http://106.53.133.224:5001",
-
     "test": "graph test"
   },
   "dependencies": {
@@ -23,6 +22,6 @@
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.5.0"
+    "matchstick-as": "^0.5.2"
   }
 }
