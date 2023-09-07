@@ -779,8 +779,8 @@ export class MDC extends Entity {
     }
   }
 
-  get factory(): FactoryMangerLoader {
-    return new FactoryMangerLoader(
+  get factory(): FactoryManagerLoader {
+    return new FactoryManagerLoader(
       "MDC",
       this.get("id")!.toString(),
       "factory"
@@ -1134,7 +1134,7 @@ export class Dealer extends Entity {
   }
 }
 
-export class FactoryManger extends Entity {
+export class FactoryManager extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1142,24 +1142,24 @@ export class FactoryManger extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save FactoryManger entity without an ID");
+    assert(id != null, "Cannot save FactoryManager entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type FactoryManger must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type FactoryManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("FactoryManger", id.toString(), this);
+      store.set("FactoryManager", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): FactoryManger | null {
-    return changetype<FactoryManger | null>(
-      store.get_in_block("FactoryManger", id)
+  static loadInBlock(id: string): FactoryManager | null {
+    return changetype<FactoryManager | null>(
+      store.get_in_block("FactoryManager", id)
     );
   }
 
-  static load(id: string): FactoryManger | null {
-    return changetype<FactoryManger | null>(store.get("FactoryManger", id));
+  static load(id: string): FactoryManager | null {
+    return changetype<FactoryManager | null>(store.get("FactoryManager", id));
   }
 
   get id(): string {
@@ -1321,8 +1321,8 @@ export class responseMaker extends Entity {
     this.set("mdcs", Value.fromStringArray(value));
   }
 
-  get factory(): FactoryMangerLoader {
-    return new FactoryMangerLoader(
+  get factory(): FactoryManagerLoader {
+    return new FactoryManagerLoader(
       "responseMaker",
       this.get("id")!.toString(),
       "factory"
@@ -4683,8 +4683,12 @@ export class chainRel extends Entity {
     }
   }
 
-  get manger(): ORMangerLoader {
-    return new ORMangerLoader("chainRel", this.get("id")!.toString(), "manger");
+  get manager(): ORManagerLoader {
+    return new ORManagerLoader(
+      "chainRel",
+      this.get("id")!.toString(),
+      "manager"
+    );
   }
 
   get latestUpdateBlockNumber(): BigInt {
@@ -4892,7 +4896,7 @@ export class tokenRel extends Entity {
   }
 }
 
-export class ORManger extends Entity {
+export class ORManager extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -4900,22 +4904,22 @@ export class ORManger extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save ORManger entity without an ID");
+    assert(id != null, "Cannot save ORManager entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type ORManger must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ORManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("ORManger", id.toString(), this);
+      store.set("ORManager", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): ORManger | null {
-    return changetype<ORManger | null>(store.get_in_block("ORManger", id));
+  static loadInBlock(id: string): ORManager | null {
+    return changetype<ORManager | null>(store.get_in_block("ORManager", id));
   }
 
-  static load(id: string): ORManger | null {
-    return changetype<ORManger | null>(store.get("ORManger", id));
+  static load(id: string): ORManager | null {
+    return changetype<ORManager | null>(store.get("ORManager", id));
   }
 
   get id(): string {
@@ -5148,8 +5152,8 @@ export class ebcRel extends Entity {
     this.set("statuses", Value.fromBoolean(value));
   }
 
-  get manger(): ORMangerLoader {
-    return new ORMangerLoader("ebcRel", this.get("id")!.toString(), "manger");
+  get manager(): ORManagerLoader {
+    return new ORManagerLoader("ebcRel", this.get("id")!.toString(), "manager");
   }
 
   get latestUpdateHash(): string {
@@ -6495,7 +6499,7 @@ export class MDCLoader extends Entity {
   }
 }
 
-export class FactoryMangerLoader extends Entity {
+export class FactoryManagerLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -6507,9 +6511,9 @@ export class FactoryMangerLoader extends Entity {
     this._field = field;
   }
 
-  load(): FactoryManger[] {
+  load(): FactoryManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<FactoryManger[]>(value);
+    return changetype<FactoryManager[]>(value);
   }
 }
 
@@ -6675,7 +6679,7 @@ export class ruleRelLoader extends Entity {
   }
 }
 
-export class ORMangerLoader extends Entity {
+export class ORManagerLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -6687,9 +6691,9 @@ export class ORMangerLoader extends Entity {
     this._field = field;
   }
 
-  load(): ORManger[] {
+  load(): ORManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<ORManger[]>(value);
+    return changetype<ORManager[]>(value);
   }
 }
 

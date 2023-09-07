@@ -58,7 +58,7 @@ type MDC @entity {
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
   mapping: MDCMapping # dealer/ebc/chainId mapping
-  factory: [FactoryManger!]! @derivedFrom(field: "mdcs") 
+  factory: [FactoryManager!]! @derivedFrom(field: "mdcs") 
   ebc: [ebcRel!]! @derivedFrom(field: "mdcList") # EBC
   dealer: [Dealer!]! @derivedFrom(field: "mdcs") # Dealer
   responseMaker: [responseMaker!]! @derivedFrom(field: "mdcs") # responseMaker
@@ -95,7 +95,7 @@ type Dealer @entity{
 }
 
 # customed using entity
-type FactoryManger @entity{
+type FactoryManager @entity{
   id: ID!  # factory address
   mdcs: [MDC!]! # MDC[]
   owners: [String!]! # ownerAddress
@@ -109,7 +109,7 @@ type FactoryManger @entity{
 type responseMaker @entity{
   id: ID! # responseMaker address
   mdcs: [MDC!]! # MDC[]
-  factory: FactoryManger! @derivedFrom(field: "responseMakers") # FactoryManger
+  factory: FactoryManager! @derivedFrom(field: "responseMakers") # FactoryManager
   latestUpdateHash: String!
   latestUpdateTimestamp: BigInt!
   latestUpdateBlockNumber: BigInt!
@@ -387,7 +387,7 @@ type chainRel @entity{
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
   enableTimestamp: BigInt # uint64
-  manger: ORManger! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
+  manager: ORManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: String!
@@ -410,8 +410,8 @@ type tokenRel @entity{
 }
 
 # customed using entity
-type ORManger @entity{
-  id: ID!  # Manger ID
+type ORManager @entity{
+  id: ID!  # Manager ID
   chainInfoManager: [chainRel!]! # ChainInfo
   ebcManager: [ebcRel!]! # EBCs
 }
@@ -431,7 +431,7 @@ type ebcRel @entity {
   rulesList: [ruleRel!]! # list all rules Snapshot!! who bind this ebc
   ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
   statuses: Boolean!
-  manger: ORManger! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
+  manager: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: String!
 }
 

@@ -7,31 +7,31 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Bytes, Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
-import { 
+import {
   ChallengeInfoUpdated,
-  ColumnArrayUpdated, 
+  ColumnArrayUpdated,
 } from "../src/types/schema"
-import { 
+import {
   ChallengeInfoUpdated as ChallengeInfoUpdatedEvent,
-  ColumnArrayUpdated as ColumnArrayUpdatedEvent, 
+  ColumnArrayUpdated as ColumnArrayUpdatedEvent,
 } from "../src/types/templates/MDC/MDC"
-import { 
+import {
   handleChallengeInfoUpdated,
   handleColumnArrayUpdated,
-  handleResponseMakersUpdated, 
+  handleResponseMakersUpdated,
 } from "../src/mappings/mdc"
-import { 
+import {
   createChallengeInfoUpdatedEvent,
   createColumnArrayUpdatedEvent,
-  createResponseMakersUpdatedEvent, 
+  createResponseMakersUpdatedEvent,
 } from "./mdc-utils"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
-import { 
+import {
   AddressFmtPadZero,
   EBCManagerID,
   ETH_ZERO_ADDRESS,
-  ORMangerID
+  ORManagerID
 } from "../src/mappings/helpers"
 import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"
@@ -48,7 +48,7 @@ describe("Describe check responseMakers Event", () => {
   const responseMakers1 = "186258217070866900924478871193601082399096503291"
   const responseMakers2 = "905852841822203005801390459791760958298983703480"
   const responseMakersMappingHashId = "0x8fa0b63d3f8724b469b9642b7e7874406e062ee5fed4b006d5d63107ec10f2d9"
-  
+
 
   beforeAll(() => {
     let maker = Address.fromString(makerAddress)
@@ -80,7 +80,7 @@ describe("Describe check responseMakers Event", () => {
     handleResponseMakersUpdated(newResponseMakersUpdatedEvent)
 
   })
-  
+
   afterAll(() => {
     clearStore()
   })
@@ -118,7 +118,7 @@ describe("Describe check responseMakers Event", () => {
     )
 
     assert.fieldEquals(
-      "FactoryManger",
+      "FactoryManager",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a",
       "responseMakers",
       `[${AddressFmtPadZero((BigInt.fromString(responseMakers1).toHexString()))}, ${AddressFmtPadZero((BigInt.fromString(responseMakers2).toHexString()))}\]`
@@ -136,10 +136,10 @@ describe("Describe check ChainInfoUpdated Event", () => {
     let minVerifyChallengeDestTxSecond = BigInt.fromI32(100)
     let maxVerifyChallengeDestTxSecond = BigInt.fromI32(100)
     let nativeToken = BigInt.fromI32(0)
-    let spv : Array<ethereum.Value> = [
+    let spv: Array<ethereum.Value> = [
       ethereum.Value.fromAddress(Address.fromString("0x20a01b78e7100a16ce9171730e1f2eb081a6fbfb")),
-    ] 
-   const spvTuple = changetype<ethereum.Tuple>(spv);
+    ]
+    const spvTuple = changetype<ethereum.Tuple>(spv);
 
     const tupleArray: Array<ethereum.Value> = [
       ethereum.Value.fromUnsignedBigInt(id),
@@ -151,7 +151,7 @@ describe("Describe check ChainInfoUpdated Event", () => {
       ethereum.Value.fromUnsignedBigInt(nativeToken),
       ethereum.Value.fromTuple(spvTuple)
     ]
-    const chainInfo = changetype<ethereum.Tuple>(tupleArray);   
+    const chainInfo = changetype<ethereum.Tuple>(tupleArray);
 
 
     const newChainInfoUpdatedEvent = createChainInfoUpdatedEvent(
@@ -164,81 +164,81 @@ describe("Describe check ChainInfoUpdated Event", () => {
 })
 
 describe("Describe check ChainTokenUpdated Event", () => {
-    const mockToken = "196376302172346843968590065221485113559586934957"
-    // const mockToken = BigInt.fromString("196376302172346843968590065221485113559586934957")
-    // ccover mockToken to HexString
-    const mockTokenHex = "0x2265d16498efe5e63e08fa50f4344a2668db90ad"
-    const mockMainnetToken = "0x0000000000000000000000000000000000000000"
-    const Chainid = "985"
-    const mockHashId = "0xe6b5c9271e7031a864385601683bb80828af43d88858e17c2d0f5f9788109e73"  // hash("985-0x2265d16498efe5e63e08fa50f4344a2668db90ad")
-    beforeAll(() => {
-      let _chainId = BigInt.fromString(Chainid)
-      let token = BigInt.fromString(mockToken)
-      let mainnetToken = Address.fromString(mockMainnetToken)
-      let decimals = 18
-      const tupleArray: Array<ethereum.Value> = [
-        ethereum.Value.fromUnsignedBigInt(token),
-        ethereum.Value.fromAddress(mainnetToken),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(decimals))
-      ]
-      const tokenInfo = changetype<ethereum.Tuple>(tupleArray);   
+  const mockToken = "196376302172346843968590065221485113559586934957"
+  // const mockToken = BigInt.fromString("196376302172346843968590065221485113559586934957")
+  // ccover mockToken to HexString
+  const mockTokenHex = "0x2265d16498efe5e63e08fa50f4344a2668db90ad"
+  const mockMainnetToken = "0x0000000000000000000000000000000000000000"
+  const Chainid = "985"
+  const mockHashId = "0xe6b5c9271e7031a864385601683bb80828af43d88858e17c2d0f5f9788109e73"  // hash("985-0x2265d16498efe5e63e08fa50f4344a2668db90ad")
+  beforeAll(() => {
+    let _chainId = BigInt.fromString(Chainid)
+    let token = BigInt.fromString(mockToken)
+    let mainnetToken = Address.fromString(mockMainnetToken)
+    let decimals = 18
+    const tupleArray: Array<ethereum.Value> = [
+      ethereum.Value.fromUnsignedBigInt(token),
+      ethereum.Value.fromAddress(mainnetToken),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(decimals))
+    ]
+    const tokenInfo = changetype<ethereum.Tuple>(tupleArray);
 
-      const newChainTokenUpdatedEvent = createChainTokenUpdatedEvent(
-        _chainId,
-        tokenInfo
-      )
+    const newChainTokenUpdatedEvent = createChainTokenUpdatedEvent(
+      _chainId,
+      tokenInfo
+    )
 
-      handleChainTokenUpdated(newChainTokenUpdatedEvent)
-    })
+    handleChainTokenUpdated(newChainTokenUpdatedEvent)
+  })
 
-    afterAll(() => {
-      clearStore()
-    })
+  afterAll(() => {
+    clearStore()
+  })
 
-    test("tokenRel created and stored", () => {
-      assert.entityCount("tokenRel", 1)
+  test("tokenRel created and stored", () => {
+    assert.entityCount("tokenRel", 1)
 
-      assert.fieldEquals(
-        "tokenRel",
-        mockHashId,
-        "id",
-        mockHashId
-      )
+    assert.fieldEquals(
+      "tokenRel",
+      mockHashId,
+      "id",
+      mockHashId
+    )
 
-      assert.fieldEquals(
-        "tokenRel",
-        mockHashId,
-        "tokenAddress",
-        padZeroToUint(BigInt.fromString(mockToken).toHexString())
-      )
+    assert.fieldEquals(
+      "tokenRel",
+      mockHashId,
+      "tokenAddress",
+      padZeroToUint(BigInt.fromString(mockToken).toHexString())
+    )
 
-      assert.fieldEquals(
-        "chainRel",
-        Chainid,
-        "tokens",
-        `[${mockHashId}]`
-      )
+    assert.fieldEquals(
+      "chainRel",
+      Chainid,
+      "tokens",
+      `[${mockHashId}]`
+    )
 
-      // assert.fieldEquals(
-      //   "tokenRel",
-      //   mockTokenHex,
-      //   "chain",
-      //   Chainid.toString()
-      // )
+    // assert.fieldEquals(
+    //   "tokenRel",
+    //   mockTokenHex,
+    //   "chain",
+    //   Chainid.toString()
+    // )
 
-      // assert.fieldEquals(
-      //   "tokenRel",
-      //   mockHashId,
-      //   "symbol",
-      //   "ETH"
-      // )
-    })
+    // assert.fieldEquals(
+    //   "tokenRel",
+    //   mockHashId,
+    //   "symbol",
+    //   "ETH"
+    // )
+  })
 })
 
 describe("Describe check ORManger", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
   const columnArrayHash = "0xaaaE843d71Ef6843137F70d6E93c5d143C1843E4"
-  const dealers = 
+  const dealers =
     "0xA1AE843d71Ef6843137F70d6E93c5d143C1843E4"
   const ebc0 = "0xB6fF6F7b0CD1633348877043Ae92302139796686"
   const ebc1 = "0xD8D4F170F601Fe7487fcCc0E15C5a42d1C090E75"
@@ -257,7 +257,7 @@ describe("Describe check ORManger", () => {
       ebcsAddr[i] = changetype<Address>(ebcs[i]);
     }
     // let statuses = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]
-    let statuses =[true]
+    let statuses = [true]
     const newEbcsUpdatedEvent = createEbcsUpdatedEvent(
       ebcsAddr,
       statuses
@@ -270,11 +270,11 @@ describe("Describe check ORManger", () => {
   })
 
   test("ORManger created and stored", () => {
-    assert.entityCount("ORManger", 1)
+    assert.entityCount("ORManager", 1)
 
     assert.fieldEquals(
-      "ORManger",
-      ORMangerID,
+      "ORManager",
+      ORManagerID,
       "ebcManager",
       "[0xb6ff6f7b0cd1633348877043ae92302139796686, 0xd8d4f170f601fe7487fccc0e15c5a42d1c090e75\]"
     )

@@ -11,8 +11,8 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 OBCabin",
     "create-local2": "graph create CABIN --node http://0.0.0.0:8020",
     "deploy-local2": "graph deploy CABIN --debug --ipfs http://localhost:5001 --node http://0.0.0.0:8020",
-    "create-local3": "graph create CABIN --node http://192.168.1.6:8020",
-    "deploy-local3": "graph deploy CABIN --node http://192.168.1.6:8020/ --ipfs http://192.168.1.6:5001",
+    "create-local3": "graph create CABIN --node http://192.168.1.29:8020",
+    "deploy-local3": "graph deploy CABIN --node http://192.168.1.29:8020/ --ipfs http://192.168.1.29:5001",
     "create-local4": "graph create CABIN --node http://106.53.133.224:8020/",
     "deploy-local4": "graph deploy CABIN --node http://106.53.133.224:8020/ --ipfs http://106.53.133.224:5001",
     "test": "graph test"
@@ -22,6 +22,18 @@
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
-    "matchstick-as": "^0.5.2"
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@typescript-eslint/parser": "^5.58.0",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "matchstick-as": "^0.5.2",
+    "prettier": "^2.8.8",
+    "prettier-plugin-solidity": "^1.1.3",
+    "solhint": "^3.4.1",
+    "solhint-plugin-prettier": "^0.0.5"
   }
 }
