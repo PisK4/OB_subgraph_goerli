@@ -1,23 +1,48 @@
 import {
   DealerUpdated as DealerUpdatedEvent,
+  ETHDeposit as ETHDepositEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   SubmissionUpdated as SubmissionUpdatedEvent,
-  SubmitterRegistered as SubmitterRegisteredEvent
-} from "../types/ORFeeManager/ORFeeManager"
+  SubmitterRegistered as SubmitterRegisteredEvent,
+  Withdraw as WithdrawEvent
+} from "../types/FeeManager/FeeManager"
 import {
+  DealerUpdated,
+  ETHDeposit,
   OwnershipTransferred,
   SubmissionUpdated,
-  SubmitterRegistered
+  SubmitterRegistered,
+  Withdraw
 } from "../types/schema"
-import { handleDealerUpdatedEvent } from "./helpers"
+import { handleWithdrawEvent } from "./helpers"
 
 export function handleDealerUpdated(event: DealerUpdatedEvent): void {
-  handleDealerUpdatedEvent(
-    event.params.dealer,
-    event.params.feeRatio,
-    event.params.extraInfo,
-    event
-    )
+  let entity = new DealerUpdated(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.dealer = event.params.dealer
+  entity.feeRatio = event.params.feeRatio
+  entity.extraInfo = event.params.extraInfo
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
+export function handleETHDeposit(event: ETHDepositEvent): void {
+  let entity = new ETHDeposit(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.sender = event.params.sender
+  entity.amount = event.params.amount
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
 }
 
 export function handleOwnershipTransferred(
@@ -40,9 +65,9 @@ export function handleSubmissionUpdated(event: SubmissionUpdatedEvent): void {
   let entity = new SubmissionUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.submissionHash = event.params.submissionHash
   entity.stratBlock = event.params.stratBlock
   entity.endBlock = event.params.endBlock
+  entity.submitTimestamp = event.params.submitTimestamp
   entity.profitRoot = event.params.profitRoot
   entity.stateTransTreeRoot = event.params.stateTransTreeRoot
 
@@ -67,4 +92,15 @@ export function handleSubmitterRegistered(
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+}
+
+export function handleWithdraw(event: WithdrawEvent): void {
+  handleWithdrawEvent(
+    event.params.user,
+    event.params.chainId,
+    event.params.token,
+    event.params.debt,
+    event.params.amount,
+    event
+  )
 }

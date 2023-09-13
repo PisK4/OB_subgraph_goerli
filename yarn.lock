@@ -1210,18 +1210,16 @@ __metadata:
   linkType: hard
 
 "antlr4@npm:^4.11.0":
-  version: 4.13.0
-  resolution: "antlr4@npm:4.13.0"
-  checksum: ac9889fe52c325ff8bd1d69167651e853d59925b058c28fc923b25dd2e271e51f39656fd1517f98db2d3c9c9d46db4ca2b3831240a90eef5f51f1bbc39615400
+  version: 4.13.1
+  resolution: "antlr4@npm:4.13.1"
+  checksum: 6a16c1c4ed8f3a1c7bc9cb17588237dcd421560a2e60d23a1cfdfe1a1f33f67fd477728796cfb86b3cbc2e6fa2867bc5b727eef044c14be5d9ea6f5a4b8204c1
   languageName: node
   linkType: hard
 
 "antlr4ts@npm:^0.5.0-alpha.4":
-  version: 0.5.0-dev
-  resolution: "antlr4ts@npm:0.5.0-dev"
-  dependencies:
-    source-map-support: "npm:^0.5.16"
-  checksum: e510615503346520da766c975237b6719cbe09f220e3eb308fe3d7730251ebe0ef346941a8fa889878f622112cb5b1ced850afdfb945435b1d022fb358ce1556
+  version: 0.5.0-alpha.4
+  resolution: "antlr4ts@npm:0.5.0-alpha.4"
+  checksum: 2283eba1b169a3c34b50ca79cc7ed7e37a98bf7fdd3f491b4784fcf650cc5a9cd2fc4fb9697c3950f553fdf09055c6891f83e4ed02d347be598cc8784eb57f8c
   languageName: node
   linkType: hard
 
@@ -2089,8 +2087,8 @@ __metadata:
   linkType: hard
 
 "cosmiconfig@npm:^8.0.0":
-  version: 8.3.2
-  resolution: "cosmiconfig@npm:8.3.2"
+  version: 8.3.5
+  resolution: "cosmiconfig@npm:8.3.5"
   dependencies:
     import-fresh: "npm:^3.3.0"
     js-yaml: "npm:^4.1.0"
@@ -2101,7 +2099,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 64f77277248b52c845fa7c9155789115737a7802cdafeeceea5681794c8d91a3f5829bdb420f7915a70b1523775a767a844d6f847eb6c4767316b458460f28f2
+  checksum: 2bdb51fb0751f7cbca265b458c8426c6e94f6deaebd46ed74be1c83dda7524a28ede08554fb235c07e09d2f8c545cdc8e6921f0b2748b2a2495cea55151c71f2
   languageName: node
   linkType: hard
 
@@ -4247,15 +4245,15 @@ __metadata:
   linkType: hard
 
 "jackspeak@npm:^2.0.3":
-  version: 2.3.1
-  resolution: "jackspeak@npm:2.3.1"
+  version: 2.3.3
+  resolution: "jackspeak@npm:2.3.3"
   dependencies:
     "@isaacs/cliui": "npm:^8.0.2"
     "@pkgjs/parseargs": "npm:^0.11.0"
   dependenciesMeta:
     "@pkgjs/parseargs":
       optional: true
-  checksum: e3802b544bb7481a624bf551819dccf8acfb6d4e797a706dce56899126fa970d2a098406221717f997cda16ff2b1f31130943f8ad7c42c074987bf711c93ff31
+  checksum: 81258bf800ee0491c117365e41773b088210bc570bea5b0c6314862ef0bac66cc964476532eafb17b9028b660c5bb6baa1c3e90042ecf2967bb6639f136cfd35
   languageName: node
   linkType: hard
 
@@ -5921,7 +5919,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.4.0, semver@npm:^7.3.7":
+"semver@npm:7.4.0, semver@npm:^7.3.7, semver@npm:^7.3.8":
   version: 7.4.0
   resolution: "semver@npm:7.4.0"
   dependencies:
@@ -5950,7 +5948,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.3.5, semver@npm:^7.3.8, semver@npm:^7.5.2":
+"semver@npm:^7.3.5, semver@npm:^7.5.2":
   version: 7.5.4
   resolution: "semver@npm:7.5.4"
   dependencies:
@@ -6140,7 +6138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.16, source-map-support@npm:^0.5.20":
+"source-map-support@npm:^0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
@@ -6449,7 +6447,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:^6.1.0, tar@npm:^6.1.11, tar@npm:^6.1.2":
+"tar@npm:^6.1.0":
   version: 6.1.15
   resolution: "tar@npm:6.1.15"
   dependencies:
@@ -6460,6 +6458,20 @@ __metadata:
     mkdirp: "npm:^1.0.3"
     yallist: "npm:^4.0.0"
   checksum: 815c25f8812ad65172fa0440c96e5395714cfee8b43e9b2cf85d98964bbd479da49dde364087b9e456c49317f88e19aa2304c45c9853555d85289177c3066555
+  languageName: node
+  linkType: hard
+
+"tar@npm:^6.1.11, tar@npm:^6.1.2":
+  version: 6.2.0
+  resolution: "tar@npm:6.2.0"
+  dependencies:
+    chownr: "npm:^2.0.0"
+    fs-minipass: "npm:^2.0.0"
+    minipass: "npm:^5.0.0"
+    minizlib: "npm:^2.1.1"
+    mkdirp: "npm:^1.0.3"
+    yallist: "npm:^4.0.0"
+  checksum: ef65f03545cd610c68d0d7bfe616fd0ad60a46e8c631e612a251cc9e519b9c9ab0c071a6d792769cf05b299087ee4da8a5683793b27ee854c7214bce8958fccf
   languageName: node
   linkType: hard
 

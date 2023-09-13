@@ -76,11 +76,11 @@ dataSources:
           handler: handleSubmitterFeeUpdated
       file: ORManager/ORManager.wasm
   - kind: ethereum
-    name: ORFeeManager
+    name: FeeManager
     network: goerli
     source:
       address: "0x7a4f10205Bf1EBc2ffAB75e8795BA2182aC35220"
-      abi: ORFeeManager
+      abi: FeeManager
       startBlock: 9674680
     mapping:
       kind: ethereum/events
@@ -88,22 +88,28 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - DealerUpdated
-        - ORFeeManagerOwnershipTransferred
+        - ETHDeposit
+        - FeeManagerOwnershipTransferred
         - SubmissionUpdated
         - SubmitterRegistered
+        - Withdraw
       abis:
-        - name: ORFeeManager
-          file: ORFeeManager/abis/ORFeeManager.json
+        - name: FeeManager
+          file: FeeManager/abis/FeeManager.json
       eventHandlers:
         - event: DealerUpdated(indexed address,uint256,bytes)
           handler: handleDealerUpdated
+        - event: ETHDeposit(indexed address,uint256)
+          handler: handleETHDeposit
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-        - event: SubmissionUpdated(indexed bytes32,uint256,uint256,bytes32,bytes32)
+        - event: SubmissionUpdated(uint64,uint64,indexed uint64,indexed bytes32,indexed bytes32)
           handler: handleSubmissionUpdated
         - event: SubmitterRegistered(indexed address,uint256)
           handler: handleSubmitterRegistered
-      file: ORFeeManager/ORFeeManager.wasm
+        - event: Withdraw(indexed address,uint64,indexed address,indexed uint256,uint256)
+          handler: handleWithdraw
+      file: FeeManager/FeeManager.wasm
 templates:
   - kind: ethereum
     name: MDC

@@ -7,11 +7,11 @@
     "ORManager": {
       "address": "0xF2BE509057855b055f0515CCD0223BEf84D19ad4"
     },
-    "ORFeeManager": {
-      "address": "0x461997C4C2414eD903fD62FFF9D2e62A8eAb299e"
-    },
     "ERC20": {
       "address": "0xA3a8A6b323E3d38f5284db9337e7c6d74Af3366a"
+    },
+    "FeeManager": {
+      "address": "0x7a4f10205Bf1EBc2ffAB75e8795BA2182aC35220"
     }
   }
 }

@@ -37,7 +37,8 @@ import {
     ebcMappingSnapshot,
     DealerMappingSnapshot,
     chainIdMappingSnapshot,
-    latestRuleSnapshot
+    latestRuleSnapshot,
+    Withdraw
 } from '../types/schema'
 import {
     MDC as mdcContract
@@ -1979,6 +1980,39 @@ export function handleDealerUpdatedEvent(
     dealerEntity.extraInfo = extraInfo.toString()
     dealerEntity.register = true
     dealerEntity.save()
+}
+
+
+function getWithdraw(
+    event: ethereum.Event
+): Withdraw {
+    let id = createHashID([event.transaction.hash.toString(), event.logIndex.toString()])
+    let withdraw = Withdraw.load(id)
+    if (withdraw == null) {
+        withdraw = new Withdraw(id)
+        log.info("create feeManager withdraw log: {}", [id])
+        withdraw.blockTimestamp = event.block.timestamp
+        withdraw.blockNumber = event.block.number
+        withdraw.transactionHash = event.transaction.hash.toHexString()
+    }
+    return withdraw as Withdraw
+}
+
+export function handleWithdrawEvent(
+    user: Address,
+    chainId: BigInt,
+    token: Address,
+    debt: BigInt,
+    amount: BigInt,
+    event: ethereum.Event
+): void {
+    let withdraw = getWithdraw(event)
+    withdraw.user = user
+    withdraw.chainId = chainId
+    withdraw.token = token
+    withdraw.debt = debt
+    withdraw.amount = amount
+    withdraw.save()
 }
 
 

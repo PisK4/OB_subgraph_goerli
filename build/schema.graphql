@@ -501,8 +501,26 @@ type SubmitterFeeUpdated @entity(immutable: true) {
 #   blockTimestamp: BigInt!
 #   transactionHash: Bytes!
 # }
+type DealerUpdated @entity(immutable: true) {
+  id: Bytes!
+  dealer: Bytes! # address
+  feeRatio: BigInt! # uint256
+  extraInfo: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
-type ORFeeManagerOwnershipTransferred @entity(immutable: true) {
+type ETHDeposit @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeManagerOwnershipTransferred @entity(immutable: true) {
   id: Bytes!
   previousOwner: Bytes! # address
   newOwner: Bytes! # address
@@ -513,9 +531,9 @@ type ORFeeManagerOwnershipTransferred @entity(immutable: true) {
 
 type SubmissionUpdated @entity(immutable: true) {
   id: Bytes!
-  submissionHash: Bytes! # bytes32
-  stratBlock: BigInt! # uint256
-  endBlock: BigInt! # uint256
+  stratBlock: BigInt! # uint64
+  endBlock: BigInt! # uint64
+  submitTimestamp: BigInt! # uint64
   profitRoot: Bytes! # bytes32
   stateTransTreeRoot: Bytes! # bytes32
   blockNumber: BigInt!
@@ -531,22 +549,15 @@ type SubmitterRegistered @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
-type Approval @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
-  spender: Bytes! # address
-  value: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
 
-type Transfer @entity(immutable: true) {
-  id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
-  value: BigInt! # uint256
+type Withdraw @entity(immutable: true) {
+  id: ID!
+  user: Bytes! # address
+  chainId: BigInt! # uint64
+  token: Bytes! # address
+  debt: BigInt! # uint256
+  amount: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
 }
