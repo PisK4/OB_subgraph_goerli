@@ -1977,7 +1977,7 @@ export function handleDealerUpdatedEvent(
 ): void {
     let dealerEntity = getDealerEntity(dealer.toHexString(), event)
     dealerEntity.feeRatio = feeRatio
-    dealerEntity.extraInfo = extraInfo.toString()
+    dealerEntity.extraInfo = extraInfo.toHexString()
     dealerEntity.register = true
     dealerEntity.save()
 }

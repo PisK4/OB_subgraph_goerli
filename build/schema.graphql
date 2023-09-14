@@ -492,25 +492,6 @@ type SubmitterFeeUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-# type DealerUpdated @entity(immutable: true) {
-#   id: Bytes!
-#   dealer: Bytes! # address
-#   feeRatio: BigInt! # uint256
-#   extraInfo: Bytes! # bytes
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
-type DealerUpdated @entity(immutable: true) {
-  id: Bytes!
-  dealer: Bytes! # address
-  feeRatio: BigInt! # uint256
-  extraInfo: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type ETHDeposit @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address
@@ -542,7 +523,7 @@ type SubmissionUpdated @entity(immutable: true) {
 }
 
 type SubmitterRegistered @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   submiter: Bytes! # address
   marginAmount: BigInt! # uint256
   blockNumber: BigInt!

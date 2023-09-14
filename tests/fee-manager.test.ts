@@ -7,8 +7,6 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts"
-import { DealerUpdated } from "../src/types/schema"
-import { DealerUpdated as DealerUpdatedEvent } from "../src/types/FeeManager/FeeManager"
 import { handleDealerUpdated, handleWithdraw } from "../src/mappings/fee-manager"
 import { createDealerUpdatedEvent, createWithdrawEvent } from "./fee-manager-utils"
 
@@ -61,4 +59,42 @@ describe("test WithdrawEvent Entity", () => {
       "5"
     )
   })
+})
+
+describe("test DealerUpdatedEvent", () => {
+
+  beforeAll(() => {
+    const dealerAddress: Address = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    )
+    const feeRatio = BigInt.fromI32(234)
+    const extraInfo = Bytes.fromI32(1234567890)
+    const event = createDealerUpdatedEvent(
+      dealerAddress,
+      feeRatio,
+      extraInfo
+    )
+    handleDealerUpdated(event)
+  })
+
+
+
+
+  afterAll(() => {
+    clearStore()
+  })
+
+
+  test("Dealer created and stored", () => {
+    assert.entityCount("Dealer", 1)
+
+    assert.fieldEquals(
+      "Dealer",
+      "0x0000000000000000000000000000000000000001",
+      "id",
+      "0x0000000000000000000000000000000000000001",
+    )
+
+  })
+
 })

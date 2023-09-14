@@ -7,28 +7,33 @@ import {
   Withdraw as WithdrawEvent
 } from "../types/FeeManager/FeeManager"
 import {
-  DealerUpdated,
   ETHDeposit,
   OwnershipTransferred,
   SubmissionUpdated,
   SubmitterRegistered,
   Withdraw
 } from "../types/schema"
-import { handleWithdrawEvent } from "./helpers"
+import { handleDealerUpdatedEvent, handleWithdrawEvent } from "./helpers"
 
 export function handleDealerUpdated(event: DealerUpdatedEvent): void {
-  let entity = new DealerUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  // let entity = new DealerUpdated(
+  //   event.transaction.hash.concatI32(event.logIndex.toI32())
+  // )
+  // entity.dealer = event.params.dealer
+  // entity.feeRatio = event.params.feeRatio
+  // entity.extraInfo = event.params.extraInfo
+
+  // entity.blockNumber = event.block.number
+  // entity.blockTimestamp = event.block.timestamp
+  // entity.transactionHash = event.transaction.hash
+
+  // entity.save()
+  handleDealerUpdatedEvent(
+    event.params.dealer,
+    event.params.feeRatio,
+    event.params.extraInfo,
+    event
   )
-  entity.dealer = event.params.dealer
-  entity.feeRatio = event.params.feeRatio
-  entity.extraInfo = event.params.extraInfo
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleETHDeposit(event: ETHDepositEvent): void {
@@ -82,7 +87,7 @@ export function handleSubmitterRegistered(
   event: SubmitterRegisteredEvent
 ): void {
   let entity = new SubmitterRegistered(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
   entity.submiter = event.params.submiter
   entity.marginAmount = event.params.marginAmount

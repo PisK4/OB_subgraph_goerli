@@ -1,4 +1,5 @@
 node_modules
+build
 tests/.bin/*.wasm
 .yarn
 /.yarnrc.yml
