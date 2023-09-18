@@ -235,8 +235,31 @@ describe("Describe check MDC rule snaptShot", () => {
     // )
   })
 
-  // test("latestRule created and stored", () => {
-  //   assert 
-  // })
+  test("ruleUpdateVersion created and stored", () => {
+    const mockDataId: string = "0xd3ebc07a2c141680c385db42a78988e801f3b9308387460148b2f7d807efc438"
+    const mockHashId: string = "0x239b7ef2adaabfc2e4e13c143349a3d2f3d3ddc5b389dcd246cb3d728103b609"
+    const latestRuleId: string = "0x239b7ef2adaabfc2e4e13c143349a3d2f3d3ddc5b389dcd246cb3d728103b609"
+    assert.fieldEquals(
+      "ruleUpdateVersion",
+      mockDataId,
+      "id",
+      mockDataId
+    )
+
+    assert.fieldEquals(
+      "latestRule",
+      latestRuleId,
+      "id",
+      latestRuleId
+    )
+
+    assert.fieldEquals(
+      "latestRule",
+      latestRuleId,
+      "root",
+      root
+    )
+
+  })
 
 })

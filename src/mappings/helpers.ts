@@ -38,7 +38,9 @@ import {
     DealerMappingSnapshot,
     chainIdMappingSnapshot,
     latestRuleSnapshot,
-    Withdraw
+    Withdraw,
+    ruleUpdateRel,
+    ruleUpdateVersion
 } from '../types/schema'
 import {
     MDC as mdcContract
@@ -60,12 +62,12 @@ import {
     functionrResponseMakerMockinput
 } from '../../tests/mock-data'
 
-export const isProduction = true
+export const isProduction = false
 
 /*****debug log*****/
-export const debugLog = true
-const debugLogCreateRules = true
-const debugLogMapping = true
+export const debugLog = false
+const debugLogCreateRules = false
+const debugLogMapping = false
 /*****debug log*****/
 
 export const ZERO_BI = BigInt.fromI32(0)
@@ -162,6 +164,7 @@ export function ebcManagerUpdate(
         ebc.mdcList = []
         ebc.rulesList = []
         ebc.ruleLatest = []
+        ebc.ruleUpdateRel = []
         saveEBCMgr2ORMgr(ebc)
     }
     ebc.statuses = status
@@ -304,6 +307,7 @@ export function getEBCEntityNew(
         ebc.mdcList = []
         ebc.rulesList = []
         ebc.ruleLatest = []
+        ebc.ruleUpdateRel = []
         ebc.statuses = true
     }
     ebc.latestUpdateHash = event.transaction.hash.toHexString()
@@ -322,6 +326,7 @@ export function getMDCEntity(
         mdc = new MDC(mdcAddress.toHexString())
         mdc.owner = maker.toHexString()
         mdc.columnArrayUpdated = []
+        mdc.ruleUpdateRel = []
         mdc.responseMakersSnapshot = []
         mdc.bindSPVs = []
         mdc.dealerSnapshot = []
@@ -1523,16 +1528,69 @@ function ruleVerification(
 }
 
 function getLastRulesEntity(
-    id: string
+    id: string,
+    root: string
 ): latestRule {
     let lastRule = latestRule.load(id)
     if (lastRule == null) {
         lastRule = new latestRule(id)
         lastRule.ruleValidation = true
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
+        lastRule.ruleUpdateRel = []
+        lastRule.root = root;
+        log.info("create lastRule: {}", [id])
     }
 
     return lastRule
+}
+
+function getruleUpdateVersionEntity(
+    id: string,
+    mdc: MDC,
+    ebc: ebcRel,
+    latestRule: latestRule,
+    ruleRel: ruleRel,
+    event: ethereum.Event
+): ruleUpdateVersion {
+    let rule = ruleUpdateRel.load(id)
+    if (rule == null) {
+        rule = new ruleUpdateRel(id)
+        rule.latestVersion = BigInt.fromI32(0)
+        rule.ruleUpdateVersion = []
+        mdc.ruleUpdateRel = entityConcatID(mdc.ruleUpdateRel, id)
+        ebc.ruleUpdateRel = entityConcatID(ebc.ruleUpdateRel, id)
+        latestRule.ruleUpdateRel = entityConcatID(latestRule.ruleUpdateRel, id)
+    }
+    rule.latestVersion = rule.latestVersion.plus(BigInt.fromI32(1))
+    const _ruleUpdateVersion = getruleUpdateVersion(id, rule.latestVersion, event)
+    rule.ruleUpdateVersion = entityConcatID(rule.ruleUpdateVersion, _ruleUpdateVersion.id)
+    ruleRel.ruleUpdateVersion = entityConcatID(ruleRel.ruleUpdateVersion, _ruleUpdateVersion.id)
+    rule.latestUpdateHash = event.transaction.hash.toHexString()
+    rule.latestUpdateTimestamp = event.block.timestamp
+    rule.latestUpdateBlockNumber = event.block.number
+    rule.save()
+
+    return _ruleUpdateVersion
+}
+
+function getruleUpdateVersion(
+    _id: string,
+    updateVersion: BigInt,
+    event: ethereum.Event
+): ruleUpdateVersion {
+    const id = createHashID([_id, updateVersion.toString()])
+    let rule = ruleUpdateVersion.load(id)
+    if (rule == null) {
+        rule = new ruleUpdateVersion(id)
+        rule.makerHash = _id
+        rule.updateVersion = BigInt.fromI32(0)
+        log.info("create ruleUpdateVersion: {}-{}, hash: {}", [id, updateVersion.toString(), _id])
+    }
+    rule.updateVersion = updateVersion
+    rule.latestUpdateHash = event.transaction.hash.toHexString()
+    rule.latestUpdateTimestamp = event.block.timestamp
+    rule.latestUpdateBlockNumber = event.block.number
+    return rule as ruleUpdateVersion
 }
 
 function getLastRulesSnapshotEntity(
@@ -1543,7 +1601,7 @@ function getLastRulesSnapshotEntity(
         lastRule = new latestRuleSnapshot(id)
         lastRule.ruleValidation = true
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
-        log.debug("create new latestRuleSnapshot:{}", [id])
+        log.info("create new latestRuleSnapshot:{}", [id])
     }
 
     return lastRule
@@ -1593,9 +1651,6 @@ function updateLatestRules(
     const enableTimestamp = rscRules.enableTimestamp;
     let token0 = rsc.chain0Token;
     let token1 = rsc.chain1Token;
-    // if(rsc.selector === updateRulesRootMode.ETH){
-    //     token0 = token1 = BigInt.fromI32(0);
-    // }
 
     let id = createHashID([
         mdc.id,
@@ -1607,8 +1662,9 @@ function updateLatestRules(
 
     ]);
 
-    const _rule = getLastRulesEntity(id);
+    const _rule = getLastRulesEntity(id, snapshot.root);
     const _snapshotLatestRule = getLastRulesSnapshotEntity(createHashID([snapshot.id, id]));
+    const _ruleUpdateVersion = getruleUpdateVersionEntity(id, mdc, ebc, _rule, snapshot, event);
 
     const _rscRuleType = _rule;
     _rscRuleType.owner = mdc.owner;
@@ -1642,7 +1698,7 @@ function updateLatestRules(
     if (rsc.selector === updateRulesRootMode.ETH) {
         _rscRuleType.type = 'ETH';
         snapshot.type = 'ETH';
-        snapshot.token = padZeroToUint("0");
+        // snapshot.token = padZeroToUint("0");
     } else if (rsc.selector === updateRulesRootMode.ERC20) {
         _rscRuleType.type = 'ERC20';
         snapshot.type = 'ERC20';
@@ -1684,11 +1740,51 @@ function updateLatestRules(
     }
     saveLatestRule2MDCEBC(mdc, ebc, _rule.id);
     saveLatestRule2RuleSnapshot(snapshot, _snapshotLatestRule.id);
+
     _rule.save()
     _snapshotLatestRule.save()
     if (debugLogCreateRules) {
         log.info("update latest rule id: {}", [id])
     }
+
+    _ruleUpdateVersion.owner = mdc.owner;
+    _ruleUpdateVersion.mdcAddr = mdc.id;
+    _ruleUpdateVersion.ebcAddr = ebc.id;
+    _ruleUpdateVersion.chain0 = rsc.chain0;
+    _ruleUpdateVersion.chain1 = rsc.chain1;
+    _ruleUpdateVersion.chain0Status = rsc.chain0Status.toI32();
+    _ruleUpdateVersion.chain1Status = rsc.chain1Status.toI32();
+    _ruleUpdateVersion.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
+    _ruleUpdateVersion.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
+    _ruleUpdateVersion.chain0minPrice = rsc.chain0minPrice;
+    _ruleUpdateVersion.chain0maxPrice = rsc.chain0maxPrice;
+    _ruleUpdateVersion.chain1minPrice = rsc.chain1minPrice;
+    _ruleUpdateVersion.chain1maxPrice = rsc.chain1maxPrice;
+    _ruleUpdateVersion.chain0WithholdingFee = rsc.chain0WithholdingFee;
+    _ruleUpdateVersion.chain1WithholdingFee = rsc.chain1WithholdingFee;
+    _ruleUpdateVersion.chain0TradeFee = rsc.chain0TradeFee.toI32();
+    _ruleUpdateVersion.chain1TradeFee = rsc.chain1TradeFee.toI32();
+    _ruleUpdateVersion.chain0ResponseTime = rsc.chain0ResponseTime.toI32();
+    _ruleUpdateVersion.chain1ResponseTime = rsc.chain1ResponseTime.toI32();
+    _ruleUpdateVersion.chain0CompensationRatio = rsc.chain0CompensationRatio.toI32();
+    _ruleUpdateVersion.chain1CompensationRatio = rsc.chain1CompensationRatio.toI32();
+    _ruleUpdateVersion.enableTimestamp = enableTimestamp;
+    _ruleUpdateVersion.ruleValidation = validateBool;
+    _ruleUpdateVersion.ruleValidationErrorstatus = validateResult;
+    _ruleUpdateVersion.latestUpdateTimestamp = event.block.timestamp;
+    _ruleUpdateVersion.latestUpdateBlockNumber = event.block.number;
+    _ruleUpdateVersion.latestUpdateHash = event.transaction.hash.toHexString();
+    _ruleUpdateVersion.latestUpdateVersion = version as i32;
+    if (rsc.selector === updateRulesRootMode.ETH) {
+        _ruleUpdateVersion.type = 'ETH';
+    } else if (rsc.selector === updateRulesRootMode.ERC20) {
+        _ruleUpdateVersion.type = 'ERC20';
+    }
+    _ruleUpdateVersion.save()
+
+
+
+
 }
 
 function saveRuleSnapshotRelation(
@@ -1738,6 +1834,7 @@ function getRuleSnapshotEntity(
         ruleSnapshot.root = STRING_INVALID
         ruleSnapshot.version = 0
         ruleSnapshot.rules = []
+        ruleSnapshot.ruleUpdateVersion = []
         ruleSnapshot.sourceChainIds = []
         ruleSnapshot.pledgeAmounts = []
         ruleSnapshot.ruleLatest = []

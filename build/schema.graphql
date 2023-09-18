@@ -32,7 +32,7 @@ type ColumnArrayUpdated @entity(immutable: true) {
   transactionHash: String!
 }
 
-type responseMakersMapping @entity{
+type responseMakersMapping @entity {
   id: ID! # hash(mdc address - txHash - logIndex)
   responseMakerList: [String!]! # responseMaker address array
   enableTimestamp: BigInt
@@ -40,7 +40,7 @@ type responseMakersMapping @entity{
   mdc: MDC! @derivedFrom(field: "responseMakersSnapshot") # MDC
   latestUpdateHash: String
   latestUpdateTimestamp: BigInt
-  latestUpdateBlockNumber: BigInt  
+  latestUpdateBlockNumber: BigInt
 }
 
 # customed using entity
@@ -48,30 +48,83 @@ type MDC @entity {
   id: ID! # mdc address
   owner: String! # address
   factoryAddr: String! # address
+  ruleUpdateRel: [ruleUpdateRel!]!
   responseMakersSnapshot: [responseMakersMapping!]! #snapshot
-  dealerSnapshot: [dealerSnapshot!]!        #snapshot
-  ebcSnapshot: [ebcSnapshot!]!              #snapshot
-  chainIdSnapshot: [chainIdSnapshot!]!      #snapshot
-  ruleSnapshot: [ruleRel!]!               #snapshot
-  ruleLatest: [latestRule!]!                #latestData
+  dealerSnapshot: [dealerSnapshot!]! #snapshot
+  ebcSnapshot: [ebcSnapshot!]! #snapshot
+  chainIdSnapshot: [chainIdSnapshot!]! #snapshot
+  ruleSnapshot: [ruleRel!]! #snapshot
+  ruleLatest: [latestRule!]! #latestData
   bindChainIds: MDCBindChainId
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
-  columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated 
+  columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated
   mapping: MDCMapping # dealer/ebc/chainId mapping
-  factory: [FactoryManager!]! @derivedFrom(field: "mdcs") 
+  factory: [FactoryManager!]! @derivedFrom(field: "mdcs")
   ebc: [ebcRel!]! @derivedFrom(field: "mdcList") # EBC
   dealer: [Dealer!]! @derivedFrom(field: "mdcs") # Dealer
   responseMaker: [responseMaker!]! @derivedFrom(field: "mdcs") # responseMaker
-  
   createblockNumber: BigInt!
   createblockTimestamp: BigInt!
   createtransactionHash: String!
   latestUpdatetransactionHash: String!
-
 }
 
-type MDCMapping @entity{
-  id: ID! # mdc address 
+type ruleUpdateRel @entity {
+  id: ID! # hash(mdc, ebc, chain0, chain1)
+  ruleUpdateVersion: [ruleUpdateVersion!]!
+  latestVersion: BigInt!
+  # Rel
+  mdc: MDC! @derivedFrom(field: "ruleUpdateRel")
+  ebc: ebcRel! @derivedFrom(field: "ruleUpdateRel")
+  latestRule: latestRule! @derivedFrom(field: "ruleUpdateRel")
+  latestUpdateHash: String
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+type ruleUpdateVersion
+  @entity(immutable: true) { # every rule update
+  # As MDC LatestRule: hash(hash(mdc, ebc, chain0, chain1), updateVersion)
+  id: ID!
+  makerHash: String! # hash(mdc, ebc, chain0, chain1)
+  owner: String! # address
+  updateVersion: BigInt! # version++
+  mdcAddr: String! # address
+  ebcAddr: String! # address
+  type: String # ETH/ERC20
+  chain0: BigInt # uint64
+  chain1: BigInt # uint64
+  chain0Status: Int # uint8
+  chain1Status: Int # uint8
+  chain0Token: String # Address
+  chain1Token: String # Address
+  chain0minPrice: BigInt # uint128
+  chain1minPrice: BigInt # uint128
+  chain0maxPrice: BigInt # uint128
+  chain1maxPrice: BigInt # uint128
+  chain0WithholdingFee: BigInt # uint128
+  chain1WithholdingFee: BigInt # uint128
+  chain0TradeFee: Int # uint16
+  chain1TradeFee: Int # uint16
+  chain0ResponseTime: Int # uint32
+  chain1ResponseTime: Int # uint32
+  chain0CompensationRatio: Int # uint32
+  chain1CompensationRatio: Int # uint32
+  enableTimestamp: BigInt # uint64
+  latestUpdateVersion: Int # uint32
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+  latestUpdateHash: String
+  ruleValidation: Boolean!
+  ruleValidationErrorstatus: String!
+
+  # Related
+  ruleUpdateRel: [ruleUpdateRel!]! @derivedFrom(field: "ruleUpdateVersion")
+  ruleRel: [ruleRel!]! @derivedFrom(field: "ruleUpdateVersion")
+}
+
+type MDCMapping @entity {
+  id: ID! # mdc address
   dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
   ebcMapping: [ebcMapping!]! # ebc address mapping, defined by maker
   chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
@@ -82,7 +135,7 @@ type MDCMapping @entity{
 }
 
 # customed using entity
-type Dealer @entity{
+type Dealer @entity {
   id: ID! # dealer address
   mdcs: [MDC!]! # binding MDC
   rules: [ruleRel!]! # binding ruleSnapshot
@@ -95,8 +148,8 @@ type Dealer @entity{
 }
 
 # customed using entity
-type FactoryManager @entity{
-  id: ID!  # factory address
+type FactoryManager @entity {
+  id: ID! # factory address
   mdcs: [MDC!]! # MDC[]
   owners: [String!]! # ownerAddress
   responseMakers: [responseMaker!]! # responseMaker[]
@@ -106,7 +159,7 @@ type FactoryManager @entity{
   latestUpdateBlockNumber: BigInt!
 }
 
-type responseMaker @entity{
+type responseMaker @entity {
   id: ID! # responseMaker address
   mdcs: [MDC!]! # MDC[]
   factory: FactoryManager! @derivedFrom(field: "responseMakers") # FactoryManager
@@ -116,7 +169,7 @@ type responseMaker @entity{
 }
 
 # customed using entity
-type ebcMapping @entity{
+type ebcMapping @entity {
   id: ID! # mdc address - ebc address
   owner: String! # address
   ebcAddr: String! # ebc address
@@ -129,7 +182,7 @@ type ebcMapping @entity{
 }
 
 # customed using entity
-type ebcMappingSnapshot @entity{
+type ebcMappingSnapshot @entity {
   id: ID! # mdc address - ebc address
   owner: String! # address
   ebcAddr: String! # ebc address
@@ -142,7 +195,7 @@ type ebcMappingSnapshot @entity{
 }
 
 # customed using entity
-type MDCBindSPV @entity{
+type MDCBindSPV @entity {
   id: ID! # mdc address - ChainId
   chainId: BigInt # uint64 - the index of state varible "_spvs[]" in MDC contract
   spv: String # spv address - the value of state varible "_spvs[]" in MDC contract
@@ -151,7 +204,7 @@ type MDCBindSPV @entity{
 }
 
 # customed using entity
-type dealerSnapshot @entity{
+type dealerSnapshot @entity {
   id: ID! # txHash - logIndex
   dealerList: [String!]! # dealer address array
   dealerMappingSnapshot: [DealerMappingSnapshot!]! # dealer address mapping, defined by maker
@@ -162,7 +215,7 @@ type dealerSnapshot @entity{
 }
 
 # customed using entity
-type ebcSnapshot @entity{
+type ebcSnapshot @entity {
   id: ID! # txHash - logIndex
   ebcList: [String!]! # ebc address array
   ebcMappingSnapshot: [ebcMappingSnapshot!]! # ebc address mapping, defined by maker
@@ -172,7 +225,7 @@ type ebcSnapshot @entity{
   latestUpdateBlockNumber: BigInt
 }
 
-type chainIdSnapshot @entity{
+type chainIdSnapshot @entity {
   id: ID! # txHash - logIndex
   chainIdList: [BigInt!]! # chainId array
   chainIdMappingSnapshot: [chainIdMappingSnapshot!]! # chainId mapping, defined by maker
@@ -183,7 +236,7 @@ type chainIdSnapshot @entity{
 }
 
 # customed using entity
-type DealerMapping @entity{
+type DealerMapping @entity {
   id: ID! # mdc address - dealer address
   owner: String! # address
   dealerAddr: String! # dealer address
@@ -196,7 +249,7 @@ type DealerMapping @entity{
 }
 
 # customed using entity
-type DealerMappingSnapshot @entity{
+type DealerMappingSnapshot @entity {
   id: ID! # hash(mdc address - dealer address - txHash - logIndex)
   owner: String! # address
   dealerAddr: String! # dealer address
@@ -209,7 +262,7 @@ type DealerMappingSnapshot @entity{
 }
 
 # customed using entity
-type MDCBindChainId @entity{
+type MDCBindChainId @entity {
   id: ID! # mdc address
   chainIdList: [BigInt!]! # chainId array
   chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
@@ -220,7 +273,7 @@ type MDCBindChainId @entity{
 }
 
 # customed using entity
-type chainIdMapping @entity{
+type chainIdMapping @entity {
   id: ID! # mdc address - chainId
   owner: String! # address
   chainId: BigInt! # chainId
@@ -232,7 +285,7 @@ type chainIdMapping @entity{
   MDCBindChainId: MDCBindChainId! @derivedFrom(field: "chainIdMapping") # MDCBindChainId
 }
 
-type chainIdMappingSnapshot @entity{
+type chainIdMappingSnapshot @entity {
   id: ID! # mdc address - chainId
   owner: String! # address
   chainId: BigInt! # chainId
@@ -241,22 +294,24 @@ type chainIdMappingSnapshot @entity{
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
   latestUpdateHash: String
-  chainIdSnapshot: chainIdSnapshot! @derivedFrom(field: "chainIdMappingSnapshot")
+  chainIdSnapshot: chainIdSnapshot!
+    @derivedFrom(field: "chainIdMappingSnapshot")
 }
 
 # customed using entity
-type ruleRel @entity {  #contain all rules snapshot
+type ruleRel
+  @entity { #contain all rules snapshot
   # As MDC snapshot, id: hash(mdc-ecb-transactionHash-logIndex)
   id: ID!
-  rules: [rule!]! # rules in input Data   
+  rules: [rule!]! # rules in input Data
   type: String! # ETH/ERC20
   ruleLatest: [latestRuleSnapshot!]! # all latest rules
   root: String! # String
-  version: Int! # uint32  
+  version: Int! # uint32
   sourceChainIds: [BigInt!]! # uint64[]
   pledgeAmounts: [BigInt!]! # uint[]
   token: String! # address
-
+  ruleUpdateVersion: [ruleUpdateVersion!]!
   # related to rule
   # mappingSnapshot: [MDCMapping!] # ruleMapping
   mdc: MDC! @derivedFrom(field: "ruleSnapshot") # MDC
@@ -269,7 +324,8 @@ type ruleRel @entity {  #contain all rules snapshot
 }
 
 # customed using entitys
-type rule @entity { # only one rule in ruleRel
+type rule
+  @entity { # only one rule in ruleRel
   id: ID! #chain0-chain1
   owner: String! # address
   ebcAddr: String! # address
@@ -301,9 +357,10 @@ type rule @entity { # only one rule in ruleRel
 }
 
 # customed using entitys
-type latestRule @entity { # latest rule
+type latestRule
+  @entity { # latest rule
   # As MDC LatestRule: hash(mdc-ebc-chain0-chain1)
-  id: ID! 
+  id: ID!
   owner: String! # address
   mdcAddr: String! # address
   ebcAddr: String! # address
@@ -333,14 +390,18 @@ type latestRule @entity { # latest rule
   latestUpdateHash: String
   ruleValidation: Boolean!
   ruleValidationErrorstatus: String!
+
+  # Rel
+  ruleUpdateRel: [ruleUpdateRel!]!
   ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
 }
 
 # customed using entitys
-type latestRuleSnapshot @entity { # latest rule
+type latestRuleSnapshot
+  @entity(immutable: true) { # latest rule
   # As MDC LatestRuleSnapshot: hash(mdc-ebc-transctionHash-logIndex)
-  id: ID! 
+  id: ID!
   owner: String! # address
   mdcAddr: String! # address
   ebcAddr: String! # address
@@ -376,7 +437,7 @@ type latestRuleSnapshot @entity { # latest rule
 }
 
 # using entity, binding in contract Event
-type chainRel @entity{
+type chainRel @entity {
   id: ID! # chainId
   tokens: [tokenRel!]! # ChainToken
   spvs: [String!]! # address[]
@@ -394,7 +455,7 @@ type chainRel @entity{
 }
 
 # using entity, binding in contract Event
-type tokenRel @entity{
+type tokenRel @entity {
   id: ID! # hash(chain - token Address)
   tokenAddress: String! # address
   chainId: String! # chainId
@@ -406,12 +467,12 @@ type tokenRel @entity{
   chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
-  latestUpdateHash: String!  
+  latestUpdateHash: String!
 }
 
 # customed using entity
-type ORManager @entity{
-  id: ID!  # Manager ID
+type ORManager @entity {
+  id: ID! # Manager ID
   chainInfoManager: [chainRel!]! # ChainInfo
   ebcManager: [ebcRel!]! # EBCs
 }
@@ -430,6 +491,7 @@ type ebcRel @entity {
   mdcList: [MDC!]! # list all mdc!! who bind this ebc
   rulesList: [ruleRel!]! # list all rules Snapshot!! who bind this ebc
   ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
+  ruleUpdateRel: [ruleUpdateRel!]!
   statuses: Boolean!
   manager: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: String!
@@ -532,6 +594,7 @@ type SubmitterRegistered @entity(immutable: true) {
 }
 
 type Withdraw @entity(immutable: true) {
+  # id:hash(transactionHash, logIndex)
   id: ID!
   user: Bytes! # address
   chainId: BigInt! # uint64
