@@ -123,6 +123,33 @@ type ruleUpdateVersion
   ruleRel: [ruleRel!]! @derivedFrom(field: "ruleUpdateVersion")
 }
 
+interface PairManager {
+  id: ID!
+  #Rel
+  latestRule: [latestRule!]!
+  latestUpdateHash: String
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+type chainPairManager implements PairManager @entity {
+  id: ID! # chain0Id-chain1Id: 5-420
+  #Rel
+  latestRule: [latestRule!]!
+  latestUpdateHash: String
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
+type tokenPairManager implements PairManager @entity {
+  id: ID! # token id: 0x00000000000000000000000076fc39362ef66dad742791bde738b9b050c3cbf5
+  #Rel
+  latestRule: [latestRule!]!
+  latestUpdateHash: String
+  latestUpdateTimestamp: BigInt
+  latestUpdateBlockNumber: BigInt
+}
+
 type MDCMapping @entity {
   id: ID! # mdc address
   dealerMapping: [DealerMapping!]! # dealer address mapping, defined by maker
@@ -395,6 +422,8 @@ type latestRule
   ruleUpdateRel: [ruleUpdateRel!]!
   ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
+  chainPairManager: chainPairManager! @derivedFrom(field: "latestRule")
+  tokenPairManager: tokenPairManager! @derivedFrom(field: "latestRule")
 }
 
 # customed using entitys

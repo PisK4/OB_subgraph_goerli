@@ -262,4 +262,26 @@ describe("Describe check MDC rule snaptShot", () => {
 
   })
 
+  test("chainPairManager created and stored", () => {
+    const mockPairID: string = "5-420"
+    const mockPair: string = "0x239b7ef2adaabfc2e4e13c143349a3d2f3d3ddc5b389dcd246cb3d728103b609"
+
+    assert.entityCount("chainPairManager", 3)
+
+    assert.fieldEquals(
+      "chainPairManager",
+      mockPairID,
+      "id",
+      mockPairID
+    )
+
+    // assert.fieldEquals(
+    //   "crossChainPairManager",
+    //   mockPairID,
+    //   "ruleUpdateRel",
+    //   mockPair
+    // )
+
+  })
+
 })

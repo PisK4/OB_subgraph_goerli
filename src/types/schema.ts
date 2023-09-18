@@ -1527,6 +1527,222 @@ export class ruleUpdateVersion extends Entity {
   }
 }
 
+export class chainPairManager extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save chainPairManager entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type chainPairManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("chainPairManager", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): chainPairManager | null {
+    return changetype<chainPairManager | null>(
+      store.get_in_block("chainPairManager", id)
+    );
+  }
+
+  static load(id: string): chainPairManager | null {
+    return changetype<chainPairManager | null>(
+      store.get("chainPairManager", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get latestRule(): Array<string> {
+    let value = this.get("latestRule");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set latestRule(value: Array<string>) {
+    this.set("latestRule", Value.fromStringArray(value));
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+}
+
+export class tokenPairManager extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save tokenPairManager entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type tokenPairManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("tokenPairManager", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): tokenPairManager | null {
+    return changetype<tokenPairManager | null>(
+      store.get_in_block("tokenPairManager", id)
+    );
+  }
+
+  static load(id: string): tokenPairManager | null {
+    return changetype<tokenPairManager | null>(
+      store.get("tokenPairManager", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get latestRule(): Array<string> {
+    let value = this.get("latestRule");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set latestRule(value: Array<string>) {
+    this.set("latestRule", Value.fromStringArray(value));
+  }
+
+  get latestUpdateHash(): string | null {
+    let value = this.get("latestUpdateHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestUpdateHash(value: string | null) {
+    if (!value) {
+      this.unset("latestUpdateHash");
+    } else {
+      this.set("latestUpdateHash", Value.fromString(<string>value));
+    }
+  }
+
+  get latestUpdateTimestamp(): BigInt | null {
+    let value = this.get("latestUpdateTimestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateTimestamp(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateTimestamp");
+    } else {
+      this.set("latestUpdateTimestamp", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get latestUpdateBlockNumber(): BigInt | null {
+    let value = this.get("latestUpdateBlockNumber");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestUpdateBlockNumber(value: BigInt | null) {
+    if (!value) {
+      this.unset("latestUpdateBlockNumber");
+    } else {
+      this.set("latestUpdateBlockNumber", Value.fromBigInt(<BigInt>value));
+    }
+  }
+}
+
 export class MDCMapping extends Entity {
   constructor(id: string) {
     super();
@@ -4710,6 +4926,22 @@ export class latestRule extends Entity {
   get mdc(): MDCLoader {
     return new MDCLoader("latestRule", this.get("id")!.toString(), "mdc");
   }
+
+  get chainPairManager(): chainPairManagerLoader {
+    return new chainPairManagerLoader(
+      "latestRule",
+      this.get("id")!.toString(),
+      "chainPairManager"
+    );
+  }
+
+  get tokenPairManager(): tokenPairManagerLoader {
+    return new tokenPairManagerLoader(
+      "latestRule",
+      this.get("id")!.toString(),
+      "tokenPairManager"
+    );
+  }
 }
 
 export class latestRuleSnapshot extends Entity {
@@ -7448,6 +7680,42 @@ export class chainIdSnapshotLoader extends Entity {
   load(): chainIdSnapshot[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<chainIdSnapshot[]>(value);
+  }
+}
+
+export class chainPairManagerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): chainPairManager[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<chainPairManager[]>(value);
+  }
+}
+
+export class tokenPairManagerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): tokenPairManager[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<tokenPairManager[]>(value);
   }
 }
 

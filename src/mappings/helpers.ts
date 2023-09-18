@@ -40,7 +40,9 @@ import {
     latestRuleSnapshot,
     Withdraw,
     ruleUpdateRel,
-    ruleUpdateVersion
+    ruleUpdateVersion,
+    chainPairManager,
+    tokenPairManager
 } from '../types/schema'
 import {
     MDC as mdcContract
@@ -62,7 +64,7 @@ import {
     functionrResponseMakerMockinput
 } from '../../tests/mock-data'
 
-export const isProduction = false
+export const isProduction = true
 
 /*****debug log*****/
 export const debugLog = false
@@ -1529,7 +1531,10 @@ function ruleVerification(
 
 function getLastRulesEntity(
     id: string,
-    root: string
+    root: string,
+    _chainPairManager: chainPairManager,
+    token0: tokenPairManager,
+    token1: tokenPairManager
 ): latestRule {
     let lastRule = latestRule.load(id)
     if (lastRule == null) {
@@ -1538,10 +1543,48 @@ function getLastRulesEntity(
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
         lastRule.ruleUpdateRel = []
         lastRule.root = root;
+        _chainPairManager.latestRule = entityConcatID(_chainPairManager.latestRule, id);
+        _chainPairManager.save()
+        token0.latestRule = entityConcatID(token0.latestRule, id);
+        token0.save()
+        token1.latestRule = entityConcatID(token1.latestRule, id);
+        token1.save()
         log.info("create lastRule: {}", [id])
     }
 
     return lastRule
+}
+
+function getChainPairManager(
+    id: string,
+    event: ethereum.Event
+): chainPairManager {
+    let _chainPairManager = chainPairManager.load(id)
+    if (_chainPairManager == null) {
+        _chainPairManager = new chainPairManager(id)
+        _chainPairManager.latestRule = []
+        _chainPairManager.latestUpdateBlockNumber = event.block.number
+        _chainPairManager.latestUpdateTimestamp = event.block.timestamp
+        _chainPairManager.latestUpdateHash = event.transaction.hash.toHexString()
+        log.info("create ChainPair: {}", [id])
+    }
+    return _chainPairManager as chainPairManager
+}
+
+function getTokenPairManager(
+    id: string,
+    event: ethereum.Event
+): tokenPairManager {
+    let _tokenPairManager = tokenPairManager.load(id)
+    if (_tokenPairManager == null) {
+        _tokenPairManager = new tokenPairManager(id)
+        _tokenPairManager.latestRule = []
+        _tokenPairManager.latestUpdateBlockNumber = event.block.number
+        _tokenPairManager.latestUpdateTimestamp = event.block.timestamp
+        _tokenPairManager.latestUpdateHash = event.transaction.hash.toHexString()
+        log.info("create TokenPair: {}", [id])
+    }
+    return _tokenPairManager as tokenPairManager
 }
 
 function getruleUpdateVersionEntity(
@@ -1662,7 +1705,14 @@ function updateLatestRules(
 
     ]);
 
-    const _rule = getLastRulesEntity(id, snapshot.root);
+    const chain0TokenPad = padZeroToUint(rsc.chain0Token.toHexString());
+    const chain1TokenPad = padZeroToUint(rsc.chain1Token.toHexString());
+
+    let chainPairId = createBindID([rsc.chain0.toString(), rsc.chain1.toString()]);
+    const _ChainPairManager = getChainPairManager(chainPairId, event);
+    const _TokenPairManager0 = getTokenPairManager(chain0TokenPad, event);
+    const _TokenPairManager1 = getTokenPairManager(chain1TokenPad, event);
+    const _rule = getLastRulesEntity(id, snapshot.root, _ChainPairManager, _TokenPairManager0, _TokenPairManager1);
     const _snapshotLatestRule = getLastRulesSnapshotEntity(createHashID([snapshot.id, id]));
     const _ruleUpdateVersion = getruleUpdateVersionEntity(id, mdc, ebc, _rule, snapshot, event);
 
@@ -1674,8 +1724,8 @@ function updateLatestRules(
     _rscRuleType.chain1 = rsc.chain1;
     _rscRuleType.chain0Status = rsc.chain0Status.toI32();
     _rscRuleType.chain1Status = rsc.chain1Status.toI32();
-    _rscRuleType.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
-    _rscRuleType.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
+    _rscRuleType.chain0Token = chain0TokenPad;
+    _rscRuleType.chain1Token = chain1TokenPad;
     _rscRuleType.chain0minPrice = rsc.chain0minPrice;
     _rscRuleType.chain0maxPrice = rsc.chain0maxPrice;
     _rscRuleType.chain1minPrice = rsc.chain1minPrice;
@@ -1712,8 +1762,8 @@ function updateLatestRules(
     _snapshotLatestRuleType.chain1 = rsc.chain1;
     _snapshotLatestRuleType.chain0Status = rsc.chain0Status.toI32();
     _snapshotLatestRuleType.chain1Status = rsc.chain1Status.toI32();
-    _snapshotLatestRuleType.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
-    _snapshotLatestRuleType.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
+    _snapshotLatestRuleType.chain0Token = chain0TokenPad;
+    _snapshotLatestRuleType.chain1Token = chain1TokenPad;
     _snapshotLatestRuleType.chain0minPrice = rsc.chain0minPrice;
     _snapshotLatestRuleType.chain0maxPrice = rsc.chain0maxPrice;
     _snapshotLatestRuleType.chain1minPrice = rsc.chain1minPrice;
@@ -1754,8 +1804,8 @@ function updateLatestRules(
     _ruleUpdateVersion.chain1 = rsc.chain1;
     _ruleUpdateVersion.chain0Status = rsc.chain0Status.toI32();
     _ruleUpdateVersion.chain1Status = rsc.chain1Status.toI32();
-    _ruleUpdateVersion.chain0Token = padZeroToUint(rsc.chain0Token.toHexString());
-    _ruleUpdateVersion.chain1Token = padZeroToUint(rsc.chain1Token.toHexString());
+    _ruleUpdateVersion.chain0Token = chain0TokenPad;
+    _ruleUpdateVersion.chain1Token = chain1TokenPad;
     _ruleUpdateVersion.chain0minPrice = rsc.chain0minPrice;
     _ruleUpdateVersion.chain0maxPrice = rsc.chain0maxPrice;
     _ruleUpdateVersion.chain1minPrice = rsc.chain1minPrice;
