@@ -54,6 +54,7 @@ import {
     decodeInputData,
     decodeInputDataNoPrefix,
     entityConcatID,
+    findDifferentData,
     getFunctionSelector,
     inputdataPrefix,
     intConverHexString,
@@ -1539,6 +1540,11 @@ function getLastRulesEntity(
     let lastRule = latestRule.load(id)
     if (lastRule == null) {
         lastRule = new latestRule(id)
+        lastRule.owner = STRING_INVALID
+        lastRule.mdcAddr = STRING_INVALID
+        lastRule.ebcAddr = STRING_INVALID
+        lastRule.chain0 = BigInt.fromI32(0)
+        lastRule.chain1 = BigInt.fromI32(0)
         lastRule.ruleValidation = true
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
         lastRule.ruleUpdateRel = []
@@ -1554,6 +1560,7 @@ function getLastRulesEntity(
 
     return lastRule
 }
+
 
 function getChainPairManager(
     id: string,
@@ -1642,6 +1649,13 @@ function getLastRulesSnapshotEntity(
     let lastRule = latestRuleSnapshot.load(id)
     if (lastRule == null) {
         lastRule = new latestRuleSnapshot(id)
+        lastRule.owner = STRING_INVALID
+        lastRule.mdcAddr = STRING_INVALID
+        lastRule.ebcAddr = STRING_INVALID
+        lastRule.chain0 = BigInt.fromI32(0)
+        lastRule.chain1 = BigInt.fromI32(0)
+        lastRule.chain0Token = STRING_INVALID
+        lastRule.chain1Token = STRING_INVALID
         lastRule.ruleValidation = true
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
         log.info("create new latestRuleSnapshot:{}", [id])
@@ -1658,7 +1672,7 @@ function getAllLatestRules(
     if (mdc.ruleLatest != null) {
         for (let i = 0; i < mdc.ruleLatest.length; i++) {
             let rule = latestRule.load(mdc.ruleLatest[i]);
-            if (rule != null && rule.ebc._id == ebc.id) {
+            if (rule != null) {
                 ruleIDs.push(rule.id);
             }
         }
@@ -1689,7 +1703,7 @@ function updateLatestRules(
     validateResult: string,
     validateBool: boolean,
     snapshot: ruleRel
-): void {
+): string {
     const version = rscRules.version;
     const enableTimestamp = rscRules.enableTimestamp;
     let token0 = rsc.chain0Token;
@@ -1713,8 +1727,9 @@ function updateLatestRules(
     const _TokenPairManager0 = getTokenPairManager(chain0TokenPad, event);
     const _TokenPairManager1 = getTokenPairManager(chain1TokenPad, event);
     const _rule = getLastRulesEntity(id, snapshot.root, _ChainPairManager, _TokenPairManager0, _TokenPairManager1);
-    const _snapshotLatestRule = getLastRulesSnapshotEntity(createHashID([snapshot.id, id]));
     const _ruleUpdateVersion = getruleUpdateVersionEntity(id, mdc, ebc, _rule, snapshot, event);
+    const latestRuleId = _rule.id;
+    const _snapshotLatestRule = getLastRulesSnapshotEntity(createHashID([snapshot.id, id]));
 
     const _rscRuleType = _rule;
     _rscRuleType.owner = mdc.owner;
@@ -1832,9 +1847,7 @@ function updateLatestRules(
     }
     _ruleUpdateVersion.save()
 
-
-
-
+    return latestRuleId
 }
 
 function saveRuleSnapshotRelation(
@@ -1978,7 +1991,8 @@ export function mdcStoreRuleSnapshot(
     updateRulesRootEntity: rscRules,
     mdc: MDC,
     ebc: ebcRel
-): void {
+): Array<string> {
+    let lastestRuleIdArray = new Array<string>()
     let validateBool = true;
     let ruleSnapshot = getRuleSnapshotEntity(event, mdc, ebc)
     saveRuleSnapshotRelation(event, ruleSnapshot, mdc, ebc)
@@ -2019,7 +2033,7 @@ export function mdcStoreRuleSnapshot(
             }
             _rule.ruleValidationErrorstatus = validateResult
             _rule.save()
-            updateLatestRules(
+            lastestRuleIdArray = entityConcatID(lastestRuleIdArray, updateLatestRules(
                 updateRulesRootEntity.rscType[i],
                 event,
                 updateRulesRootEntity,
@@ -2028,7 +2042,7 @@ export function mdcStoreRuleSnapshot(
                 validateResult,
                 validateBool,
                 ruleSnapshot
-            )
+            ))
             if (debugLogCreateRules) {
                 log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}, [18]:{}', [
                     i.toString(),
@@ -2055,7 +2069,86 @@ export function mdcStoreRuleSnapshot(
             }
         }
     }
+
     ruleSnapshot.save()
+    return lastestRuleIdArray
+}
+
+export function fullfillLatestRuleSnapshot(
+    event: ethereum.Event,
+    mdc: MDC,
+    ebc: ebcRel,
+    RuleThisRoundArray: string[]
+): void {
+    const currentRuleIdArray: Array<string> = getAllLatestRules(mdc, ebc)
+    // const returnArray: string[] = []
+    // currentRuleIdArray.push("0x3f21D4ae0216Cda81665b98c2B8EE5d5C1efCA74") // for debug
+    // currentRuleIdArray.push("0xA3FDF06e3c59Df2DEaAE6D597353477FC3daaEaf") // for debug
+    // currentRuleIdArray.push("0x29B6a77911c1ce3B3849f28721C65DadA015c768") // for debug
+    // log.debug("length of currentRuleIdArray: {}", [currentRuleIdArray.length.toString()])
+    if (debugLogCreateRules) {
+        for (let i = 0; i < RuleThisRoundArray.length; i++) {
+            log.debug("updateRule: {}", [RuleThisRoundArray[i]])
+        }
+        for (let i = 0; i < currentRuleIdArray.length; i++) {
+            log.debug("currentRule: {}", [currentRuleIdArray[i]])
+        }
+    }
+    const misArray: string[] = findDifferentData(RuleThisRoundArray, currentRuleIdArray)
+    let ruleSnapshot = getRuleSnapshotEntity(event, mdc, ebc)
+    for (let i = 0; i < misArray.length; i++) {
+        log.debug("misArray: {}", [misArray[i]])
+        let lastRule = latestRule.load(misArray[i])
+        if (lastRule != null) {
+            const newID = createHashID([createHashID([mdc.id, ebc.id, createEventID(event)]), createHashID([
+                mdc.id,
+                ebc.id,
+                lastRule.chain0.toString(),
+                lastRule.chain1.toString(),
+                lastRule.chain0Token.toString(),
+                lastRule.chain1Token.toString(),
+            ])])
+            let _snapshotLatestRuleType = getLastRulesSnapshotEntity(newID)
+            _snapshotLatestRuleType.owner = mdc.owner;
+            _snapshotLatestRuleType.mdcAddr = mdc.id;
+            _snapshotLatestRuleType.ebcAddr = ebc.id;
+            _snapshotLatestRuleType.chain0 = lastRule.chain0;
+            _snapshotLatestRuleType.chain1 = lastRule.chain1;
+            _snapshotLatestRuleType.chain0Status = lastRule.chain0Status;
+            _snapshotLatestRuleType.chain1Status = lastRule.chain1Status;
+            _snapshotLatestRuleType.chain0Token = lastRule.chain0Token;
+            _snapshotLatestRuleType.chain1Token = lastRule.chain1Token;
+            _snapshotLatestRuleType.chain0minPrice = lastRule.chain0minPrice;
+            _snapshotLatestRuleType.chain0maxPrice = lastRule.chain0maxPrice;
+            _snapshotLatestRuleType.chain1minPrice = lastRule.chain1minPrice;
+            _snapshotLatestRuleType.chain1maxPrice = lastRule.chain1maxPrice;
+            _snapshotLatestRuleType.chain0WithholdingFee = lastRule.chain0WithholdingFee;
+            _snapshotLatestRuleType.chain1WithholdingFee = lastRule.chain1WithholdingFee;
+            _snapshotLatestRuleType.chain0TradeFee = lastRule.chain0TradeFee;
+            _snapshotLatestRuleType.chain1TradeFee = lastRule.chain1TradeFee;
+            _snapshotLatestRuleType.chain0ResponseTime = lastRule.chain0ResponseTime;
+            _snapshotLatestRuleType.chain1ResponseTime = lastRule.chain1ResponseTime;
+            _snapshotLatestRuleType.chain0CompensationRatio = lastRule.chain0CompensationRatio;
+            _snapshotLatestRuleType.chain1CompensationRatio = lastRule.chain1CompensationRatio;
+            _snapshotLatestRuleType.enableTimestamp = lastRule.enableTimestamp;
+            _snapshotLatestRuleType.ruleValidation = lastRule.ruleValidation;
+            _snapshotLatestRuleType.ruleValidationErrorstatus = lastRule.ruleValidationErrorstatus;
+            _snapshotLatestRuleType.latestUpdateTimestamp = lastRule.latestUpdateTimestamp;
+            _snapshotLatestRuleType.latestUpdateBlockNumber = lastRule.latestUpdateBlockNumber;
+            _snapshotLatestRuleType.latestUpdateHash = lastRule.latestUpdateHash;
+            _snapshotLatestRuleType.latestUpdateVersion = lastRule.latestUpdateVersion;
+            _snapshotLatestRuleType.type = lastRule.type;
+
+            saveLatestRule2RuleSnapshot(ruleSnapshot, _snapshotLatestRuleType.id);
+
+            _snapshotLatestRuleType.save()
+
+        }
+    }
+    if (misArray.length > 0) {
+        ruleSnapshot.save()
+    }
+
 }
 
 export function removeDuplicates(data: Array<Address>): Array<Address> {

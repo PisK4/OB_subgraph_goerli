@@ -1,14 +1,14 @@
 
-import { 
-    BigInt, 
-    BigDecimal, 
-    Bytes, 
-    log, 
-    EthereumUtils, 
-    ethereum, 
-    Address, 
-    ByteArray, 
-    crypto, 
+import {
+    BigInt,
+    BigDecimal,
+    Bytes,
+    log,
+    EthereumUtils,
+    ethereum,
+    Address,
+    ByteArray,
+    crypto,
     Value,
     ValueKind
 } from '@graphprotocol/graph-ts'
@@ -32,7 +32,7 @@ export function createBindID(
     ids: Array<string>
 ): string {
     let id = ""
-    for(let i = 0; i < ids.length; i++){
+    for (let i = 0; i < ids.length; i++) {
         if (i === 0) {
             id = ids[i]
         } else {
@@ -82,7 +82,7 @@ export function removeFunctionSelector(data: Bytes): Bytes {
 }
 
 export function inputdataPrefix(data: Bytes): Bytes {
-    const dataWithoutSelector = Bytes.fromUint8Array(data.slice(4,data.length))
+    const dataWithoutSelector = Bytes.fromUint8Array(data.slice(4, data.length))
     const Prefix = ByteArray.fromHexString(tupleprefix);
     const functionInputAsTuple = new Uint8Array(
         Prefix.length + dataWithoutSelector.length
@@ -122,44 +122,67 @@ export function decodeInputDataNoPrefix(data: Bytes, types: string): ethereum.Tu
     return tuple
 }
 
-export function intConverHexString(value: BigInt) : string{
-    if(value){
+export function intConverHexString(value: BigInt): string {
+    if (value) {
         return value.toHexString()
-    }else{
+    } else {
         const address = Address.fromString("0x0000000000000000000000000000000000000000")
         return address.toHexString()
     }
 }
 export function padZeroToUint(hexString: string): string {
-  const uint256Length = 64;
-  let paddedHexString = hexString;
-  if (paddedHexString.startsWith('0x')) {
-    paddedHexString = paddedHexString.slice(2);
-  }
-  const hexStringLength = paddedHexString.length;
-  if (hexStringLength < uint256Length) {
-    const paddingLength = uint256Length - hexStringLength;
-    const padding = '0'.repeat(paddingLength);
-    paddedHexString = padding + paddedHexString;
-  } else if (hexStringLength > uint256Length) {
-    throw new Error('Invalid hex string length');
-  }
-  return '0x' + paddedHexString;
+    const uint256Length = 64;
+    let paddedHexString = hexString;
+    if (paddedHexString.startsWith('0x')) {
+        paddedHexString = paddedHexString.slice(2);
+    }
+    const hexStringLength = paddedHexString.length;
+    if (hexStringLength < uint256Length) {
+        const paddingLength = uint256Length - hexStringLength;
+        const padding = '0'.repeat(paddingLength);
+        paddedHexString = padding + paddedHexString;
+    } else if (hexStringLength > uint256Length) {
+        throw new Error('Invalid hex string length');
+    }
+    return '0x' + paddedHexString;
 }
 
 export function padZeroToAddress(hexString: string): string {
     const uint256Length = 40;
     let paddedHexString = hexString;
     if (paddedHexString.startsWith('0x')) {
-      paddedHexString = paddedHexString.slice(2);
+        paddedHexString = paddedHexString.slice(2);
     }
     const hexStringLength = paddedHexString.length;
     if (hexStringLength < uint256Length) {
-      const paddingLength = uint256Length - hexStringLength;
-      const padding = '0'.repeat(paddingLength);
-      paddedHexString = padding + paddedHexString;
+        const paddingLength = uint256Length - hexStringLength;
+        const padding = '0'.repeat(paddingLength);
+        paddedHexString = padding + paddedHexString;
     } else if (hexStringLength > uint256Length) {
-      throw new Error('Invalid hex string length');
+        throw new Error('Invalid hex string length');
     }
     return '0x' + paddedHexString;
-  }
+}
+
+export function findDifferentData(A: string[], B: string[]): string[] {
+    // find the elements in A that are not in B
+    // b elements > a elements
+    const differentData: string[] = [];
+
+    for (let i = 0; i < B.length; i++) {
+        let found = false;
+
+        for (let j = 0; j < A.length; j++) {
+            if (B[i] == A[j]) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            differentData.push(B[i]);
+        }
+    }
+
+    return differentData;
+}

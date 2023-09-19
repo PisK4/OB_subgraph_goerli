@@ -392,12 +392,12 @@ type latestRule
   mdcAddr: String! # address
   ebcAddr: String! # address
   type: String # ETH/ERC20
-  chain0: BigInt # uint64
-  chain1: BigInt # uint64
+  chain0: BigInt! # uint64
+  chain1: BigInt! # uint64
   chain0Status: Int # uint8
   chain1Status: Int # uint8
-  chain0Token: String # Address
-  chain1Token: String # Address
+  chain0Token: String! # Address
+  chain1Token: String! # Address
   chain0minPrice: BigInt # uint128
   chain1minPrice: BigInt # uint128
   chain0maxPrice: BigInt # uint128
@@ -435,12 +435,12 @@ type latestRuleSnapshot
   mdcAddr: String! # address
   ebcAddr: String! # address
   type: String # ETH/ERC20
-  chain0: BigInt # uint64
-  chain1: BigInt # uint64
+  chain0: BigInt! # uint64
+  chain1: BigInt! # uint64
   chain0Status: Int # uint8
   chain1Status: Int # uint8
-  chain0Token: String # Address
-  chain1Token: String # Address
+  chain0Token: String! # Address
+  chain1Token: String! # Address
   chain0minPrice: BigInt # uint128
   chain1minPrice: BigInt # uint128
   chain0maxPrice: BigInt # uint128

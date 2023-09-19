@@ -4512,38 +4512,30 @@ export class latestRule extends Entity {
     }
   }
 
-  get chain0(): BigInt | null {
+  get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0");
-    } else {
-      this.set("chain0", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0(value: BigInt) {
+    this.set("chain0", Value.fromBigInt(value));
   }
 
-  get chain1(): BigInt | null {
+  get chain1(): BigInt {
     let value = this.get("chain1");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1");
-    } else {
-      this.set("chain1", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1(value: BigInt) {
+    this.set("chain1", Value.fromBigInt(value));
   }
 
   get chain0Status(): i32 {
@@ -4572,38 +4564,30 @@ export class latestRule extends Entity {
     this.set("chain1Status", Value.fromI32(value));
   }
 
-  get chain0Token(): string | null {
+  get chain0Token(): string {
     let value = this.get("chain0Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set chain0Token(value: string | null) {
-    if (!value) {
-      this.unset("chain0Token");
-    } else {
-      this.set("chain0Token", Value.fromString(<string>value));
-    }
+  set chain0Token(value: string) {
+    this.set("chain0Token", Value.fromString(value));
   }
 
-  get chain1Token(): string | null {
+  get chain1Token(): string {
     let value = this.get("chain1Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set chain1Token(value: string | null) {
-    if (!value) {
-      this.unset("chain1Token");
-    } else {
-      this.set("chain1Token", Value.fromString(<string>value));
-    }
+  set chain1Token(value: string) {
+    this.set("chain1Token", Value.fromString(value));
   }
 
   get chain0minPrice(): BigInt | null {
@@ -5043,38 +5027,30 @@ export class latestRuleSnapshot extends Entity {
     }
   }
 
-  get chain0(): BigInt | null {
+  get chain0(): BigInt {
     let value = this.get("chain0");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain0(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain0");
-    } else {
-      this.set("chain0", Value.fromBigInt(<BigInt>value));
-    }
+  set chain0(value: BigInt) {
+    this.set("chain0", Value.fromBigInt(value));
   }
 
-  get chain1(): BigInt | null {
+  get chain1(): BigInt {
     let value = this.get("chain1");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set chain1(value: BigInt | null) {
-    if (!value) {
-      this.unset("chain1");
-    } else {
-      this.set("chain1", Value.fromBigInt(<BigInt>value));
-    }
+  set chain1(value: BigInt) {
+    this.set("chain1", Value.fromBigInt(value));
   }
 
   get chain0Status(): i32 {
@@ -5103,38 +5079,30 @@ export class latestRuleSnapshot extends Entity {
     this.set("chain1Status", Value.fromI32(value));
   }
 
-  get chain0Token(): string | null {
+  get chain0Token(): string {
     let value = this.get("chain0Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set chain0Token(value: string | null) {
-    if (!value) {
-      this.unset("chain0Token");
-    } else {
-      this.set("chain0Token", Value.fromString(<string>value));
-    }
+  set chain0Token(value: string) {
+    this.set("chain0Token", Value.fromString(value));
   }
 
-  get chain1Token(): string | null {
+  get chain1Token(): string {
     let value = this.get("chain1Token");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set chain1Token(value: string | null) {
-    if (!value) {
-      this.unset("chain1Token");
-    } else {
-      this.set("chain1Token", Value.fromString(<string>value));
-    }
+  set chain1Token(value: string) {
+    this.set("chain1Token", Value.fromString(value));
   }
 
   get chain0minPrice(): BigInt | null {

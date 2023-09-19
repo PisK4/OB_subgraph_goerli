@@ -49,10 +49,11 @@ import {
   STRING_INVALID,
   ETH_ZERO_ADDRESS,
   func_registerChainsSelector,
-  func_updateChainSpvsSelector
+  func_updateChainSpvsSelector,
+  fullfillLatestRuleSnapshot
 } from "./helpers"
 import {
-  FactoryManager
+  FactoryManager, ebcRel
 } from "../types/schema";
 import {
   funcETHRootMockInput,
@@ -95,17 +96,29 @@ export function handleupdateRulesRootEvent(
       updateRulesRootEntity.pledgeAmounts.toString(),
       updateRulesRootEntity.tokenAddr
     ])
-
+  let lastestRuleIdArray: string[] = []
+  let ebcEntity: ebcRel
   if (ebcAddress != null) {
-    const ebcEntity = getEBCEntityNew(ebcAddress, event)
-    mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
+    ebcEntity = getEBCEntityNew(ebcAddress, event)
+    lastestRuleIdArray = mdcStoreRuleSnapshot(event, updateRulesRootEntity, mdc, ebcEntity)
     ebcSave(ebcEntity, mdc)
     ebcEntity.save()
+    mdc.save()
+    if (ebcEntity != null) {
+      fullfillLatestRuleSnapshot(
+        event,
+        mdc,
+        ebcEntity,
+        lastestRuleIdArray)
+    }
+    if (factory) {
+      factory.save()
+    }
+  } else {
+    log.warning("ebcAddress is null", ["error"])
   }
-  mdc.save()
-  if (factory) {
-    factory.save()
-  }
+
+
 }
 
 export function handleColumnArrayUpdatedEvent(
