@@ -4373,6 +4373,32 @@ export class rule extends Entity {
     this.set("ruleValidationErrorstatus", Value.fromString(value));
   }
 
+  get latestVersion(): BigInt {
+    let value = this.get("latestVersion");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set latestVersion(value: BigInt) {
+    this.set("latestVersion", Value.fromBigInt(value));
+  }
+
+  get transactionRuleIndex(): i32 {
+    let value = this.get("transactionRuleIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set transactionRuleIndex(value: i32) {
+    this.set("transactionRuleIndex", Value.fromI32(value));
+  }
+
   get latestUpdateBlockNumber(): BigInt {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {

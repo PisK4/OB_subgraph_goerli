@@ -377,6 +377,8 @@ type rule
   enableTimestamp: BigInt! # uint64
   ruleValidation: Boolean!
   ruleValidationErrorstatus: String!
+  latestVersion: BigInt!
+  transactionRuleIndex: Int!
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdatetransactionHash: String!

@@ -74,6 +74,7 @@ const debugLogMapping = false
 /*****debug log*****/
 
 export const ZERO_BI = BigInt.fromI32(0)
+export const ZERO_UINT: u32 = 0
 export const ONE_BI = BigInt.fromI32(1)
 export const ZERO_BD = BigDecimal.fromString('0')
 export const ONE_BD = BigDecimal.fromString('1')
@@ -233,8 +234,8 @@ export function initRuleEntity(
 ): void {
     _rules.chain0 = ZERO_BI
     _rules.chain1 = ZERO_BI
-    _rules.chain0Status = ZERO_BI.toI32()
-    _rules.chain1Status = ZERO_BI.toI32()
+    _rules.chain0Status = ZERO_UINT
+    _rules.chain1Status = ZERO_UINT
     _rules.chain0Token = STRING_INVALID
     _rules.chain1Token = STRING_INVALID
     _rules.chain0minPrice = ZERO_BI
@@ -243,12 +244,14 @@ export function initRuleEntity(
     _rules.chain1maxPrice = ZERO_BI
     _rules.chain0WithholdingFee = ZERO_BI
     _rules.chain1WithholdingFee = ZERO_BI
-    _rules.chain0TradeFee = ZERO_BI.toI32()
-    _rules.chain1TradeFee = ZERO_BI.toI32()
-    _rules.chain0ResponseTime = ZERO_BI.toI32()
-    _rules.chain1ResponseTime = ZERO_BI.toI32()
-    _rules.chain0CompensationRatio = ZERO_BI.toI32()
-    _rules.chain1CompensationRatio = ZERO_BI.toI32()
+    _rules.chain0TradeFee = ZERO_UINT
+    _rules.chain1TradeFee = ZERO_UINT
+    _rules.chain0ResponseTime = ZERO_UINT
+    _rules.chain1ResponseTime = ZERO_UINT
+    _rules.chain0CompensationRatio = ZERO_UINT
+    _rules.chain1CompensationRatio = ZERO_UINT
+    _rules.latestVersion = ZERO_BI
+    _rules.transactionRuleIndex = ZERO_UINT
     _rules.ruleValidation = true
     _rules.ruleValidationErrorstatus = RULEVALIDA_NOERROR
 }
@@ -2025,6 +2028,8 @@ export function mdcStoreRuleSnapshot(
             _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
             _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
             _rule.enableTimestamp = updateRulesRootEntity.enableTimestamp
+            _rule.latestVersion = BigInt.fromI32(updateRulesRootEntity.version)
+            _rule.transactionRuleIndex = i
             if (validateResult != RULEVALIDA_NOERROR) {
                 _rule.ruleValidation = validateBool = false
                 log.warning("rule validation failed, rule index: {}, error code: {}", [i.toString(), validateResult.toString()])
@@ -2081,19 +2086,6 @@ export function fullfillLatestRuleSnapshot(
     RuleThisRoundArray: string[]
 ): void {
     const currentRuleIdArray: Array<string> = getAllLatestRules(mdc, ebc)
-    // const returnArray: string[] = []
-    // currentRuleIdArray.push("0x3f21D4ae0216Cda81665b98c2B8EE5d5C1efCA74") // for debug
-    // currentRuleIdArray.push("0xA3FDF06e3c59Df2DEaAE6D597353477FC3daaEaf") // for debug
-    // currentRuleIdArray.push("0x29B6a77911c1ce3B3849f28721C65DadA015c768") // for debug
-    // log.debug("length of currentRuleIdArray: {}", [currentRuleIdArray.length.toString()])
-    if (debugLogCreateRules) {
-        for (let i = 0; i < RuleThisRoundArray.length; i++) {
-            log.debug("updateRule: {}", [RuleThisRoundArray[i]])
-        }
-        for (let i = 0; i < currentRuleIdArray.length; i++) {
-            log.debug("currentRule: {}", [currentRuleIdArray[i]])
-        }
-    }
     const misArray: string[] = findDifferentData(RuleThisRoundArray, currentRuleIdArray)
     let ruleSnapshot = getRuleSnapshotEntity(event, mdc, ebc)
     for (let i = 0; i < misArray.length; i++) {
@@ -2138,17 +2130,13 @@ export function fullfillLatestRuleSnapshot(
             _snapshotLatestRuleType.latestUpdateHash = lastRule.latestUpdateHash;
             _snapshotLatestRuleType.latestUpdateVersion = lastRule.latestUpdateVersion;
             _snapshotLatestRuleType.type = lastRule.type;
-
             saveLatestRule2RuleSnapshot(ruleSnapshot, _snapshotLatestRuleType.id);
-
             _snapshotLatestRuleType.save()
-
         }
     }
     if (misArray.length > 0) {
         ruleSnapshot.save()
     }
-
 }
 
 export function removeDuplicates(data: Array<Address>): Array<Address> {
