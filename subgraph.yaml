@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: MDCFactory
-    network: goerli
+    network: mainnet
     source:
       address: "0x4a9d89E2d8a4b670f1AAb126Bf15ebad3E96af7d"
       abi: MDCFactory
@@ -24,7 +24,7 @@ dataSources:
       file: ./src/mappings/mdc-factory.ts
   - kind: ethereum
     name: ORManager
-    network: goerli
+    network: mainnet
     source:
       address: "0xcdF5e5e50030b6389A75bF3a48aCA0f18ca0190D"
       abi: ORManager
@@ -77,7 +77,7 @@ dataSources:
       file: ./src/mappings/or-manager.ts
   - kind: ethereum
     name: FeeManager
-    network: goerli
+    network: mainnet
     source:
       address: "0x8F138382BE67F96552586Cb80AbD55E8BdbE3e32"
       abi: FeeManager
@@ -113,7 +113,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: MDC
-    network: goerli
+    network: mainnet
     source:
       abi: MDC
     mapping:
