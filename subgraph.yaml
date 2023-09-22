@@ -79,7 +79,7 @@ dataSources:
     name: FeeManager
     network: goerli
     source:
-      address: "0x3f21D4ae0216Cda81665b98c2B8EE5d5C1efCA74"
+      address: "0x8F138382BE67F96552586Cb80AbD55E8BdbE3e32"
       abi: FeeManager
       startBlock: 9674680
     mapping:

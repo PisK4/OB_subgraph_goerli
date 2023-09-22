@@ -80,6 +80,7 @@ export const ZERO_BD = BigDecimal.fromString('0')
 export const ONE_BD = BigDecimal.fromString('1')
 export const BI_18 = BigInt.fromI32(18)
 export const STRING_INVALID = 'invalid'
+export const STRING_EMPTY = 'empty'
 export const RULEVALIDA_NOERROR = 'no error'
 export const RULEVALIDA_EBCNOTFOUND = 'ebc not found'
 export const RULEVALIDA_CHAINIDNOTFOUND = 'chainId not found'
@@ -222,11 +223,11 @@ export function ebcSave(
 export function initRulesEntity(
     _rules: ruleRel
 ): void {
-    _rules.root = STRING_INVALID
+    _rules.root = STRING_EMPTY
     _rules.version = 0
     _rules.pledgeAmounts = []
     _rules.sourceChainIds = []
-    _rules.token = STRING_INVALID
+    _rules.token = STRING_EMPTY
 }
 
 export function initRuleEntity(
@@ -236,8 +237,8 @@ export function initRuleEntity(
     _rules.chain1 = ZERO_BI
     _rules.chain0Status = ZERO_UINT
     _rules.chain1Status = ZERO_UINT
-    _rules.chain0Token = STRING_INVALID
-    _rules.chain1Token = STRING_INVALID
+    _rules.chain0Token = STRING_EMPTY
+    _rules.chain1Token = STRING_EMPTY
     _rules.chain0minPrice = ZERO_BI
     _rules.chain0maxPrice = ZERO_BI
     _rules.chain1minPrice = ZERO_BI
@@ -655,7 +656,7 @@ export function mdcStoreDealerNewMapping(
         if (_dealerMapping == null) {
             _dealerMapping = new DealerMapping(latestMappingId)
             _dealerMapping.owner = mdc.owner
-            _dealerMapping.dealerAddr = STRING_INVALID
+            _dealerMapping.dealerAddr = STRING_EMPTY
         }
         const snapshotId = createBindID([_MDCBindDealer.id, newDealers[mappingIndex]])
         let _MDCBindDealerSnapshot = DealerMappingSnapshot.load(snapshotId)
@@ -724,7 +725,7 @@ function getEBCMappingEntity(
     let _ebcMapping = ebcMapping.load(id)
     if (_ebcMapping == null) {
         _ebcMapping = new ebcMapping(id)
-        _ebcMapping.ebcAddr = STRING_INVALID
+        _ebcMapping.ebcAddr = STRING_EMPTY
         _ebcMapping.owner = mdc.owner
     }
     _ebcMapping.latestUpdateBlockNumber = event.block.number
@@ -741,9 +742,12 @@ function getebcMappingSnapshotEntity(
     let _ebcMapping = ebcMappingSnapshot.load(id)
     if (_ebcMapping == null) {
         _ebcMapping = new ebcMappingSnapshot(id)
-        _ebcMapping.ebcAddr = STRING_INVALID
+        _ebcMapping.ebcAddr = STRING_EMPTY
         _ebcMapping.owner = mdc.owner
     }
+    _ebcMapping.latestUpdateBlockNumber = event.block.number
+    _ebcMapping.latestUpdateTimestamp = event.block.timestamp
+    _ebcMapping.latestUpdateHash = event.transaction.hash.toHexString()
     return _ebcMapping as ebcMappingSnapshot
 }
 
@@ -873,7 +877,7 @@ export function getDealerEntity(
         _dealer.mdcs = []
         _dealer.rules = []
         _dealer.register = false
-        _dealer.extraInfo = STRING_INVALID
+        _dealer.extraInfo = STRING_EMPTY
         _dealer.feeRatio = new BigInt(0)
         _dealer.latestUpdateHash = event.transaction.hash.toHexString()
         _dealer.latestUpdateBlockNumber = event.block.number
@@ -1448,13 +1452,13 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
 
     let rsc = new Array<ethereum.Value>()
     let enableTimestamp = BigInt.fromI32(0)
-    let ebcAddress = STRING_INVALID
+    let ebcAddress = STRING_EMPTY
     let rootWithVersion = new ethereum.Tuple()
-    let root = STRING_INVALID
+    let root = STRING_EMPTY
     let version = 0
     let sourceChainIds = new Array<BigInt>()
     let pledgeAmounts = new Array<BigInt>()
-    let tokenAddress = STRING_INVALID
+    let tokenAddress = STRING_EMPTY
 
     if (tuple[0].kind == ethereum.ValueKind.UINT) {
         enableTimestamp = tuple[0].toBigInt()
@@ -1543,9 +1547,9 @@ function getLastRulesEntity(
     let lastRule = latestRule.load(id)
     if (lastRule == null) {
         lastRule = new latestRule(id)
-        lastRule.owner = STRING_INVALID
-        lastRule.mdcAddr = STRING_INVALID
-        lastRule.ebcAddr = STRING_INVALID
+        lastRule.owner = STRING_EMPTY
+        lastRule.mdcAddr = STRING_EMPTY
+        lastRule.ebcAddr = STRING_EMPTY
         lastRule.chain0 = BigInt.fromI32(0)
         lastRule.chain1 = BigInt.fromI32(0)
         lastRule.ruleValidation = true
@@ -1652,13 +1656,13 @@ function getLastRulesSnapshotEntity(
     let lastRule = latestRuleSnapshot.load(id)
     if (lastRule == null) {
         lastRule = new latestRuleSnapshot(id)
-        lastRule.owner = STRING_INVALID
-        lastRule.mdcAddr = STRING_INVALID
-        lastRule.ebcAddr = STRING_INVALID
+        lastRule.owner = STRING_EMPTY
+        lastRule.mdcAddr = STRING_EMPTY
+        lastRule.ebcAddr = STRING_EMPTY
         lastRule.chain0 = BigInt.fromI32(0)
         lastRule.chain1 = BigInt.fromI32(0)
-        lastRule.chain0Token = STRING_INVALID
-        lastRule.chain1Token = STRING_INVALID
+        lastRule.chain0Token = STRING_EMPTY
+        lastRule.chain1Token = STRING_EMPTY
         lastRule.ruleValidation = true
         lastRule.ruleValidationErrorstatus = RULEVALIDA_NOERROR
         log.info("create new latestRuleSnapshot:{}", [id])
@@ -1897,15 +1901,15 @@ function getRuleSnapshotEntity(
     let ruleSnapshot = ruleRel.load(snapshotId)
     if (ruleSnapshot == null) {
         ruleSnapshot = new ruleRel(snapshotId)
-        ruleSnapshot.root = STRING_INVALID
+        ruleSnapshot.root = STRING_EMPTY
         ruleSnapshot.version = 0
         ruleSnapshot.rules = []
         ruleSnapshot.ruleUpdateVersion = []
         ruleSnapshot.sourceChainIds = []
         ruleSnapshot.pledgeAmounts = []
         ruleSnapshot.ruleLatest = []
-        ruleSnapshot.token = STRING_INVALID
-        ruleSnapshot.type = STRING_INVALID
+        ruleSnapshot.token = STRING_EMPTY
+        ruleSnapshot.type = STRING_EMPTY
         // log.debug("create ruleSnapshot id: {}", [snapshotId])
     }
     ruleSnapshot.latestUpdateBlockNumber = event.block.number
