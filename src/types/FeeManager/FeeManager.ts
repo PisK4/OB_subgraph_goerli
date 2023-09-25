@@ -93,7 +93,7 @@ export class SubmissionUpdated__Params {
     this._event = event;
   }
 
-  get stratBlock(): BigInt {
+  get startBlock(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 
@@ -127,7 +127,7 @@ export class SubmitterRegistered__Params {
     this._event = event;
   }
 
-  get submiter(): Address {
+  get submitter(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 
@@ -171,7 +171,7 @@ export class Withdraw__Params {
 }
 
 export class FeeManager__getCurrentBlockInfoResultValue0Struct extends ethereum.Tuple {
-  get stratBlock(): BigInt {
+  get startBlock(): BigInt {
     return this[0].toBigInt();
   }
 
@@ -233,7 +233,7 @@ export class FeeManager__submissionsResult {
     return map;
   }
 
-  getStratBlock(): BigInt {
+  getStartBlock(): BigInt {
     return this.value0;
   }
 
@@ -251,20 +251,6 @@ export class FeeManager__submissionsResult {
 
   getStateTransTreeRoot(): Bytes {
     return this.value4;
-  }
-}
-
-export class FeeManager__withdrawLockCheckInputKeyStruct extends ethereum.Tuple {
-  get chainId(): BigInt {
-    return this[0].toBigInt();
-  }
-
-  get token(): Address {
-    return this[1].toAddress();
-  }
-
-  get user(): Address {
-    return this[2].toAddress();
   }
 }
 
@@ -440,42 +426,42 @@ export class FeeManager extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  withdrawLock(param0: Bytes): boolean {
-    let result = super.call("withdrawLock", "withdrawLock(bytes32):(bool)", [
-      ethereum.Value.fromFixedBytes(param0)
+  withdrawLock(param0: Address): BigInt {
+    let result = super.call("withdrawLock", "withdrawLock(address):(uint64)", [
+      ethereum.Value.fromAddress(param0)
     ]);
 
-    return result[0].toBoolean();
+    return result[0].toBigInt();
   }
 
-  try_withdrawLock(param0: Bytes): ethereum.CallResult<boolean> {
-    let result = super.tryCall("withdrawLock", "withdrawLock(bytes32):(bool)", [
-      ethereum.Value.fromFixedBytes(param0)
-    ]);
+  try_withdrawLock(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "withdrawLock",
+      "withdrawLock(address):(uint64)",
+      [ethereum.Value.fromAddress(param0)]
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  withdrawLockCheck(key: FeeManager__withdrawLockCheckInputKeyStruct): boolean {
+  withdrawLockCheck(withdrawUser: Address): boolean {
     let result = super.call(
       "withdrawLockCheck",
-      "withdrawLockCheck((uint64,address,address)):(bool)",
-      [ethereum.Value.fromTuple(key)]
+      "withdrawLockCheck(address):(bool)",
+      [ethereum.Value.fromAddress(withdrawUser)]
     );
 
     return result[0].toBoolean();
   }
 
-  try_withdrawLockCheck(
-    key: FeeManager__withdrawLockCheckInputKeyStruct
-  ): ethereum.CallResult<boolean> {
+  try_withdrawLockCheck(withdrawUser: Address): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "withdrawLockCheck",
-      "withdrawLockCheck((uint64,address,address)):(bool)",
-      [ethereum.Value.fromTuple(key)]
+      "withdrawLockCheck(address):(bool)",
+      [ethereum.Value.fromAddress(withdrawUser)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -508,10 +494,6 @@ export class ConstructorCall__Inputs {
 
   get manager_(): Address {
     return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _verifier(): Address {
-    return this._call.inputValues[2].value.toAddress();
   }
 }
 
@@ -776,10 +758,8 @@ export class WithdrawVerificationCall__Inputs {
     >();
   }
 
-  get siblings(): Array<Array<WithdrawVerificationCallSiblingsStruct>> {
-    return this._call.inputValues[1].value.toTupleMatrix<
-      WithdrawVerificationCallSiblingsStruct
-    >();
+  get siblings(): Array<Array<Bytes>> {
+    return this._call.inputValues[1].value.toBytesMatrix();
   }
 
   get startIndex(): Array<i32> {
@@ -808,20 +788,6 @@ export class WithdrawVerificationCall__Outputs {
 }
 
 export class WithdrawVerificationCallSmtLeavesStruct extends ethereum.Tuple {
-  get key(): WithdrawVerificationCallSmtLeavesKeyStruct {
-    return changetype<WithdrawVerificationCallSmtLeavesKeyStruct>(
-      this[0].toTuple()
-    );
-  }
-
-  get value(): WithdrawVerificationCallSmtLeavesValueStruct {
-    return changetype<WithdrawVerificationCallSmtLeavesValueStruct>(
-      this[1].toTuple()
-    );
-  }
-}
-
-export class WithdrawVerificationCallSmtLeavesKeyStruct extends ethereum.Tuple {
   get chainId(): BigInt {
     return this[0].toBigInt();
   }
@@ -833,48 +799,12 @@ export class WithdrawVerificationCallSmtLeavesKeyStruct extends ethereum.Tuple {
   get user(): Address {
     return this[2].toAddress();
   }
-}
-
-export class WithdrawVerificationCallSmtLeavesValueStruct extends ethereum.Tuple {
-  get token(): Address {
-    return this[0].toAddress();
-  }
-
-  get chainId(): BigInt {
-    return this[1].toBigInt();
-  }
 
   get amount(): BigInt {
-    return this[2].toBigInt();
+    return this[3].toBigInt();
   }
 
   get debt(): BigInt {
-    return this[3].toBigInt();
-  }
-}
-
-export class WithdrawVerificationCallSiblingsStruct extends ethereum.Tuple {
-  get mergeType(): i32 {
-    return this[0].toI32();
-  }
-
-  get mergeValue(): WithdrawVerificationCallSiblingsMergeValueStruct {
-    return changetype<WithdrawVerificationCallSiblingsMergeValueStruct>(
-      this[1].toTuple()
-    );
-  }
-}
-
-export class WithdrawVerificationCallSiblingsMergeValueStruct extends ethereum.Tuple {
-  get value1(): i32 {
-    return this[0].toI32();
-  }
-
-  get value2(): Bytes {
-    return this[1].toBytes();
-  }
-
-  get value3(): Bytes {
-    return this[2].toBytes();
+    return this[4].toBigInt();
   }
 }

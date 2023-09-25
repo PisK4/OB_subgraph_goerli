@@ -70,7 +70,7 @@ export function handleSubmissionUpdated(event: SubmissionUpdatedEvent): void {
   let entity = new SubmissionUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.stratBlock = event.params.stratBlock
+  entity.startBlock = event.params.startBlock
   entity.endBlock = event.params.endBlock
   entity.submitTimestamp = event.params.submitTimestamp
   entity.profitRoot = event.params.profitRoot
@@ -89,7 +89,7 @@ export function handleSubmitterRegistered(
   let entity = new SubmitterRegistered(
     event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
-  entity.submiter = event.params.submiter
+  entity.submitter = event.params.submitter
   entity.marginAmount = event.params.marginAmount
 
   entity.blockNumber = event.block.number

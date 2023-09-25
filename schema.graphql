@@ -422,6 +422,7 @@ type latestRule
   root: String!
   # Rel
   ruleUpdateRel: [ruleUpdateRel!]!
+  latestSnapShotID: String!
   ebc: ebcRel! @derivedFrom(field: "ruleLatest") # EBCs
   mdc: MDC! @derivedFrom(field: "ruleLatest") # MDC
   chainPairManager: chainPairManager! @derivedFrom(field: "latestRule")
@@ -605,7 +606,7 @@ type FeeManagerOwnershipTransferred @entity(immutable: true) {
 
 type SubmissionUpdated @entity(immutable: true) {
   id: Bytes!
-  stratBlock: BigInt! # uint64
+  startBlock: BigInt! # uint64
   endBlock: BigInt! # uint64
   submitTimestamp: BigInt! # uint64
   profitRoot: Bytes! # bytes32
@@ -617,7 +618,7 @@ type SubmissionUpdated @entity(immutable: true) {
 
 type SubmitterRegistered @entity(immutable: true) {
   id: ID!
-  submiter: Bytes! # address
+  submitter: Bytes! # address
   marginAmount: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!

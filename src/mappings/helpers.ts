@@ -1737,7 +1737,7 @@ function updateLatestRules(
     const _ruleUpdateVersion = getruleUpdateVersionEntity(id, mdc, ebc, _rule, snapshot, event);
     const latestRuleId = _rule.id;
     const _snapshotLatestRule = getLastRulesSnapshotEntity(createHashID([snapshot.id, id]));
-
+    _rule.latestSnapShotID = _snapshotLatestRule.id;
     const _rscRuleType = _rule;
     _rscRuleType.owner = mdc.owner;
     _rscRuleType.mdcAddr = mdc.id;
@@ -2096,46 +2096,47 @@ export function fullfillLatestRuleSnapshot(
         log.debug("misArray: {}", [misArray[i]])
         let lastRule = latestRule.load(misArray[i])
         if (lastRule != null) {
-            const newID = createHashID([createHashID([mdc.id, ebc.id, createEventID(event)]), createHashID([
-                mdc.id,
-                ebc.id,
-                lastRule.chain0.toString(),
-                lastRule.chain1.toString(),
-                lastRule.chain0Token.toString(),
-                lastRule.chain1Token.toString(),
-            ])])
-            let _snapshotLatestRuleType = getLastRulesSnapshotEntity(newID)
-            _snapshotLatestRuleType.owner = mdc.owner;
-            _snapshotLatestRuleType.mdcAddr = mdc.id;
-            _snapshotLatestRuleType.ebcAddr = ebc.id;
-            _snapshotLatestRuleType.chain0 = lastRule.chain0;
-            _snapshotLatestRuleType.chain1 = lastRule.chain1;
-            _snapshotLatestRuleType.chain0Status = lastRule.chain0Status;
-            _snapshotLatestRuleType.chain1Status = lastRule.chain1Status;
-            _snapshotLatestRuleType.chain0Token = lastRule.chain0Token;
-            _snapshotLatestRuleType.chain1Token = lastRule.chain1Token;
-            _snapshotLatestRuleType.chain0minPrice = lastRule.chain0minPrice;
-            _snapshotLatestRuleType.chain0maxPrice = lastRule.chain0maxPrice;
-            _snapshotLatestRuleType.chain1minPrice = lastRule.chain1minPrice;
-            _snapshotLatestRuleType.chain1maxPrice = lastRule.chain1maxPrice;
-            _snapshotLatestRuleType.chain0WithholdingFee = lastRule.chain0WithholdingFee;
-            _snapshotLatestRuleType.chain1WithholdingFee = lastRule.chain1WithholdingFee;
-            _snapshotLatestRuleType.chain0TradeFee = lastRule.chain0TradeFee;
-            _snapshotLatestRuleType.chain1TradeFee = lastRule.chain1TradeFee;
-            _snapshotLatestRuleType.chain0ResponseTime = lastRule.chain0ResponseTime;
-            _snapshotLatestRuleType.chain1ResponseTime = lastRule.chain1ResponseTime;
-            _snapshotLatestRuleType.chain0CompensationRatio = lastRule.chain0CompensationRatio;
-            _snapshotLatestRuleType.chain1CompensationRatio = lastRule.chain1CompensationRatio;
-            _snapshotLatestRuleType.enableTimestamp = lastRule.enableTimestamp;
-            _snapshotLatestRuleType.ruleValidation = lastRule.ruleValidation;
-            _snapshotLatestRuleType.ruleValidationErrorstatus = lastRule.ruleValidationErrorstatus;
-            _snapshotLatestRuleType.latestUpdateTimestamp = lastRule.latestUpdateTimestamp;
-            _snapshotLatestRuleType.latestUpdateBlockNumber = lastRule.latestUpdateBlockNumber;
-            _snapshotLatestRuleType.latestUpdateHash = lastRule.latestUpdateHash;
-            _snapshotLatestRuleType.latestUpdateVersion = lastRule.latestUpdateVersion;
-            _snapshotLatestRuleType.type = lastRule.type;
-            saveLatestRule2RuleSnapshot(ruleSnapshot, _snapshotLatestRuleType.id);
-            _snapshotLatestRuleType.save()
+            saveLatestRule2RuleSnapshot(ruleSnapshot, lastRule.latestSnapShotID);
+            // const newID = createHashID([createHashID([mdc.id, ebc.id, createEventID(event)]), createHashID([
+            //     mdc.id,
+            //     ebc.id,
+            //     lastRule.chain0.toString(),
+            //     lastRule.chain1.toString(),
+            //     lastRule.chain0Token.toString(),
+            //     lastRule.chain1Token.toString(),
+            // ])])
+            // let _snapshotLatestRuleType = getLastRulesSnapshotEntity(newID)
+            // _snapshotLatestRuleType.owner = mdc.owner;
+            // _snapshotLatestRuleType.mdcAddr = mdc.id;
+            // _snapshotLatestRuleType.ebcAddr = ebc.id;
+            // _snapshotLatestRuleType.chain0 = lastRule.chain0;
+            // _snapshotLatestRuleType.chain1 = lastRule.chain1;
+            // _snapshotLatestRuleType.chain0Status = lastRule.chain0Status;
+            // _snapshotLatestRuleType.chain1Status = lastRule.chain1Status;
+            // _snapshotLatestRuleType.chain0Token = lastRule.chain0Token;
+            // _snapshotLatestRuleType.chain1Token = lastRule.chain1Token;
+            // _snapshotLatestRuleType.chain0minPrice = lastRule.chain0minPrice;
+            // _snapshotLatestRuleType.chain0maxPrice = lastRule.chain0maxPrice;
+            // _snapshotLatestRuleType.chain1minPrice = lastRule.chain1minPrice;
+            // _snapshotLatestRuleType.chain1maxPrice = lastRule.chain1maxPrice;
+            // _snapshotLatestRuleType.chain0WithholdingFee = lastRule.chain0WithholdingFee;
+            // _snapshotLatestRuleType.chain1WithholdingFee = lastRule.chain1WithholdingFee;
+            // _snapshotLatestRuleType.chain0TradeFee = lastRule.chain0TradeFee;
+            // _snapshotLatestRuleType.chain1TradeFee = lastRule.chain1TradeFee;
+            // _snapshotLatestRuleType.chain0ResponseTime = lastRule.chain0ResponseTime;
+            // _snapshotLatestRuleType.chain1ResponseTime = lastRule.chain1ResponseTime;
+            // _snapshotLatestRuleType.chain0CompensationRatio = lastRule.chain0CompensationRatio;
+            // _snapshotLatestRuleType.chain1CompensationRatio = lastRule.chain1CompensationRatio;
+            // _snapshotLatestRuleType.enableTimestamp = lastRule.enableTimestamp;
+            // _snapshotLatestRuleType.ruleValidation = lastRule.ruleValidation;
+            // _snapshotLatestRuleType.ruleValidationErrorstatus = lastRule.ruleValidationErrorstatus;
+            // _snapshotLatestRuleType.latestUpdateTimestamp = lastRule.latestUpdateTimestamp;
+            // _snapshotLatestRuleType.latestUpdateBlockNumber = lastRule.latestUpdateBlockNumber;
+            // _snapshotLatestRuleType.latestUpdateHash = lastRule.latestUpdateHash;
+            // _snapshotLatestRuleType.latestUpdateVersion = lastRule.latestUpdateVersion;
+            // _snapshotLatestRuleType.type = lastRule.type;
+            // saveLatestRule2RuleSnapshot(ruleSnapshot, _snapshotLatestRuleType.id);
+            // _snapshotLatestRuleType.save()
         }
     }
     if (misArray.length > 0) {

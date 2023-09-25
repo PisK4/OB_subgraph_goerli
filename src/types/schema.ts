@@ -4929,6 +4929,19 @@ export class latestRule extends Entity {
     this.set("ruleUpdateRel", Value.fromStringArray(value));
   }
 
+  get latestSnapShotID(): string {
+    let value = this.get("latestSnapShotID");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set latestSnapShotID(value: string) {
+    this.set("latestSnapShotID", Value.fromString(value));
+  }
+
   get ebc(): ebcRelLoader {
     return new ebcRelLoader("latestRule", this.get("id")!.toString(), "ebc");
   }
@@ -7085,8 +7098,8 @@ export class SubmissionUpdated extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get stratBlock(): BigInt {
-    let value = this.get("stratBlock");
+  get startBlock(): BigInt {
+    let value = this.get("startBlock");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -7094,8 +7107,8 @@ export class SubmissionUpdated extends Entity {
     }
   }
 
-  set stratBlock(value: BigInt) {
-    this.set("stratBlock", Value.fromBigInt(value));
+  set startBlock(value: BigInt) {
+    this.set("startBlock", Value.fromBigInt(value));
   }
 
   get endBlock(): BigInt {
@@ -7233,8 +7246,8 @@ export class SubmitterRegistered extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get submiter(): Bytes {
-    let value = this.get("submiter");
+  get submitter(): Bytes {
+    let value = this.get("submitter");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -7242,8 +7255,8 @@ export class SubmitterRegistered extends Entity {
     }
   }
 
-  set submiter(value: Bytes) {
-    this.set("submiter", Value.fromBytes(value));
+  set submitter(value: Bytes) {
+    this.set("submitter", Value.fromBytes(value));
   }
 
   get marginAmount(): BigInt {
