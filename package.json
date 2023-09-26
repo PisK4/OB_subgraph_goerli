@@ -3,6 +3,7 @@
   "license": "MIT",
   "scripts": {
     "ct": "graph codegen --output-dir src/types/ && graph build && graph test",
+    "setup": "mustache configurations/configurations.json configurations/subgraph.yaml> subgraph.yaml",
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ OBCabin",
@@ -24,6 +25,7 @@
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
+    "@types/mustache": "^4",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
     "eslint": "^8.38.0",
@@ -33,6 +35,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "matchstick-as": "^0.5.2",
+    "mustache": "^4.2.0",
     "prettier": "^2.8.8",
     "prettier-plugin-solidity": "^1.1.3",
     "solhint": "^3.4.1",
