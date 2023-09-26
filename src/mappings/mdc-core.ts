@@ -16,7 +16,6 @@ import {
   func_updateRulesRootERC20,
   func_updateRulesRootERC20Selector,
   func_updateRulesRootSelector,
-  getMDCFactory,
   getMDCEntity,
   updateRulesRootMode,
   ebcSave,
@@ -61,7 +60,10 @@ import {
   functionupdateColumnArrayMockinput
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
-import { getFunctionSelector, padZeroToUint } from "./utils";
+import {
+  calldata,
+  padZeroToUint
+} from "./utils";
 import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20utils";
 import {
   isProduction
@@ -208,7 +210,7 @@ export function handleChainInfoUpdatedEvent(
   const inputdata = isProduction ?
     event.transaction.input :
     Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
-  const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata))
+  const selector = compareChainInfoUpdatedSelector(calldata.getSelector(inputdata))
   if (selector == ChainInfoUpdatedMode.registerChains) {
     log.info("registerChains", ["registerChains"])
     const enableTime = decodeEnabletime(inputdata, func_registerChainsSelector)
@@ -229,7 +231,7 @@ export function handleChainInfoUpdatedEvent(
     _chainInfo.enableTimestamp = enableTime
 
   } else {
-    log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toHexString()])
+    log.warning("chainInfoUpdated selector not match {}", [calldata.getSelector(inputdata).toHexString()])
   }
   _chainInfo.save()
 

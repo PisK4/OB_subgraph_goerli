@@ -34,7 +34,7 @@ import {
 import { mockMdcAddr } from "./mock-data"
 import { createChainInfoUpdatedEvent, createChainTokenUpdatedEvent, createEbcsUpdatedEvent } from "./or-manager-utils"
 import { handleChainInfoUpdated, handleChainTokenUpdated, handleEbcsUpdated } from "../src/mappings/or-manager"
-import { createHashID, padZeroToUint } from "../src/mappings/utils"
+import { padZeroToUint } from "../src/mappings/utils"
 
 describe("Describe check responseMakers Event", () => {
   const impl = "0x5F9204BC7402D77d8C9bAA97d8F225e85347961e"
