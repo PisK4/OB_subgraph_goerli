@@ -9,15 +9,7 @@ import {
 import { MDC as mdcContract } from "../types/templates/MDC/MDC"
 import {
   ONE_ADDRESS,
-  ONE_BI,
-  ONE_NUM,
-  ZERO_BI,
-  func_updateRulesRoot,
-  func_updateRulesRootERC20,
-  func_updateRulesRootERC20Selector,
-  func_updateRulesRootSelector,
   getMDCEntity,
-  updateRulesRootMode,
   ebcSave,
   parseTransactionInputData,
   removeDuplicates,
@@ -40,11 +32,11 @@ import {
   getEBCSnapshotEntity,
   getChainIdSnapshotEntity,
   decodeEnabletime,
-  func_updateColumnArraySelector,
+  func_updateColumnArrayName,
   STRING_INVALID,
   ETH_ZERO_ADDRESS,
-  func_registerChainsSelector,
-  func_updateChainSpvsSelector,
+  func_registerChainsName,
+  func_updateChainSpvsName,
   fullfillLatestRuleSnapshot
 } from "./helpers"
 import {
@@ -131,7 +123,7 @@ export function handleColumnArrayUpdatedEvent(
   const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
   const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(functionupdateColumnArrayMockinput) as Bytes
-  const enableTimestamp = decodeEnabletime(inputData, func_updateColumnArraySelector)
+  const enableTimestamp = decodeEnabletime(inputData, func_updateColumnArrayName)
 
   // process dealers
   let uniqueDealers = removeDuplicates(dealers)
@@ -213,7 +205,7 @@ export function handleChainInfoUpdatedEvent(
   const selector = compareChainInfoUpdatedSelector(calldata.getSelector(inputdata))
   if (selector == ChainInfoUpdatedMode.registerChains) {
     log.info("registerChains", ["registerChains"])
-    const enableTime = decodeEnabletime(inputdata, func_registerChainsSelector)
+    const enableTime = decodeEnabletime(inputdata, func_registerChainsName)
     _chainInfo.batchLimit = batchLimit
     _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
     _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
@@ -226,7 +218,7 @@ export function handleChainInfoUpdatedEvent(
 
   } else if (selector == ChainInfoUpdatedMode.updateChainSpvs) {
     log.info("updateChainSpvs", ["updateChainSpvs"])
-    const enableTime = decodeEnabletime(inputdata, func_updateChainSpvsSelector)
+    const enableTime = decodeEnabletime(inputdata, func_updateChainSpvsName)
     parseChainInfoUpdatedInputData(inputdata, _chainInfo)
     _chainInfo.enableTimestamp = enableTime
 

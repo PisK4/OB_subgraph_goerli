@@ -85,16 +85,16 @@ export const func_registerChains = "0x2e96565f"
 export const func_updateChainSpvs = "0x434417cf"
 /**** function selectors ****/
 
-/**** decode selectors ****/
+/**** decode function format ****/
 export const RSCDataFmt = "(uint64,uint64,uint8,uint8,uint,uint,uint128,uint128,uint128,uint128,uint128,uint128,uint32,uint32,uint32,uint32,uint32,uint32)[]"
 export const selectorSetting = `uint64,address,${RSCDataFmt},(bytes32,uint32),uint64[],uint256[]`
-export const func_updateRulesRootSelector = `(${selectorSetting})`
-export const func_updateRulesRootERC20Selector = `(${selectorSetting},address)`
-export const func_registerChainsSelector = "(uint64,(uint64,uint192,uint64,uint64,uint64,uint64,uint,address[])[])"
-export const func_updateChainSpvsSelector = "(uint64,uint64,address[],uint[])"
-export const func_updateColumnArraySelector = "(uint64,address[],address[],uint64[])"
-export const func_updateResponseMakersSelector = "(uint64,bytes[])"
-/**** decode selectors ****/
+export const func_updateRulesRootName = `(${selectorSetting})`
+export const func_updateRulesRootERC20Name = `(${selectorSetting},address)`
+export const func_registerChainsName = "(uint64,(uint64,uint192,uint64,uint64,uint64,uint64,uint,address[])[])"
+export const func_updateChainSpvsName = "(uint64,uint64,address[],uint[])"
+export const func_updateColumnArrayName = "(uint64,address[],address[],uint64[])"
+export const func_updateResponseMakersName = "(uint64,bytes[])"
+/**** decode function format ****/
 
 export enum updateRulesRootMode {
     ETH = 0,
@@ -810,7 +810,7 @@ export function mdcStoreResponseMaker(
 ): void {
     const id = entity.createHashID([mdc.id, entity.createEventID(event)])
     const inputdata = isProduction ? event.transaction.input : Bytes.fromHexString(functionrResponseMakerMockinput) as Bytes
-    const enableTimestamp = decodeEnabletime(inputdata, func_updateResponseMakersSelector)
+    const enableTimestamp = decodeEnabletime(inputdata, func_updateResponseMakersName)
     let responseMakers = responseMakersMapping.load(id)
     if (responseMakers == null) {
         responseMakers = new responseMakersMapping(id)
@@ -953,7 +953,7 @@ export class rscRules {
         this.enableTimestamp = enableTimestamp;
         this.ebcAddress = ebcAddress;
         this.rsc = rsc;
-        this.rscType = parseRSC(rsc, mdcAddress, ebcAddress, version, selector);
+        this.rscType = rscRuleType.parse(rsc, mdcAddress, ebcAddress, version, selector);
         this.root = root;
         this.version = version;
         this.sourceChainIds = sourceChainIds;
@@ -1029,141 +1029,178 @@ export class rscRuleType {
         this.verifyPass = false;
         this.selector = selector
     }
-}
 
-export function calculateRscRootAndCompare(rules: rscRuleType, inputRoot: Bytes): boolean {
-    // TODO : finish root calculation
-    let pass = true
-    return (pass && rules.verifyPass)
-}
+    static validation(
+        rsc: rscRuleType,
+        mdc: MDC,
+        ebcAddr: string
+    ): string {
+        // EBC validation
+        const EBCArray = getMDCLatestEBCs(mdc)
+        if (!EBCArray.includes(ebcAddr)) {
+            log.warning("rule EBC not bind in mdc: {}, EBC: {}, length: {}", [mdc.id, ebcAddr, EBCArray.length.toString()])
+            return RULEVALIDA_EBCNOTFOUND
+        }
 
+        // chainID validation
+        const chain0 = rsc.chain0
+        const chain1 = rsc.chain1
+        if (chain0 >= chain1) {
+            log.warning("chain0: {} >= chain1: {}", [chain0.toString(), chain1.toString()])
+            return RULEVALIDA_CHAINIDMISSMATCH
+        }
+        const chainIds = getMDCLatestChainIds(mdc)
+        if (!chainIds.includes(chain0) || !chainIds.includes(chain1)) {
+            log.warning("chainId not bind in mdc: {}, chain0: {}, chain1: {}, length: {}", [mdc.id, chain0.toString(), chain1.toString(), chainIds.length.toString()])
+            for (let i = 0; i < chainIds.length; i++) {
+                log.warning("chainId bind in mdc: {}", [chainIds[i].toString()])
+            }
+            return RULEVALIDA_CHAINIDNOTFOUND
+        }
 
-export function checkifRSCRuleTypeExist(rule: BigInt): boolean {
-    if (rule.equals(ZERO_BI)) {
-        return false
+        // token validation
+        if (rsc.chain0Token != BigInt.fromI32(0)) {
+            const chain0Token = padZeroToUint(rsc.chain0Token.toHexString())
+            const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
+            if (!chain0TokenArray.includes(chain0Token)) {
+                log.warning("token not bind in chainInfoUpdated: {}, chain0: {}, length: {}", [mdc.id, chain0Token, chain0TokenArray.length.toString()])
+                for (let i = 0; i < chain0TokenArray.length; i++) {
+                    log.warning("token bind in chainInfoUpdated: {}", [chain0TokenArray[i]])
+                }
+                return RULEVALIDA_TOKENNOTFOUND
+            }
+        }
+
+        if (rsc.chain1Token != BigInt.fromI32(0)) {
+            const chain1Token = padZeroToUint(rsc.chain1Token.toHexString())
+            const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
+            if (!chain1TokenArray.includes(chain1Token)) {
+                log.warning("token not bind in chainInfoUpdated: {}, chain1: {}, length: {}", [mdc.id, chain1Token, chain1TokenArray.length.toString()])
+                for (let i = 0; i < chain1TokenArray.length; i++) {
+                    log.warning("token bind in chainInfoUpdated: {}", [chain1TokenArray[i]])
+                }
+                return RULEVALIDA_TOKENNOTFOUND
+            }
+        }
+
+        const chain0Status = rsc.chain0Status
+        const chain1Status = rsc.chain1Status
+        if (chain0Status == BigInt.fromI32(0) && chain1Status == BigInt.fromI32(0)) {
+            log.info("maker {} shutdown service, chain: {} - {} ", [mdc.id, chain0.toString(), chain1.toString()])
+            return RULEVALIDA_SERVICECLOSED
+        }
+
+        return RULEVALIDA_NOERROR
     }
-    return true
 
-}
-
-export function checkRulesFormat(rscTuple: ethereum.Tuple): boolean {
-    if ((rscTuple[2].toBigInt() == BigInt.fromI32(0) || rscTuple[2].toBigInt() == BigInt.fromI32(1)) &&
-        (rscTuple[3].toBigInt() == BigInt.fromI32(0) || rscTuple[3].toBigInt() == BigInt.fromI32(1))) {
-        return true
-    } else {
-        log.info("rules format not match [1]:{} [2]:{}", [rscTuple[2].toBigInt().toString(), rscTuple[3].toBigInt().toString()])
-        return false
+    static init(): rscRuleType {
+        let _rscRuleType = new rscRuleType(
+            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
+            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
+            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
+            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
+            ZERO_BI, ZERO_BI, ZERO_BI, updateRulesRootMode.INV
+        );
+        return _rscRuleType
     }
-}
 
-function setInitRuleType(): rscRuleType {
-    let _rscRuleType = new rscRuleType(
-        ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-        ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-        ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-        ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-        ZERO_BI, ZERO_BI, ZERO_BI, updateRulesRootMode.INV
-    );
-    return _rscRuleType
-}
-
-function isRscTupleUint(rscTuple: ethereum.Value): boolean {
-    return rscTuple.kind == ethereum.ValueKind.UINT ? true : false
-}
-
-function parseRSC(
-    rsc: Array<ethereum.Value>,
-    mdcAddress: string,
-    ebcAddress: string,
-    version: i32,
-    selector: updateRulesRootMode
-): rscRuleType[] {
-    let rscRules: rscRuleType[] = [];
-    for (let i = 0; i < rsc.length; i++) {
-        let rscTuple = rsc[i].toTuple();
-        // let _rscRuleType = getLastRules(mdcAddress, ebcAddress, version, i)
-        let _rscRuleType = setInitRuleType()
-        _rscRuleType.selector = selector
-        if (isRscTupleUint(rscTuple[0])) {
-            _rscRuleType.chain0 = rscTuple[0].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[1])) {
-            _rscRuleType.chain1 = rscTuple[1].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[2])) {
-            _rscRuleType.chain0Status = rscTuple[2].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[3])) {
-            _rscRuleType.chain1Status = rscTuple[3].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[4])) {
-            _rscRuleType.chain0Token = rscTuple[4].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[5])) {
-            _rscRuleType.chain1Token = rscTuple[5].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[6])) {
-            _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[7])) {
-            _rscRuleType.chain1minPrice = rscTuple[7].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[8])) {
-            _rscRuleType.chain0maxPrice = rscTuple[8].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[9])) {
-            _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[10])) {
-            _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[11])) {
-            _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[12])) {
-            _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[13])) {
-            _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[14])) {
-            _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[15])) {
-            _rscRuleType.chain1ResponseTime = rscTuple[15].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[16])) {
-            _rscRuleType.chain0CompensationRatio = rscTuple[16].toBigInt();
-        }
-
-        if (isRscTupleUint(rscTuple[17])) {
-            _rscRuleType.chain1CompensationRatio = rscTuple[17].toBigInt();
-        }
-
-        // if (isRscTupleUint(rscTuple[18])) {
-        //     _rscRuleType.enableTimestamp = rscTuple[18].toBigInt();
-        // }
-
-        _rscRuleType.verifyPass = true;
-        rscRules.push(_rscRuleType);
+    static isRscTupleUint(rscTuple: ethereum.Value): boolean {
+        return rscTuple.kind == ethereum.ValueKind.UINT ? true : false
     }
-    return rscRules;
+
+    static parse(
+        rsc: Array<ethereum.Value>,
+        mdcAddress: string,
+        ebcAddress: string,
+        version: i32,
+        selector: updateRulesRootMode
+    ): rscRuleType[] {
+        let rscRules: rscRuleType[] = [];
+        for (let i = 0; i < rsc.length; i++) {
+            let rscTuple = rsc[i].toTuple();
+            let _rscRuleType = this.init()
+            _rscRuleType.selector = selector
+            if (this.isRscTupleUint(rscTuple[0])) {
+                _rscRuleType.chain0 = rscTuple[0].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[1])) {
+                _rscRuleType.chain1 = rscTuple[1].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[2])) {
+                _rscRuleType.chain0Status = rscTuple[2].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[3])) {
+                _rscRuleType.chain1Status = rscTuple[3].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[4])) {
+                _rscRuleType.chain0Token = rscTuple[4].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[5])) {
+                _rscRuleType.chain1Token = rscTuple[5].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[6])) {
+                _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[7])) {
+                _rscRuleType.chain1minPrice = rscTuple[7].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[8])) {
+                _rscRuleType.chain0maxPrice = rscTuple[8].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[9])) {
+                _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[10])) {
+                _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[11])) {
+                _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[12])) {
+                _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[13])) {
+                _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[14])) {
+                _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[15])) {
+                _rscRuleType.chain1ResponseTime = rscTuple[15].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[16])) {
+                _rscRuleType.chain0CompensationRatio = rscTuple[16].toBigInt();
+            }
+
+            if (this.isRscTupleUint(rscTuple[17])) {
+                _rscRuleType.chain1CompensationRatio = rscTuple[17].toBigInt();
+            }
+
+            // if (this.isRscTupleUint(rscTuple[18])) {
+            //     _rscRuleType.enableTimestamp = rscTuple[18].toBigInt();
+            // }
+
+            _rscRuleType.verifyPass = true;
+            rscRules.push(_rscRuleType);
+        }
+        return rscRules;
+    }
 }
 
 
@@ -1171,7 +1208,7 @@ export function parseChainInfoUpdatedInputData(
     data: Bytes,
     _chainInfoUpdated: chainRel
 ): void {
-    let tuple = calldata.decode(data, func_updateChainSpvsSelector)
+    let tuple = calldata.decode(data, func_updateChainSpvsName)
 
     if (debugLog) {
         for (let i = 0; i < tuple.length; i++) {
@@ -1223,17 +1260,6 @@ export function parseChainInfoUpdatedInputData(
         if (i < indexs.length) {
             let _spv = _chainInfoUpdated.spvs;
             if (indexs.length > 0) {
-                // let spvBytes: Bytes[] = [];
-                // for (let i = 0; i < indexs.length; i++) {
-                //     let index = indexs[i].toI32();
-                //     if(_spv.length == 0){
-                //         spvBytes.push(Bytes.fromHexString(spvs[i].toHexString()));
-                //     }else{
-                //         if (index < _spv.length) {
-                //             spvBytes.push(Bytes.fromHexString(spvs[i].toHexString()));
-                //         }
-                //     }
-                // }
                 let spvArray = new Array<string>()
                 for (let i = 0; i < indexs.length; i++) {
                     let index = indexs[i].toI32();
@@ -1247,11 +1273,6 @@ export function parseChainInfoUpdatedInputData(
                 }
                 _chainInfoUpdated.spvs = _spv.slice(0, indexs[0].toI32()).concat(spvArray).concat(_spv.slice(indexs[indexs.length - 1].toI32() + 1));
             } else {
-                // let spvBytes: Bytes[] = [];
-                // for (let i = 0; i < spvs.length; i++) {
-                //     spvBytes.push(Address.fromHexString(AddressFmtPadZero(spvs[i].toHexString())) as Bytes);
-                // }
-                // _chainInfoUpdated.spvs = _spv.concat(spvBytes);
                 let spvArray = new Array<string>()
                 for (let i = 0; i < spvs.length; i++) {
                     spvArray.push(spvs[i].toHexString());
@@ -1260,7 +1281,6 @@ export function parseChainInfoUpdatedInputData(
             }
             _chainInfoUpdated.save();
         } else {
-            // _chainInfoUpdated.spvs = _chainInfoUpdated.spvs.concat([Bytes.fromHexString(spvs[i].toHexString())])
             _chainInfoUpdated.spvs = _chainInfoUpdated.spvs.concat([spvs[i].toHexString()])
             _chainInfoUpdated.save()
         }
@@ -1277,9 +1297,9 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
     let func = compareUpdateRulesRootSelector(calldata.getSelector(data))
     let selectorofFunc = "0x000000"
     if (func == updateRulesRootMode.ETH) {
-        selectorofFunc = func_updateRulesRootSelector
+        selectorofFunc = func_updateRulesRootName
     } else if (func == updateRulesRootMode.ERC20) {
-        selectorofFunc = func_updateRulesRootERC20Selector
+        selectorofFunc = func_updateRulesRootERC20Name
     }
     let tuple = calldata.decode(data, selectorofFunc)
     if (debugLog) {
@@ -1339,7 +1359,7 @@ export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscR
         pledgeAmounts = tuple[5].toBigIntArray();
     }
 
-    if (selectorofFunc == func_updateRulesRootERC20Selector) {
+    if (selectorofFunc == func_updateRulesRootERC20Name) {
         if (tuple[6].kind == ethereum.ValueKind.ADDRESS) {
             tokenAddress = tuple[6].toAddress().toHexString();
         }
@@ -1588,7 +1608,6 @@ function updateLatestRules(
     if (rsc.selector === updateRulesRootMode.ETH) {
         _rscRuleType.type = 'ETH';
         snapshot.type = 'ETH';
-        // snapshot.token = padZeroToUint("0");
     } else if (rsc.selector === updateRulesRootMode.ERC20) {
         _rscRuleType.type = 'ERC20';
         snapshot.type = 'ERC20';
@@ -1736,68 +1755,7 @@ function getRuleSnapshotEntity(
     return ruleSnapshot
 }
 
-function ruleValidationSchema(
-    rsc: rscRuleType,
-    mdc: MDC,
-    ebcAddr: string
-): string {
-    // EBC validation
-    const EBCArray = getMDCLatestEBCs(mdc)
-    if (!EBCArray.includes(ebcAddr)) {
-        log.warning("rule EBC not bind in mdc: {}, EBC: {}, length: {}", [mdc.id, ebcAddr, EBCArray.length.toString()])
-        return RULEVALIDA_EBCNOTFOUND
-    }
 
-    // chainID validation
-    const chain0 = rsc.chain0
-    const chain1 = rsc.chain1
-    if (chain0 >= chain1) {
-        log.warning("chain0: {} >= chain1: {}", [chain0.toString(), chain1.toString()])
-        return RULEVALIDA_CHAINIDMISSMATCH
-    }
-    const chainIds = getMDCLatestChainIds(mdc)
-    if (!chainIds.includes(chain0) || !chainIds.includes(chain1)) {
-        log.warning("chainId not bind in mdc: {}, chain0: {}, chain1: {}, length: {}", [mdc.id, chain0.toString(), chain1.toString(), chainIds.length.toString()])
-        for (let i = 0; i < chainIds.length; i++) {
-            log.warning("chainId bind in mdc: {}", [chainIds[i].toString()])
-        }
-        return RULEVALIDA_CHAINIDNOTFOUND
-    }
-
-    // token validation
-    if (rsc.chain0Token != BigInt.fromI32(0)) {
-        const chain0Token = padZeroToUint(rsc.chain0Token.toHexString())
-        const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
-        if (!chain0TokenArray.includes(chain0Token)) {
-            log.warning("token not bind in chainInfoUpdated: {}, chain0: {}, length: {}", [mdc.id, chain0Token, chain0TokenArray.length.toString()])
-            for (let i = 0; i < chain0TokenArray.length; i++) {
-                log.warning("token bind in chainInfoUpdated: {}", [chain0TokenArray[i]])
-            }
-            return RULEVALIDA_TOKENNOTFOUND
-        }
-    }
-
-    if (rsc.chain1Token != BigInt.fromI32(0)) {
-        const chain1Token = padZeroToUint(rsc.chain1Token.toHexString())
-        const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
-        if (!chain1TokenArray.includes(chain1Token)) {
-            log.warning("token not bind in chainInfoUpdated: {}, chain1: {}, length: {}", [mdc.id, chain1Token, chain1TokenArray.length.toString()])
-            for (let i = 0; i < chain1TokenArray.length; i++) {
-                log.warning("token bind in chainInfoUpdated: {}", [chain1TokenArray[i]])
-            }
-            return RULEVALIDA_TOKENNOTFOUND
-        }
-    }
-
-    const chain0Status = rsc.chain0Status
-    const chain1Status = rsc.chain1Status
-    if (chain0Status == BigInt.fromI32(0) && chain1Status == BigInt.fromI32(0)) {
-        log.info("maker {} shutdown service, chain: {} - {} ", [mdc.id, chain0.toString(), chain1.toString()])
-        return RULEVALIDA_SERVICECLOSED
-    }
-
-    return RULEVALIDA_NOERROR
-}
 
 export function mdcStoreRuleSnapshot(
     event: ethereum.Event,
@@ -1818,7 +1776,7 @@ export function mdcStoreRuleSnapshot(
     if (updateRulesRootEntity.rscType.length > 0) {
         for (let i = 0; i < updateRulesRootEntity.rscType.length; i++) {
             let _rule = getRuleEntity(ruleSnapshot, i, mdc, ebc, event)
-            const validateResult = ruleValidationSchema(updateRulesRootEntity.rscType[i], mdc, updateRulesRootEntity.ebcAddress)
+            const validateResult = rscRuleType.validation(updateRulesRootEntity.rscType[i], mdc, updateRulesRootEntity.ebcAddress)
             _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
             _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
             _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
