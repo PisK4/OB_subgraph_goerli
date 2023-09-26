@@ -5632,14 +5632,6 @@ export class chainRel extends Entity {
     }
   }
 
-  get manager(): ORManagerLoader {
-    return new ORManagerLoader(
-      "chainRel",
-      this.get("id")!.toString(),
-      "manager"
-    );
-  }
-
   get latestUpdateBlockNumber(): BigInt {
     let value = this.get("latestUpdateBlockNumber");
     if (!value || value.kind == ValueKind.NULL) {
@@ -5845,72 +5837,6 @@ export class tokenRel extends Entity {
   }
 }
 
-export class ORManager extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save ORManager entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type ORManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("ORManager", id.toString(), this);
-    }
-  }
-
-  static loadInBlock(id: string): ORManager | null {
-    return changetype<ORManager | null>(store.get_in_block("ORManager", id));
-  }
-
-  static load(id: string): ORManager | null {
-    return changetype<ORManager | null>(store.get("ORManager", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get chainInfoManager(): Array<string> {
-    let value = this.get("chainInfoManager");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set chainInfoManager(value: Array<string>) {
-    this.set("chainInfoManager", Value.fromStringArray(value));
-  }
-
-  get ebcManager(): Array<string> {
-    let value = this.get("ebcManager");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set ebcManager(value: Array<string>) {
-    this.set("ebcManager", Value.fromStringArray(value));
-  }
-}
-
 export class ChallengeUserRatioUpdated extends Entity {
   constructor(id: Bytes) {
     super();
@@ -6112,10 +6038,6 @@ export class ebcRel extends Entity {
 
   set statuses(value: boolean) {
     this.set("statuses", Value.fromBoolean(value));
-  }
-
-  get manager(): ORManagerLoader {
-    return new ORManagerLoader("ebcRel", this.get("id")!.toString(), "manager");
   }
 
   get latestUpdateHash(): string {
@@ -7723,24 +7645,6 @@ export class tokenPairManagerLoader extends Entity {
   load(): tokenPairManager[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<tokenPairManager[]>(value);
-  }
-}
-
-export class ORManagerLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): ORManager[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<ORManager[]>(value);
   }
 }
 

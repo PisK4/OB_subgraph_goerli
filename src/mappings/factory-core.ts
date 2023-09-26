@@ -14,7 +14,6 @@ import {
     getFactoryEntity,
     getMDCEntity,
     getMDCMappingEntity,
-    getONEBytes
 } from './helpers'
 import { entityConcatID } from "./utils";
 

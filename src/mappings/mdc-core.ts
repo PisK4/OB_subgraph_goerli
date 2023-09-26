@@ -18,12 +18,10 @@ import {
   func_updateRulesRootSelector,
   getMDCFactory,
   getMDCEntity,
-  getONEBytes,
   updateRulesRootMode,
   ebcSave,
   parseTransactionInputData,
   removeDuplicates,
-  ebcManagerUpdate,
   AddressFmtPadZero,
   getChainInfoEntity,
   ChainInfoUpdatedMode,
@@ -118,7 +116,6 @@ export function handleupdateRulesRootEvent(
     log.warning("ebcAddress is null", ["error"])
   }
 
-
 }
 
 export function handleColumnArrayUpdatedEvent(
@@ -190,10 +187,6 @@ export function handleEbcsUpdatedEvent(
     }
   } else if (ebcs.length < statuses.length) {
     _statuses = statuses.slice(0, ebcs.length);
-  }
-
-  for (let i = 0; i < ebcs.length; i++) {
-    ebcManagerUpdate(ebcs[i], _statuses[i], event);
   }
 }
 

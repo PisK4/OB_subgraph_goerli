@@ -23,7 +23,6 @@ import {
     dealerSnapshot,
     MDCBindSPV,
     MDCMapping,
-    ORManager,
     responseMakersMapping,
     chainIdMapping,
     ebcMapping,
@@ -72,9 +71,9 @@ import {
     debugLogMapping
 } from './config'
 
-export const ZERO_BI = BigInt.fromI32(0)
+export const ZERO_BI: BigInt = BigInt.fromI32(0)
+export const ONE_BI: BigInt = BigInt.fromI32(1)
 export const ZERO_UINT: u32 = 0
-export const ONE_BI = BigInt.fromI32(1)
 export const ZERO_BD = BigDecimal.fromString('0')
 export const ONE_BD = BigDecimal.fromString('1')
 export const BI_18 = BigInt.fromI32(18)
@@ -115,24 +114,10 @@ export enum updateRulesRootMode {
     INV = 2,
 }
 
-// export let RuleTypeCurrent  = updateRulesRootMode.INV
-
 export enum ChainInfoUpdatedMode {
     registerChains = 0,
     updateChainSpvs = 1,
     INV = 2,
-}
-// define the ManagersIDs
-export const EBCManagerID = "EBCManagerID_101" as string
-export const ORManagerID = "ORManagerID_101" as string
-
-export function getONEBytes(): Bytes {
-    if (ONE_BYTES.length == 0) {
-        for (let i = 0; i < 32; i++) {
-            ONE_BYTES[i] = 0xff;
-        }
-    }
-    return ONE_BYTES as Bytes;
 }
 
 export function getMDCFactory(mdcAddress: Address): Address {
@@ -147,70 +132,6 @@ export function getMDCFactory(mdcAddress: Address): Address {
     }
     return factoryAddress
 }
-
-export function getEBCId(BindEbcId: string): string {
-    // get ebc id from "mcdAddress - ebcAddress "
-    let ebcId = BindEbcId.split("-")[1]
-    // log.debug('ebcId: {}', [ebcId])
-    return ebcId
-}
-
-export function ebcManagerUpdate(
-    ebcAddress: Address,
-    status: boolean,
-    event: ethereum.Event
-): void {
-    let ebcId = ebcAddress.toHexString()
-    let ebc = ebcRel.load(ebcId)
-    if (ebc == null) {
-        log.info('create new EBC, ebc: {}, status: {}', [ebcId, status.toString()])
-        ebc = new ebcRel(ebcId)
-        ebc.mdcList = []
-        ebc.rulesList = []
-        ebc.ruleLatest = []
-        ebc.ruleUpdateRel = []
-        saveEBCMgr2ORMgr(ebc)
-    }
-    ebc.statuses = status
-    ebc.latestUpdateHash = event.transaction.hash.toHexString()
-
-    ebc.save()
-}
-
-function saveEBCMgr2ORMgr(
-    _EBCManager: ebcRel
-): void {
-    let _ORManager = ORManager.load(ORManagerID)
-    if (_ORManager == null) {
-        _ORManager = new ORManager(ORManagerID)
-        _ORManager.chainInfoManager = []
-        _ORManager.ebcManager = []
-    }
-    if (_ORManager.ebcManager == null) {
-        _ORManager.ebcManager = [_EBCManager.id]
-    } else if (!_ORManager.ebcManager.includes(_EBCManager.id)) {
-        _ORManager.ebcManager = _ORManager.ebcManager.concat([_EBCManager.id])
-    }
-    _ORManager.save()
-}
-
-function saveChainInfoMgr2ORMgr(
-    _ChainInfoMgr: chainRel
-): void {
-    let _ORManager = ORManager.load(ORManagerID)
-    if (_ORManager == null) {
-        _ORManager = new ORManager(ORManagerID)
-        _ORManager.chainInfoManager = []
-        _ORManager.ebcManager = []
-    }
-    if (_ORManager.chainInfoManager == null) {
-        _ORManager.chainInfoManager = [_ChainInfoMgr.id]
-    } else if (!_ORManager.chainInfoManager.includes(_ChainInfoMgr.id)) {
-        _ORManager.chainInfoManager = _ORManager.chainInfoManager.concat([_ChainInfoMgr.id])
-    }
-    _ORManager.save()
-}
-
 
 export function ebcSave(
     ebc: ebcRel,
@@ -360,7 +281,6 @@ export function getChainInfoEntity(
         _chainInfo = new chainRel(id)
         _chainInfo.tokens = []
         _chainInfo.spvs = []
-        saveChainInfoMgr2ORMgr(_chainInfo)
     }
     _chainInfo.latestUpdateHash = event.transaction.hash.toHexString()
     _chainInfo.latestUpdateBlockNumber = event.block.number

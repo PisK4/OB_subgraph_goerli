@@ -480,7 +480,6 @@ type chainRel @entity {
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
   enableTimestamp: BigInt # uint64
-  manager: ORManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: String!
@@ -502,13 +501,6 @@ type tokenRel @entity {
   latestUpdateHash: String!
 }
 
-# customed using entity
-type ORManager @entity {
-  id: ID! # Manager ID
-  chainInfoManager: [chainRel!]! # ChainInfo
-  ebcManager: [ebcRel!]! # EBCs
-}
-
 type ChallengeUserRatioUpdated @entity(immutable: true) {
   id: Bytes!
   challengeUserRatio: BigInt! # uint64
@@ -525,7 +517,6 @@ type ebcRel @entity {
   ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
   ruleUpdateRel: [ruleUpdateRel!]!
   statuses: Boolean!
-  manager: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: String!
 }
 
