@@ -20,9 +20,7 @@ import {
   getMDCEntity,
   getONEBytes,
   updateRulesRootMode,
-  isProduction,
   ebcSave,
-  debugLog,
   parseTransactionInputData,
   removeDuplicates,
   ebcManagerUpdate,
@@ -67,7 +65,9 @@ import {
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
 import { getFunctionSelector, padZeroToUint } from "./utils";
 import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20utils";
-
+import {
+  isProduction
+} from './config'
 
 
 export function handleupdateRulesRootEvent(

@@ -5,7 +5,7 @@
     "ct": "graph codegen --output-dir src/types/ && graph build && graph test",
     "setup": "mustache configurations/configurations.json configurations/subgraph.yaml> subgraph.yaml",
     "codegen": "graph codegen --output-dir src/types/",
-    "build": "graph build",
+    "build": "mustache configurations/graph-production.json configurations/graph-test-config.mustache src/mappings/config.ts && graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ OBCabin",
     "create-local": "graph create --node http://localhost:8020/ OBCabin",
     "remove-local": "graph remove --node http://localhost:8020/ OBCabin",
@@ -18,7 +18,7 @@
     "deploy-local4": "graph deploy CABIN --node http://106.53.133.224:8020/ --ipfs http://106.53.133.224:5001",
     "create-local5": "graph create CABIN --node http://ec2-52-197-110-166.ap-northeast-1.compute.amazonaws.com:8020/",
     "deploy-local5": "graph deploy CABIN --node http://ec2-52-197-110-166.ap-northeast-1.compute.amazonaws.com:8020/ --ipfs http://ec2-52-197-110-166.ap-northeast-1.compute.amazonaws.com:5001",
-    "test": "graph test"
+    "test": "mustache configurations/graph-test.json configurations/graph-test-config.mustache src/mappings/config.ts && graph test"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.51.2",
