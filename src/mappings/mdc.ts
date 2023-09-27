@@ -8,7 +8,7 @@ import {
 import {
   ChallengeInfoUpdated
 } from "../types/schema"
-import { 
+import {
   handleColumnArrayUpdatedEvent,
   handleResponseMakersUpdatedEvent,
   handleSpvUpdatedEvent,
@@ -76,18 +76,6 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
 }
 
 export function handleSpvUpdated(event: SpvUpdatedEvent): void {
-  // let entity = new SpvUpdated(
-  //   event.transaction.hash.concatI32(event.logIndex.toI32())
-  // )
-  // entity.impl = event.params.impl
-  // entity.chainId = event.params.chainId
-  // entity.spv = event.params.spv
-
-  // entity.blockNumber = event.block.number
-  // entity.blockTimestamp = event.block.timestamp
-  // entity.transactionHash = event.transaction.hash
-
-  // entity.save()
   handleSpvUpdatedEvent(
     event,
     event.params.impl,

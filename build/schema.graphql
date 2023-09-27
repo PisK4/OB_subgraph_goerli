@@ -330,7 +330,7 @@ type ruleRel
   @entity { #contain all rules snapshot
   # As MDC snapshot, id: hash(mdc-ecb-transactionHash-logIndex)
   id: ID!
-  rules: [rule!]! # rules in input Data
+  # rules: [rule!]! # rules in input Data
   type: String! # ETH/ERC20
   ruleLatest: [latestRuleSnapshot!]! # all latest rules
   root: String! # String
@@ -351,39 +351,39 @@ type ruleRel
 }
 
 # customed using entitys
-type rule
-  @entity { # only one rule in ruleRel
-  id: ID! #chain0-chain1
-  owner: String! # address
-  ebcAddr: String! # address
-  chain0: BigInt! # uint64
-  chain1: BigInt! # uint64
-  chain0Status: Int! # uint8
-  chain1Status: Int! # uint8
-  chain0Token: String! # Address
-  chain1Token: String! # Address
-  chain0minPrice: BigInt! # uint128
-  chain1minPrice: BigInt! # uint128
-  chain0maxPrice: BigInt! # uint128
-  chain1maxPrice: BigInt! # uint128
-  chain0WithholdingFee: BigInt! # uint128
-  chain1WithholdingFee: BigInt! # uint128
-  chain0TradeFee: Int! # uint16
-  chain1TradeFee: Int! # uint16
-  chain0ResponseTime: Int! # uint32
-  chain1ResponseTime: Int! # uint32
-  chain0CompensationRatio: Int! # uint32
-  chain1CompensationRatio: Int! # uint32
-  enableTimestamp: BigInt! # uint64
-  ruleValidation: Boolean!
-  ruleValidationErrorstatus: String!
-  latestVersion: BigInt!
-  transactionRuleIndex: Int!
-  latestUpdateBlockNumber: BigInt!
-  latestUpdateTimestamp: BigInt!
-  latestUpdatetransactionHash: String!
-  ruleRel: ruleRel! @derivedFrom(field: "rules") # ruleRel
-}
+# type rule
+#   @entity { # only one rule in ruleRel
+#   id: ID! # mdc-ebc-chain0-chain1
+#   owner: String! # address
+#   ebcAddr: String! # address
+#   chain0: BigInt! # uint64
+#   chain1: BigInt! # uint64
+#   chain0Status: Int! # uint8
+#   chain1Status: Int! # uint8
+#   chain0Token: String! # Address
+#   chain1Token: String! # Address
+#   chain0minPrice: BigInt! # uint128
+#   chain1minPrice: BigInt! # uint128
+#   chain0maxPrice: BigInt! # uint128
+#   chain1maxPrice: BigInt! # uint128
+#   chain0WithholdingFee: BigInt! # uint128
+#   chain1WithholdingFee: BigInt! # uint128
+#   chain0TradeFee: Int! # uint16
+#   chain1TradeFee: Int! # uint16
+#   chain0ResponseTime: Int! # uint32
+#   chain1ResponseTime: Int! # uint32
+#   chain0CompensationRatio: Int! # uint32
+#   chain1CompensationRatio: Int! # uint32
+#   enableTimestamp: BigInt! # uint64
+#   ruleValidation: Boolean!
+#   ruleValidationErrorstatus: String!
+#   latestVersion: BigInt!
+#   transactionRuleIndex: Int!
+#   latestUpdateBlockNumber: BigInt!
+#   latestUpdateTimestamp: BigInt!
+#   latestUpdatetransactionHash: String!
+#   ruleRel: ruleRel! @derivedFrom(field: "rules") # ruleRel
+# }
 
 # customed using entitys
 type latestRule
@@ -480,7 +480,6 @@ type chainRel @entity {
   minVerifyChallengeDestTxSecond: BigInt # uint64
   maxVerifyChallengeDestTxSecond: BigInt # uint64
   enableTimestamp: BigInt # uint64
-  manager: ORManager! @derivedFrom(field: "chainInfoManager") # ChainTokenEBCManager
   latestUpdateBlockNumber: BigInt!
   latestUpdateTimestamp: BigInt!
   latestUpdateHash: String!
@@ -502,13 +501,6 @@ type tokenRel @entity {
   latestUpdateHash: String!
 }
 
-# customed using entity
-type ORManager @entity {
-  id: ID! # Manager ID
-  chainInfoManager: [chainRel!]! # ChainInfo
-  ebcManager: [ebcRel!]! # EBCs
-}
-
 type ChallengeUserRatioUpdated @entity(immutable: true) {
   id: Bytes!
   challengeUserRatio: BigInt! # uint64
@@ -525,7 +517,6 @@ type ebcRel @entity {
   ruleLatest: [latestRule!]! # list all latest rules!! who bind this ebc
   ruleUpdateRel: [ruleUpdateRel!]!
   statuses: Boolean!
-  manager: ORManager! @derivedFrom(field: "ebcManager") # ChainTokenEBCManager
   latestUpdateHash: String!
 }
 

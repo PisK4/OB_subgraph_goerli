@@ -27,7 +27,6 @@ import {
     chainIdMapping,
     ebcMapping,
     latestRule,
-    rule,
     ruleRel,
     ebcSnapshot,
     chainIdSnapshot,
@@ -58,6 +57,10 @@ import {
     debugLogCreateRules,
     debugLogMapping
 } from './config'
+import {
+    rscRuleType,
+    rscRules
+} from './rule-utils'
 
 export const ZERO_BI: BigInt = BigInt.fromI32(0)
 export const ONE_BI: BigInt = BigInt.fromI32(1)
@@ -125,58 +128,68 @@ export function initRulesEntity(
     _rules.token = STRING_EMPTY
 }
 
-export function initRuleEntity(
-    _rules: rule
-): void {
-    _rules.chain0 = ZERO_BI
-    _rules.chain1 = ZERO_BI
-    _rules.chain0Status = ZERO_UINT
-    _rules.chain1Status = ZERO_UINT
-    _rules.chain0Token = STRING_EMPTY
-    _rules.chain1Token = STRING_EMPTY
-    _rules.chain0minPrice = ZERO_BI
-    _rules.chain0maxPrice = ZERO_BI
-    _rules.chain1minPrice = ZERO_BI
-    _rules.chain1maxPrice = ZERO_BI
-    _rules.chain0WithholdingFee = ZERO_BI
-    _rules.chain1WithholdingFee = ZERO_BI
-    _rules.chain0TradeFee = ZERO_UINT
-    _rules.chain1TradeFee = ZERO_UINT
-    _rules.chain0ResponseTime = ZERO_UINT
-    _rules.chain1ResponseTime = ZERO_UINT
-    _rules.chain0CompensationRatio = ZERO_UINT
-    _rules.chain1CompensationRatio = ZERO_UINT
-    _rules.latestVersion = ZERO_BI
-    _rules.transactionRuleIndex = ZERO_UINT
-    _rules.ruleValidation = true
-    _rules.ruleValidationErrorstatus = RULEVALIDA_NOERROR
-}
+// export function initRuleEntity(
+//     _rules: rule
+// ): void {
+//     _rules.chain0 = ZERO_BI
+//     _rules.chain1 = ZERO_BI
+//     _rules.chain0Status = ZERO_UINT
+//     _rules.chain1Status = ZERO_UINT
+//     _rules.chain0Token = STRING_EMPTY
+//     _rules.chain1Token = STRING_EMPTY
+//     _rules.chain0minPrice = ZERO_BI
+//     _rules.chain0maxPrice = ZERO_BI
+//     _rules.chain1minPrice = ZERO_BI
+//     _rules.chain1maxPrice = ZERO_BI
+//     _rules.chain0WithholdingFee = ZERO_BI
+//     _rules.chain1WithholdingFee = ZERO_BI
+//     _rules.chain0TradeFee = ZERO_UINT
+//     _rules.chain1TradeFee = ZERO_UINT
+//     _rules.chain0ResponseTime = ZERO_UINT
+//     _rules.chain1ResponseTime = ZERO_UINT
+//     _rules.chain0CompensationRatio = ZERO_UINT
+//     _rules.chain1CompensationRatio = ZERO_UINT
+//     _rules.latestVersion = ZERO_BI
+//     _rules.transactionRuleIndex = ZERO_UINT
+//     _rules.ruleValidation = true
+//     _rules.ruleValidationErrorstatus = RULEVALIDA_NOERROR
+// }
 
-export function getRuleEntity(
-    ruleTypes: ruleRel,
-    i: i32,
-    mdc: MDC,
-    ebc: ebcRel,
-    event: ethereum.Event
-): rule {
-    const id = entity.createBindID([ruleTypes.id, i.toString()])
-    let _rule = rule.load(id)
-    if (_rule == null) {
-        _rule = new rule(id)
-        initRuleEntity(_rule)
-        _rule.owner = mdc.owner
-        _rule.ebcAddr = ebc.id
-        ruleTypes.rules = entity.addRelation(ruleTypes.rules, _rule.id)
-        if (debugLogCreateRules) {
-            log.info('create new rule, rule: {}', [_rule.id])
-        }
-    }
-    _rule.latestUpdatetransactionHash = event.transaction.hash.toHexString()
-    _rule.latestUpdateBlockNumber = event.block.number
-    _rule.latestUpdateTimestamp = event.block.timestamp
+// export function getRuleEntity(
+//     ruleTypes: ruleRel,
+//     mdc: MDC,
+//     ebc: ebcRel,
+//     chain0Id: string,
+//     chain1Id: string,
+//     token0: string,
+//     token1: string,
+//     event: ethereum.Event
+// ): rule {
+//     const id = entity.createBindID([
+//         mdc.id,
+//         ebc.id,
+//         chain0Id,
+//         chain1Id,
+//         token0,
+//         token1
+//     ])
+//     let _rule = rule.load(id)
+//     if (_rule == null) {
+//         _rule = new rule(id)
+//         initRuleEntity(_rule)
+//         _rule.owner = mdc.owner
+//         _rule.ebcAddr = ebc.id
+//         ruleTypes.rules = entity.addRelation(ruleTypes.rules, _rule.id)
+//         if (debugLogCreateRules) {
+//             log.info('create new rule, rule: {}', [_rule.id])
+//         }
+//     }
+//     _rule.latestUpdatetransactionHash = event.transaction.hash.toHexString()
+//     _rule.latestUpdateBlockNumber = event.block.number
+//     _rule.latestUpdateTimestamp = event.block.timestamp
 
-    return _rule as rule
-}
+//     return _rule as rule
+// }
 
 export function getFactoryEntity(
     id: string,
@@ -281,7 +294,7 @@ export function getMDCMappingEntity(
     return _MDCMapping as MDCMapping
 }
 
-function getTokenFromChainInfoUpdated(
+export function getTokenFromChainInfoUpdated(
     chainid: BigInt,
 ): Array<string> {
     let _chainInfo = chainRel.load(chainid.toString())
@@ -452,7 +465,7 @@ function getMDCLatestDealers(
     return dealer
 }
 
-function getMDCLatestEBCs(
+export function getMDCLatestEBCs(
     mdc: MDC
 ): string[] {
     let ebc = new Array<string>()
@@ -471,7 +484,7 @@ function getMDCLatestEBCs(
     return ebc
 }
 
-function getMDCLatestChainIds(
+export function getMDCLatestChainIds(
     mdc: MDC
 ): BigInt[] {
     let chainIds = new Array<BigInt>()
@@ -854,16 +867,16 @@ function saveTokenInfo2ChainInfo(
     }
 }
 
-function saveRules2Rules(
-    _rules: ruleRel,
-    rule: rule
-): void {
-    if (_rules.rules == null) {
-        _rules.rules = [rule.id];
-    } else if (!_rules.rules.includes(rule.id)) {
-        _rules.rules = _rules.rules.concat([rule.id])
-    }
-}
+// function saveRules2Rules(
+//     _rules: ruleRel,
+//     rule: rule
+// ): void {
+//     if (_rules.rules == null) {
+//         _rules.rules = [rule.id];
+//     } else if (!_rules.rules.includes(rule.id)) {
+//         _rules.rules = _rules.rules.concat([rule.id])
+//     }
+// }
 
 function saveMDC2Dealer(
     dealer: Dealer,
@@ -927,281 +940,6 @@ function saveSPV2MDC(
     }
 }
 
-export class rscRules {
-    enableTimestamp: BigInt;
-    ebcAddress: string;
-    rsc: Array<ethereum.Value>;
-    rscType: rscRuleType[];
-    root: string;
-    version: i32;
-    sourceChainIds: Array<BigInt>;
-    pledgeAmounts: Array<BigInt>;
-    tokenAddr: string;
-    selector: updateRulesRootMode;
-    constructor(
-        enableTimestamp: BigInt,
-        mdcAddress: string,
-        ebcAddress: string,
-        rsc: Array<ethereum.Value>,
-        root: string,
-        version: i32,
-        sourceChainIds: Array<BigInt>,
-        pledgeAmounts: Array<BigInt>,
-        tokenAddress: string,
-        selector: updateRulesRootMode
-    ) {
-        this.enableTimestamp = enableTimestamp;
-        this.ebcAddress = ebcAddress;
-        this.rsc = rsc;
-        this.rscType = rscRuleType.parse(rsc, mdcAddress, ebcAddress, version, selector);
-        this.root = root;
-        this.version = version;
-        this.sourceChainIds = sourceChainIds;
-        this.pledgeAmounts = pledgeAmounts;
-        this.tokenAddr = tokenAddress
-        this.selector = selector
-    }
-}
-
-export class rscRuleType {
-    chain0: BigInt;
-    chain1: BigInt;
-    chain0Status: BigInt;
-    chain1Status: BigInt;
-    chain0Token: BigInt;
-    chain1Token: BigInt;
-    chain0minPrice: BigInt;
-    chain0maxPrice: BigInt;
-    chain1minPrice: BigInt;
-    chain1maxPrice: BigInt;
-    chain0WithholdingFee: BigInt;
-    chain1WithholdingFee: BigInt;
-    chain0TradeFee: BigInt;
-    chain1TradeFee: BigInt;
-    chain0ResponseTime: BigInt;
-    chain1ResponseTime: BigInt;
-    chain0CompensationRatio: BigInt;
-    chain1CompensationRatio: BigInt;
-    verifyPass: boolean;
-    enableTimestamp: BigInt;
-    selector: updateRulesRootMode;
-    constructor(
-        chain0: BigInt,
-        chain1: BigInt,
-        chain0Status: BigInt,
-        chain1Status: BigInt,
-        chain0Token: BigInt,
-        chain1Token: BigInt,
-        chain0minPrice: BigInt,
-        chain0maxPrice: BigInt,
-        chain1minPrice: BigInt,
-        chain1maxPrice: BigInt,
-        chain0WithholdingFee: BigInt,
-        chain1WithholdingFee: BigInt,
-        chain0TradeFee: BigInt,
-        chain1TradeFee: BigInt,
-        chain0ResponseTime: BigInt,
-        chain1ResponseTime: BigInt,
-        chain0CompensationRatio: BigInt,
-        chain1CompensationRatio: BigInt,
-        enableTimestamp: BigInt,
-        selector: updateRulesRootMode
-    ) {
-        this.chain0 = chain0;
-        this.chain1 = chain1;
-        this.chain0Status = chain0Status;
-        this.chain1Status = chain1Status;
-        this.chain0Token = chain0Token;
-        this.chain1Token = chain1Token;
-        this.chain0minPrice = chain0minPrice;
-        this.chain0maxPrice = chain0maxPrice;
-        this.chain1minPrice = chain1minPrice;
-        this.chain1maxPrice = chain1maxPrice;
-        this.chain0WithholdingFee = chain0WithholdingFee;
-        this.chain1WithholdingFee = chain1WithholdingFee;
-        this.chain0TradeFee = chain0TradeFee;
-        this.chain1TradeFee = chain1TradeFee;
-        this.chain0ResponseTime = chain0ResponseTime;
-        this.chain1ResponseTime = chain1ResponseTime;
-        this.chain0CompensationRatio = chain0CompensationRatio;
-        this.chain1CompensationRatio = chain1CompensationRatio;
-        this.enableTimestamp = enableTimestamp;
-        this.verifyPass = false;
-        this.selector = selector
-    }
-
-    static validation(
-        rsc: rscRuleType,
-        mdc: MDC,
-        ebcAddr: string
-    ): string {
-        // EBC validation
-        const EBCArray = getMDCLatestEBCs(mdc)
-        if (!EBCArray.includes(ebcAddr)) {
-            log.warning("rule EBC not bind in mdc: {}, EBC: {}, length: {}", [mdc.id, ebcAddr, EBCArray.length.toString()])
-            return RULEVALIDA_EBCNOTFOUND
-        }
-
-        // chainID validation
-        const chain0 = rsc.chain0
-        const chain1 = rsc.chain1
-        if (chain0 >= chain1) {
-            log.warning("chain0: {} >= chain1: {}", [chain0.toString(), chain1.toString()])
-            return RULEVALIDA_CHAINIDMISSMATCH
-        }
-        const chainIds = getMDCLatestChainIds(mdc)
-        if (!chainIds.includes(chain0) || !chainIds.includes(chain1)) {
-            log.warning("chainId not bind in mdc: {}, chain0: {}, chain1: {}, length: {}", [mdc.id, chain0.toString(), chain1.toString(), chainIds.length.toString()])
-            for (let i = 0; i < chainIds.length; i++) {
-                log.warning("chainId bind in mdc: {}", [chainIds[i].toString()])
-            }
-            return RULEVALIDA_CHAINIDNOTFOUND
-        }
-
-        // token validation
-        if (rsc.chain0Token != BigInt.fromI32(0)) {
-            const chain0Token = padZeroToUint(rsc.chain0Token.toHexString())
-            const chain0TokenArray = getTokenFromChainInfoUpdated(chain0)
-            if (!chain0TokenArray.includes(chain0Token)) {
-                log.warning("token not bind in chainInfoUpdated: {}, chain0: {}, length: {}", [mdc.id, chain0Token, chain0TokenArray.length.toString()])
-                for (let i = 0; i < chain0TokenArray.length; i++) {
-                    log.warning("token bind in chainInfoUpdated: {}", [chain0TokenArray[i]])
-                }
-                return RULEVALIDA_TOKENNOTFOUND
-            }
-        }
-
-        if (rsc.chain1Token != BigInt.fromI32(0)) {
-            const chain1Token = padZeroToUint(rsc.chain1Token.toHexString())
-            const chain1TokenArray = getTokenFromChainInfoUpdated(chain1)
-            if (!chain1TokenArray.includes(chain1Token)) {
-                log.warning("token not bind in chainInfoUpdated: {}, chain1: {}, length: {}", [mdc.id, chain1Token, chain1TokenArray.length.toString()])
-                for (let i = 0; i < chain1TokenArray.length; i++) {
-                    log.warning("token bind in chainInfoUpdated: {}", [chain1TokenArray[i]])
-                }
-                return RULEVALIDA_TOKENNOTFOUND
-            }
-        }
-
-        const chain0Status = rsc.chain0Status
-        const chain1Status = rsc.chain1Status
-        if (chain0Status == BigInt.fromI32(0) && chain1Status == BigInt.fromI32(0)) {
-            log.info("maker {} shutdown service, chain: {} - {} ", [mdc.id, chain0.toString(), chain1.toString()])
-            return RULEVALIDA_SERVICECLOSED
-        }
-
-        return RULEVALIDA_NOERROR
-    }
-
-    static init(): rscRuleType {
-        let _rscRuleType = new rscRuleType(
-            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-            ZERO_BI, ZERO_BI, ZERO_BI, ZERO_BI,
-            ZERO_BI, ZERO_BI, ZERO_BI, updateRulesRootMode.INV
-        );
-        return _rscRuleType
-    }
-
-    static isRscTupleUint(rscTuple: ethereum.Value): boolean {
-        return rscTuple.kind == ethereum.ValueKind.UINT ? true : false
-    }
-
-    static parse(
-        rsc: Array<ethereum.Value>,
-        mdcAddress: string,
-        ebcAddress: string,
-        version: i32,
-        selector: updateRulesRootMode
-    ): rscRuleType[] {
-        let rscRules: rscRuleType[] = [];
-        for (let i = 0; i < rsc.length; i++) {
-            let rscTuple = rsc[i].toTuple();
-            let _rscRuleType = this.init()
-            _rscRuleType.selector = selector
-            if (this.isRscTupleUint(rscTuple[0])) {
-                _rscRuleType.chain0 = rscTuple[0].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[1])) {
-                _rscRuleType.chain1 = rscTuple[1].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[2])) {
-                _rscRuleType.chain0Status = rscTuple[2].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[3])) {
-                _rscRuleType.chain1Status = rscTuple[3].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[4])) {
-                _rscRuleType.chain0Token = rscTuple[4].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[5])) {
-                _rscRuleType.chain1Token = rscTuple[5].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[6])) {
-                _rscRuleType.chain0minPrice = rscTuple[6].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[7])) {
-                _rscRuleType.chain1minPrice = rscTuple[7].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[8])) {
-                _rscRuleType.chain0maxPrice = rscTuple[8].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[9])) {
-                _rscRuleType.chain1maxPrice = rscTuple[9].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[10])) {
-                _rscRuleType.chain0WithholdingFee = rscTuple[10].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[11])) {
-                _rscRuleType.chain1WithholdingFee = rscTuple[11].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[12])) {
-                _rscRuleType.chain0TradeFee = rscTuple[12].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[13])) {
-                _rscRuleType.chain1TradeFee = rscTuple[13].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[14])) {
-                _rscRuleType.chain0ResponseTime = rscTuple[14].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[15])) {
-                _rscRuleType.chain1ResponseTime = rscTuple[15].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[16])) {
-                _rscRuleType.chain0CompensationRatio = rscTuple[16].toBigInt();
-            }
-
-            if (this.isRscTupleUint(rscTuple[17])) {
-                _rscRuleType.chain1CompensationRatio = rscTuple[17].toBigInt();
-            }
-
-            // if (this.isRscTupleUint(rscTuple[18])) {
-            //     _rscRuleType.enableTimestamp = rscTuple[18].toBigInt();
-            // }
-
-            _rscRuleType.verifyPass = true;
-            rscRules.push(_rscRuleType);
-        }
-        return rscRules;
-    }
-}
 
 
 export function parseChainInfoUpdatedInputData(
@@ -1293,93 +1031,7 @@ export function parseChainInfoUpdatedInputData(
     }
 }
 
-export function parseTransactionInputData(data: Bytes, mdcAddress: string): rscRules {
-    let func = compareUpdateRulesRootSelector(calldata.getSelector(data))
-    let selectorofFunc = "0x000000"
-    if (func == updateRulesRootMode.ETH) {
-        selectorofFunc = func_updateRulesRootName
-    } else if (func == updateRulesRootMode.ERC20) {
-        selectorofFunc = func_updateRulesRootERC20Name
-    }
-    let tuple = calldata.decode(data, selectorofFunc)
-    if (debugLog) {
-        for (let i = 0; i < tuple.length; i++) {
-            log.debug("tuple[{}].kind:{}", [i.toString(), tuple[i].kind.toString()])
-        }
-    }
 
-    let rsc = new Array<ethereum.Value>()
-    let enableTimestamp = BigInt.fromI32(0)
-    let ebcAddress = STRING_EMPTY
-    let rootWithVersion = new ethereum.Tuple()
-    let root = STRING_EMPTY
-    let version = 0
-    let sourceChainIds = new Array<BigInt>()
-    let pledgeAmounts = new Array<BigInt>()
-    let tokenAddress = STRING_EMPTY
-
-    if (tuple[0].kind == ethereum.ValueKind.UINT) {
-        enableTimestamp = tuple[0].toBigInt()
-    }
-
-    if (tuple[1].kind == ethereum.ValueKind.ADDRESS) {
-        ebcAddress = tuple[1].toAddress().toHexString();
-    }
-
-    if (tuple[2].kind == ethereum.ValueKind.ARRAY) {
-        rsc = tuple[2].toArray();
-        if (debugLog) {
-            for (let i = 0; i < rsc.length; i++) {
-                log.debug("rsc[{}].kind:{}", [i.toString(), rsc[i].kind.toString()])
-            }
-        }
-    }
-
-    if (tuple[3].kind == ethereum.ValueKind.TUPLE) {
-        rootWithVersion = tuple[3].toTuple();
-        if (debugLog) {
-            log.debug("rootWithVersion[0].kind: {}, rootWithVersion[1].kind: {}", [
-                rootWithVersion[0].kind.toString(),
-                rootWithVersion[1].kind.toString()])
-        }
-        if (rootWithVersion[0].kind == ethereum.ValueKind.BYTES ||
-            rootWithVersion[0].kind == ethereum.ValueKind.FIXED_BYTES) {
-            root = rootWithVersion[0].toBytes().toHexString();
-        }
-        if (rootWithVersion[1].kind == ethereum.ValueKind.UINT) {
-            version = rootWithVersion[1].toI32();
-        }
-    }
-
-    if (tuple[4].kind == ethereum.ValueKind.ARRAY) {
-        sourceChainIds = tuple[4].toBigIntArray();
-    }
-
-    if (tuple[5].kind == ethereum.ValueKind.ARRAY) {
-        pledgeAmounts = tuple[5].toBigIntArray();
-    }
-
-    if (selectorofFunc == func_updateRulesRootERC20Name) {
-        if (tuple[6].kind == ethereum.ValueKind.ADDRESS) {
-            tokenAddress = tuple[6].toAddress().toHexString();
-        }
-    }
-
-    let updateRulesRootEntity = new rscRules(
-        enableTimestamp,
-        mdcAddress,
-        ebcAddress,
-        rsc,
-        root,
-        version,
-        sourceChainIds,
-        pledgeAmounts,
-        tokenAddress,
-        func
-    )
-
-    return updateRulesRootEntity
-}
 
 export function AddressFmtPadZero(address: string): string {
     if (address.length % 2 != 0) {
@@ -1561,7 +1213,6 @@ function updateLatestRules(
         rsc.chain1.toString(),
         token0.toString(),
         token1.toString(),
-
     ]);
 
     const chain0TokenPad = padZeroToUint(rsc.chain0Token.toHexString());
@@ -1700,19 +1351,11 @@ function saveRuleSnapshotRelation(
     mdc: MDC,
     ebc: ebcRel
 ): void {
-    // let ebc = getEBCEntityNew(mdc.ebc._id, event)
-    // let dealer = getDealerEntity(Bytes.fromHexString(mdc.dealer._id), event)
     if (mdc.ruleSnapshot == null) {
         mdc.ruleSnapshot = [ruleSnapshot.id];
     } else if (!mdc.ruleSnapshot.includes(ruleSnapshot.id)) {
         mdc.ruleSnapshot = mdc.ruleSnapshot.concat([ruleSnapshot.id])
     }
-    //TODO: double check if dealer.rules is needed
-    // if (dealer.rules == null) {
-    //     dealer.rules = [ruleSnapshot.id];
-    // } else if (!dealer.rules.includes(ruleSnapshot.id)) {
-    //     dealer.rules = dealer.rules.concat([ruleSnapshot.id])
-    // }
     if (ebc.rulesList == null) {
         ebc.rulesList = [ruleSnapshot.id];
     } else if (!ebc.rulesList.includes(ruleSnapshot.id)) {
@@ -1720,7 +1363,6 @@ function saveRuleSnapshotRelation(
     }
     // TODO: save ruleSnapshot to mdc later??
     mdc.save()
-    // dealer.save()
     ebc.save()
     log.info("save ruleSnapshot {} relation mdc: {}, ebc: {}", [
         ruleSnapshot.id,
@@ -1740,7 +1382,7 @@ function getRuleSnapshotEntity(
         ruleSnapshot = new ruleRel(snapshotId)
         ruleSnapshot.root = STRING_EMPTY
         ruleSnapshot.version = 0
-        ruleSnapshot.rules = []
+        // ruleSnapshot.rules = []
         ruleSnapshot.ruleUpdateVersion = []
         ruleSnapshot.sourceChainIds = []
         ruleSnapshot.pledgeAmounts = []
@@ -1772,40 +1414,54 @@ export function mdcStoreRuleSnapshot(
     ruleSnapshot.sourceChainIds = updateRulesRootEntity.sourceChainIds
     ruleSnapshot.pledgeAmounts = updateRulesRootEntity.pledgeAmounts
     ruleSnapshot.token = updateRulesRootEntity.tokenAddr
-    // const EBCValidation = ruleValidationEBCSchema(updateRulesRootEntity.ebcAddress, mdc)
     if (updateRulesRootEntity.rscType.length > 0) {
         for (let i = 0; i < updateRulesRootEntity.rscType.length; i++) {
-            let _rule = getRuleEntity(ruleSnapshot, i, mdc, ebc, event)
+            // const chain0 = updateRulesRootEntity.rscType[i].chain0
+            // const chain1 = updateRulesRootEntity.rscType[i].chain1
+            // const token0 = padZeroToUint(updateRulesRootEntity.rscType[i].chain0Token.toHexString())
+            // const token1 = padZeroToUint(updateRulesRootEntity.rscType[i].chain1Token.toHexString())
+            // let _rule = getRuleEntity(
+            //     ruleSnapshot,
+            //     mdc,
+            //     ebc,
+            //     chain0.toString(),
+            //     chain1.toString(),
+            //     token0,
+            //     token1,
+            //     event
+            // )
             const validateResult = rscRuleType.validation(updateRulesRootEntity.rscType[i], mdc, updateRulesRootEntity.ebcAddress)
-            _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
-            _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
-            _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
-            _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()
-            _rule.chain0Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain0Token.toHexString())
-            _rule.chain1Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain1Token.toHexString())
-            _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice
-            _rule.chain0maxPrice = updateRulesRootEntity.rscType[i].chain0maxPrice
-            _rule.chain1minPrice = updateRulesRootEntity.rscType[i].chain1minPrice
-            _rule.chain1maxPrice = updateRulesRootEntity.rscType[i].chain1maxPrice
-            _rule.chain0WithholdingFee = updateRulesRootEntity.rscType[i].chain0WithholdingFee
-            _rule.chain1WithholdingFee = updateRulesRootEntity.rscType[i].chain1WithholdingFee
-            _rule.chain0TradeFee = updateRulesRootEntity.rscType[i].chain0TradeFee.toI32()
-            _rule.chain1TradeFee = updateRulesRootEntity.rscType[i].chain1TradeFee.toI32()
-            _rule.chain0ResponseTime = updateRulesRootEntity.rscType[i].chain0ResponseTime.toI32()
-            _rule.chain1ResponseTime = updateRulesRootEntity.rscType[i].chain1ResponseTime.toI32()
-            _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
-            _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
-            _rule.enableTimestamp = updateRulesRootEntity.enableTimestamp
-            _rule.latestVersion = BigInt.fromI32(updateRulesRootEntity.version)
-            _rule.transactionRuleIndex = i
+            // _rule.chain0 = updateRulesRootEntity.rscType[i].chain0
+            // _rule.chain1 = updateRulesRootEntity.rscType[i].chain1
+            // _rule.chain0Status = updateRulesRootEntity.rscType[i].chain0Status.toI32()
+            // _rule.chain1Status = updateRulesRootEntity.rscType[i].chain1Status.toI32()
+            // _rule.chain0Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain0Token.toHexString())
+            // _rule.chain1Token = padZeroToUint(updateRulesRootEntity.rscType[i].chain1Token.toHexString())
+            // _rule.chain0minPrice = updateRulesRootEntity.rscType[i].chain0minPrice
+            // _rule.chain0maxPrice = updateRulesRootEntity.rscType[i].chain0maxPrice
+            // _rule.chain1minPrice = updateRulesRootEntity.rscType[i].chain1minPrice
+            // _rule.chain1maxPrice = updateRulesRootEntity.rscType[i].chain1maxPrice
+            // _rule.chain0WithholdingFee = updateRulesRootEntity.rscType[i].chain0WithholdingFee
+            // _rule.chain1WithholdingFee = updateRulesRootEntity.rscType[i].chain1WithholdingFee
+            // _rule.chain0TradeFee = updateRulesRootEntity.rscType[i].chain0TradeFee.toI32()
+            // _rule.chain1TradeFee = updateRulesRootEntity.rscType[i].chain1TradeFee.toI32()
+            // _rule.chain0ResponseTime = updateRulesRootEntity.rscType[i].chain0ResponseTime.toI32()
+            // _rule.chain1ResponseTime = updateRulesRootEntity.rscType[i].chain1ResponseTime.toI32()
+            // _rule.chain0CompensationRatio = updateRulesRootEntity.rscType[i].chain0CompensationRatio.toI32()
+            // _rule.chain1CompensationRatio = updateRulesRootEntity.rscType[i].chain1CompensationRatio.toI32()
+            // _rule.enableTimestamp = updateRulesRootEntity.enableTimestamp
+            // _rule.latestVersion = BigInt.fromI32(updateRulesRootEntity.version)
+            // _rule.transactionRuleIndex = i
             if (validateResult != RULEVALIDA_NOERROR) {
-                _rule.ruleValidation = validateBool = false
+                // _rule.ruleValidation = 
+                validateBool = false
                 log.warning("rule validation failed, rule index: {}, error code: {}", [i.toString(), validateResult.toString()])
             } else {
-                _rule.ruleValidation = validateBool = true
+                // _rule.ruleValidation = 
+                validateBool = true
             }
-            _rule.ruleValidationErrorstatus = validateResult
-            _rule.save()
+            // _rule.ruleValidationErrorstatus = validateResult
+            // _rule.save()
             lastestRuleIdArray = entity.addRelation(lastestRuleIdArray, updateLatestRules(
                 updateRulesRootEntity.rscType[i],
                 event,
@@ -1816,30 +1472,30 @@ export function mdcStoreRuleSnapshot(
                 validateBool,
                 ruleSnapshot
             ))
-            if (debugLogCreateRules) {
-                log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}, [18]:{}', [
-                    i.toString(),
-                    _rule.chain0.toString(),
-                    _rule.chain1.toString(),
-                    _rule.chain0Status.toString(),
-                    _rule.chain1Status.toString(),
-                    _rule.chain0Token,
-                    _rule.chain1Token,
-                    _rule.chain0minPrice.toString(),
-                    _rule.chain0maxPrice.toString(),
-                    _rule.chain1minPrice.toString(),
-                    _rule.chain1maxPrice.toString(),
-                    _rule.chain0WithholdingFee.toString(),
-                    _rule.chain1WithholdingFee.toString(),
-                    _rule.chain0TradeFee.toString(),
-                    _rule.chain1TradeFee.toString(),
-                    _rule.chain0ResponseTime.toString(),
-                    _rule.chain1ResponseTime.toString(),
-                    _rule.chain0CompensationRatio.toString(),
-                    _rule.chain1CompensationRatio.toString(),
-                    _rule.enableTimestamp.toString()
-                ])
-            }
+            // if (debugLogCreateRules) {
+            //     log.info('Rule index{}, update[0]:{}, [1]:{}, [2]:{}, [3]:{}, [4]:{}, [5]:{}, [6]:{}, [7]:{}, [8]:{}, [9]:{}, [10]:{}, [11]:{}, [12]:{}, [13]:{}, [14]:{}, [15]:{}, [16]:{}, [17]:{}, [18]:{}', [
+            //         i.toString(),
+            //         _rule.chain0.toString(),
+            //         _rule.chain1.toString(),
+            //         _rule.chain0Status.toString(),
+            //         _rule.chain1Status.toString(),
+            //         _rule.chain0Token,
+            //         _rule.chain1Token,
+            //         _rule.chain0minPrice.toString(),
+            //         _rule.chain0maxPrice.toString(),
+            //         _rule.chain1minPrice.toString(),
+            //         _rule.chain1maxPrice.toString(),
+            //         _rule.chain0WithholdingFee.toString(),
+            //         _rule.chain1WithholdingFee.toString(),
+            //         _rule.chain0TradeFee.toString(),
+            //         _rule.chain1TradeFee.toString(),
+            //         _rule.chain0ResponseTime.toString(),
+            //         _rule.chain1ResponseTime.toString(),
+            //         _rule.chain0CompensationRatio.toString(),
+            //         _rule.chain1CompensationRatio.toString(),
+            //         _rule.enableTimestamp.toString()
+            //     ])
+            // }
         }
     }
 

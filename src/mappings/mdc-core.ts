@@ -11,7 +11,6 @@ import {
   ONE_ADDRESS,
   getMDCEntity,
   ebcSave,
-  parseTransactionInputData,
   removeDuplicates,
   AddressFmtPadZero,
   getChainInfoEntity,
@@ -60,6 +59,7 @@ import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20uti
 import {
   isProduction
 } from './config'
+import { rscRules } from "./rule-utils";
 
 
 export function handleupdateRulesRootEvent(
@@ -72,7 +72,7 @@ export function handleupdateRulesRootEvent(
   const _mdcAddress = event.address.toHexString()
   const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
   const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(funcERC20RootMockInput) as Bytes
-  const updateRulesRootEntity = parseTransactionInputData(inputData, mdcAddress)
+  const updateRulesRootEntity = rscRules.parseCalldata(inputData, mdcAddress)
   const ebcAddress = updateRulesRootEntity.ebcAddress
   let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event)
   let factoryAddress = Bytes.fromHexString(mdc.factory._id)

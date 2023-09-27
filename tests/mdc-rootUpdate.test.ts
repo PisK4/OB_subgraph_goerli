@@ -110,39 +110,39 @@ describe("Describe check MDC rule snaptShot", () => {
 
   })
 
-  test("rules in ruleSnapshot created and stored", () => {
-    // check rule relation
-    assert.fieldEquals(
-      "rule",
-      `${ruleSnapshotId}-1`,
-      "ruleRel",
-      `[${ruleSnapshotId}]`
-    )
+  // test("rules in ruleSnapshot created and stored", () => {
+  // check rule relation
+  // assert.fieldEquals(
+  //   "rule",
+  //   `${ruleSnapshotId}-1`,
+  //   "ruleRel",
+  //   `[${ruleSnapshotId}]`
+  // )
 
-    assert.fieldEquals(
-      "rule",
-      `${ruleSnapshotId}-1`,
-      "owner",
-      makerAddress.toLowerCase()
-    )
+  // assert.fieldEquals(
+  //   "rule",
+  //   `${ruleSnapshotId}-1`,
+  //   "owner",
+  //   makerAddress.toLowerCase()
+  // )
 
-    // let rules = new Array<string>();
-    // for (let i = 0; i < 20; i++) {
-    //   if (i === 0) {
-    //     rules.push(`${ruleSnapshotId}-${i}`);
-    //   } else {
-    //     rules.push(` ${ruleSnapshotId}-${i}`);
-    //   }
-    // }
-    // // check rule relation
-    // // could be insert many rules in one transaction, hard to coding, so we mark this code...
-    // assert.fieldEquals(
-    //   "ruleRel",
-    //   ruleSnapshotId,
-    //   "rules",
-    //   `[${rules}\]`
-    // )
-  })
+  // let rules = new Array<string>();
+  // for (let i = 0; i < 20; i++) {
+  //   if (i === 0) {
+  //     rules.push(`${ruleSnapshotId}-${i}`);
+  //   } else {
+  //     rules.push(` ${ruleSnapshotId}-${i}`);
+  //   }
+  // }
+  // // check rule relation
+  // // could be insert many rules in one transaction, hard to coding, so we mark this code...
+  // assert.fieldEquals(
+  //   "ruleRel",
+  //   ruleSnapshotId,
+  //   "rules",
+  //   `[${rules}\]`
+  // )
+  // })
 
   test("ruleUpdateVersion created and stored", () => {
     const mockDataId: string = "0xd3ebc07a2c141680c385db42a78988e801f3b9308387460148b2f7d807efc438"
