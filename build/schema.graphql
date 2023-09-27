@@ -432,8 +432,7 @@ type latestRule
 # customed using entitys
 type latestRuleSnapshot
   @entity(immutable: true) { # latest rule
-  # As MDC LatestRuleSnapshot: hash(mdc-ebc-transctionHash-logIndex)
-  id: ID!
+  id: ID! # As MDC LatestRuleSnapshot: hash(mdc,ebc,chain0,chain1,token0,token1)
   owner: String! # address
   mdcAddr: String! # address
   ebcAddr: String! # address
@@ -493,7 +492,6 @@ type tokenRel @entity {
   symbol: String! # string
   name: String! # string
   mainnetToken: String # address
-  # isNative: Boolean! # bool
   decimals: Int # uint8
   chain: [chainRel!]! @derivedFrom(field: "tokens") # ChainInfo
   latestUpdateBlockNumber: BigInt!
