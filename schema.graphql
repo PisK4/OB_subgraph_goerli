@@ -55,7 +55,6 @@ type MDC @entity {
   chainIdSnapshot: [chainIdSnapshot!]! #snapshot
   ruleSnapshot: [ruleRel!]! #snapshot
   ruleLatest: [latestRule!]! #latestData
-  bindChainIds: MDCBindChainId
   bindSPVs: [MDCBindSPV!]! # MDCBindSPV
   columnArrayUpdated: [ColumnArrayUpdated!]! # ColumnArrayUpdated
   mapping: MDCMapping # dealer/ebc/chainId mapping
@@ -289,17 +288,6 @@ type DealerMappingSnapshot @entity {
 }
 
 # customed using entity
-type MDCBindChainId @entity {
-  id: ID! # mdc address
-  chainIdList: [BigInt!]! # chainId array
-  chainIdMapping: [chainIdMapping!]! # chainId mapping, defined by maker
-  mdc: MDC! @derivedFrom(field: "bindChainIds") # MDC
-  latestUpdateHash: String
-  latestUpdateTimestamp: BigInt
-  latestUpdateBlockNumber: BigInt
-}
-
-# customed using entity
 type chainIdMapping @entity {
   id: ID! # mdc address - chainId
   owner: String! # address
@@ -309,7 +297,6 @@ type chainIdMapping @entity {
   latestUpdateBlockNumber: BigInt
   latestUpdateTimestamp: BigInt
   latestUpdateHash: String
-  MDCBindChainId: MDCBindChainId! @derivedFrom(field: "chainIdMapping") # MDCBindChainId
 }
 
 type chainIdMappingSnapshot @entity {

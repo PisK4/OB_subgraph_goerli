@@ -19,7 +19,6 @@ import {
     DealerMapping,
     ebcRel,
     MDC,
-    MDCBindChainId,
     dealerSnapshot,
     MDCBindSPV,
     MDCMapping,
@@ -427,23 +426,6 @@ export function getChainIdSnapshotEntity(
     chainId.latestUpdateTimestamp = event.block.timestamp
     chainId.latestUpdateHash = event.transaction.hash.toHexString()
     return chainId as chainIdSnapshot
-}
-
-
-export function getMDCBindChainIdEntity(
-    mdc: MDC,
-    chainIds: BigInt[],
-): MDCBindChainId {
-    let chainIdEntity = MDCBindChainId.load(mdc.id)
-    if (chainIdEntity == null) {
-        chainIdEntity = new MDCBindChainId(mdc.id)
-        chainIdEntity.chainIdList = []
-        chainIdEntity.chainIdMapping = []
-        mdc.bindChainIds = chainIdEntity.id
-    }
-    chainIdEntity.chainIdList = chainIds
-
-    return chainIdEntity as MDCBindChainId
 }
 
 function getMDCLatestDealers(
