@@ -8,7 +8,6 @@ import {
 } from "matchstick-as/assembly/index"
 import { Bytes, Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import {
-  ChallengeInfoUpdated,
   ColumnArrayUpdated,
 } from "../src/types/schema"
 import {

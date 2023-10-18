@@ -85,6 +85,7 @@ export const func_updateRulesRoot = "0x6d9437b1"
 export const func_updateRulesRootERC20 = "0x34bc98de"
 export const func_registerChains = "0x2e96565f"
 export const func_updateChainSpvs = "0x434417cf"
+export const func_challenge = "0x0000"
 /**** function selectors ****/
 
 /**** decode function format ****/
@@ -126,69 +127,6 @@ export function initRulesEntity(
     _rules.sourceChainIds = []
     _rules.token = STRING_EMPTY
 }
-
-// export function initRuleEntity(
-//     _rules: rule
-// ): void {
-//     _rules.chain0 = ZERO_BI
-//     _rules.chain1 = ZERO_BI
-//     _rules.chain0Status = ZERO_UINT
-//     _rules.chain1Status = ZERO_UINT
-//     _rules.chain0Token = STRING_EMPTY
-//     _rules.chain1Token = STRING_EMPTY
-//     _rules.chain0minPrice = ZERO_BI
-//     _rules.chain0maxPrice = ZERO_BI
-//     _rules.chain1minPrice = ZERO_BI
-//     _rules.chain1maxPrice = ZERO_BI
-//     _rules.chain0WithholdingFee = ZERO_BI
-//     _rules.chain1WithholdingFee = ZERO_BI
-//     _rules.chain0TradeFee = ZERO_UINT
-//     _rules.chain1TradeFee = ZERO_UINT
-//     _rules.chain0ResponseTime = ZERO_UINT
-//     _rules.chain1ResponseTime = ZERO_UINT
-//     _rules.chain0CompensationRatio = ZERO_UINT
-//     _rules.chain1CompensationRatio = ZERO_UINT
-//     _rules.latestVersion = ZERO_BI
-//     _rules.transactionRuleIndex = ZERO_UINT
-//     _rules.ruleValidation = true
-//     _rules.ruleValidationErrorstatus = RULEVALIDA_NOERROR
-// }
-
-// export function getRuleEntity(
-//     ruleTypes: ruleRel,
-//     mdc: MDC,
-//     ebc: ebcRel,
-//     chain0Id: string,
-//     chain1Id: string,
-//     token0: string,
-//     token1: string,
-//     event: ethereum.Event
-// ): rule {
-//     const id = entity.createBindID([
-//         mdc.id,
-//         ebc.id,
-//         chain0Id,
-//         chain1Id,
-//         token0,
-//         token1
-//     ])
-//     let _rule = rule.load(id)
-//     if (_rule == null) {
-//         _rule = new rule(id)
-//         initRuleEntity(_rule)
-//         _rule.owner = mdc.owner
-//         _rule.ebcAddr = ebc.id
-//         ruleTypes.rules = entity.addRelation(ruleTypes.rules, _rule.id)
-//         if (debugLogCreateRules) {
-//             log.info('create new rule, rule: {}', [_rule.id])
-//         }
-//     }
-//     _rule.latestUpdatetransactionHash = event.transaction.hash.toHexString()
-//     _rule.latestUpdateBlockNumber = event.block.number
-//     _rule.latestUpdateTimestamp = event.block.timestamp
-
-//     return _rule as rule
-// }
 
 export function getFactoryEntity(
     id: string,

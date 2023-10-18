@@ -36,7 +36,8 @@ import {
   ETH_ZERO_ADDRESS,
   func_registerChainsName,
   func_updateChainSpvsName,
-  fullfillLatestRuleSnapshot
+  fullfillLatestRuleSnapshot,
+  func_challenge
 } from "./helpers"
 import {
   FactoryManager, ebcRel
@@ -48,7 +49,8 @@ import {
   funcETHRootMockInput2,
   functionUpdateChainSpvsMockinput,
   functionRegisterChainMockinput,
-  functionupdateColumnArrayMockinput
+  functionupdateColumnArrayMockinput,
+  functionrChallengeinput
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
 import {
@@ -286,4 +288,34 @@ export function handleSpvUpdatedEvent(
   _spv.save()
   mdc.save()
   log.info('mdc {} update:  _spv[{}] = {}', [mdc.id, chainId.toString(), spv.toHexString()])
+}
+
+export function handleChallengeInfoUpdatedEvent(
+  event: ethereum.Event,
+  challengeId: String,
+  sourceTxFrom: BigInt,
+  sourceTxTime: BigInt,
+  challenger: String,
+  freezeToken: String,
+  challengeUserRatio: BigInt,
+  freezeAmount0: BigInt,
+  freezeAmount1: BigInt,
+  challengeTime: BigInt,
+  abortTime: BigInt,
+  verifiedTime0: BigInt,
+  verifiedTime1: BigInt,
+  verifiedDataHash0: String
+): void {
+  const inputdata = isProduction ?
+    event.transaction.input :
+    Bytes.fromHexString(functionrChallengeinput) as Bytes
+  const selector: string = calldata.getSelector(inputdata).toHexString()
+
+  if (selector == func_challenge) {
+    log.debug("challenge", [selector]);
+  } else if (selector == func_challenge) {
+    log.debug("challenge", [selector]);
+  } else {
+    log.error("error selector", [selector]);
+  }
 }

@@ -1,21 +1,48 @@
-type ChallengeInfoUpdated @entity(immutable: true) {
-  id: Bytes!
-  challengeId: Bytes! # bytes32
-  challengeInfo_sourceTxFrom: BigInt! # uint256
-  challengeInfo_sourceTxTime: BigInt! # uint64
-  challengeInfo_challenger: Bytes! # address
-  challengeInfo_freezeToken: Bytes! # address
-  challengeInfo_challengeUserRatio: BigInt! # uint64
-  challengeInfo_freezeAmount0: BigInt! # uint256
-  challengeInfo_freezeAmount1: BigInt! # uint256
-  challengeInfo_challengeTime: BigInt! # uint64
-  challengeInfo_abortTime: BigInt! # uint64
-  challengeInfo_verifiedTime0: BigInt! # uint64
-  challengeInfo_verifiedTime1: BigInt! # uint64
-  challengeInfo_verifiedDataHash0: Bytes! # bytes32
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+interface ChallengeInfoUpdated {
+  id: ID!
+  challengeId: String! # bytes32
+  sourceTxFrom: BigInt # uint256
+  sourceTxTime: BigInt! # uint64
+  challenger: String! # address
+  freezeToken: String! # address
+  challengeUserRatio: BigInt # uint64
+  freezeAmount0: BigInt! # uint256
+  freezeAmount1: BigInt! # uint256
+  challengeTime: BigInt! # uint64
+  abortTime: BigInt # uint64
+  verifiedTime0: BigInt # uint64
+  verifiedTime1: BigInt # uint64
+  verifiedDataHash0: String
+  latestUpdateHash: String!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateBlockNumber: BigInt!
+}
+
+type challengeManager @entity {
+  id: ID! # hash(sourceChainId, sourceTxHash) == challengeId
+  createChallenge: [createChallenge!]!
+}
+
+type createChallenge implements ChallengeInfoUpdated @entity(immutable: true) {
+  id: ID! #hash(challengeId, TxHash, logIndex)
+  challengeId: String! # bytes32
+  sourceTxFrom: BigInt # uint256
+  sourceTxTime: BigInt! # uint64
+  challenger: String! # address
+  freezeToken: String! # address
+  challengeUserRatio: BigInt # uint64
+  freezeAmount0: BigInt! # uint256
+  freezeAmount1: BigInt! # uint256
+  challengeTime: BigInt! # uint64
+  abortTime: BigInt # uint64
+  verifiedTime0: BigInt # uint64
+  verifiedTime1: BigInt # uint64
+  verifiedDataHash0: String
+  msgSender: String
+  latestUpdateHash: String!
+  latestUpdateTimestamp: BigInt!
+  latestUpdateBlockNumber: BigInt!
+  challengeManager: challengeManager! @derivedFrom(field: "createChallenge")
 }
 
 # using entity, binding in contract Event

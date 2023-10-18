@@ -67,6 +67,19 @@ export class entity {
             event.logIndex.toString()
         );
     }
+
+    static createHashEventID(
+        event: ethereum.Event
+    ): string {
+        const ids = [event.transaction.hash.toHexString(), event.logIndex.toString()];
+        const tupleValue: Array<ethereum.Value> = new Array<ethereum.Value>(ids.length);
+        for (let i = 0; i < ids.length; i++) {
+            tupleValue[i] = ethereum.Value.fromString(ids[i]);
+        }
+        const encodeData = ethereum.encode(ethereum.Value.fromTuple(changetype<ethereum.Tuple>(tupleValue)))!;
+        const key = crypto.keccak256(encodeData);
+        return key.toHexString();
+    }
 }
 
 export class calldata {
