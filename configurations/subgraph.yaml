@@ -1,14 +1,14 @@
 specVersion: 0.0.5
 schema:
-  file: schema.graphql
+  file: ./schema.graphql
 dataSources:
   - kind: ethereum
     name: MDCFactory
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x4a9d89E2d8a4b670f1AAb126Bf15ebad3E96af7d"
+      address: "{{orMDCFactoryAddress}}"
       abi: MDCFactory
-      startBlock: 9674680
+      startBlock: {{orMDCFactoryStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -17,18 +17,18 @@ dataSources:
         - MDCCreated
       abis:
         - name: MDCFactory
-          file: MDCFactory/abis/MDCFactory.json
+          file: ./abis/MDCFactory.json
       eventHandlers:
         - event: MDCCreated(address,address)
           handler: handleMDCCreated
-      file: MDCFactory/MDCFactory.wasm
+      file: ./src/mappings/mdc-factory.ts
   - kind: ethereum
     name: ORManager
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xcdF5e5e50030b6389A75bF3a48aCA0f18ca0190D"
+      address: "{{orManagerAddress}}"
       abi: ORManager
-      startBlock: 9674680
+      startBlock: {{orManagerStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -47,9 +47,9 @@ dataSources:
         - SubmitterFeeUpdated
       abis:
         - name: ORManager
-          file: ORManager/abis/ORManager.json
+          file: ./abis/ORManager.json
         - name: ERC20
-          file: ORManager/abis/ERC20.json
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: ChainInfoUpdated(indexed
             uint64,(uint64,uint192,uint64,uint64,uint64,uint64,uint256,address[]))
@@ -74,14 +74,14 @@ dataSources:
           handler: handleProtocolFeeUpdated
         - event: SubmitterFeeUpdated(address)
           handler: handleSubmitterFeeUpdated
-      file: ORManager/ORManager.wasm
+      file: ./src/mappings/or-manager.ts
   - kind: ethereum
     name: FeeManager
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xdf3CF1f661368036C694d50b3e9D85231f6fc7De"
+      address: "{{orFeeManagerAddress}}"
       abi: FeeManager
-      startBlock: 9755542
+      startBlock: {{orFeeManagerStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -95,7 +95,7 @@ dataSources:
         - Withdraw
       abis:
         - name: FeeManager
-          file: FeeManager/abis/ORFeeManager.json
+          file: ./abis/ORFeeManager.json
       eventHandlers:
         - event: DealerUpdated(indexed address,uint256,bytes)
           handler: handleDealerUpdated
@@ -109,11 +109,11 @@ dataSources:
           handler: handleSubmitterRegistered
         - event: Withdraw(indexed address,uint64,address,uint256,uint256)
           handler: handleWithdraw
-      file: FeeManager/FeeManager.wasm
+      file: ./src/mappings/fee-manager.ts
 templates:
   - kind: ethereum
     name: MDC
-    network: mainnet
+    network: {{network}}
     source:
       abi: MDC
     mapping:
@@ -128,7 +128,7 @@ templates:
         - SpvUpdated
       abis:
         - name: MDC
-          file: MDC/abis/ORMakerDeposit.json
+          file: ./abis/ORMakerDeposit.json
       eventHandlers:
         - event: ChallengeInfoUpdated(indexed
             bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))
@@ -141,4 +141,4 @@ templates:
           handler: handleRulesRootUpdated
         - event: SpvUpdated(indexed address,uint64,address)
           handler: handleSpvUpdated
-      file: templates/MDC/MDC.wasm
+      file: ./src/mappings/mdc.ts

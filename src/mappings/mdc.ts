@@ -6,42 +6,33 @@ import {
   SpvUpdated as SpvUpdatedEvent
 } from "../types/templates/MDC/MDC"
 import {
-  ChallengeInfoUpdated
-} from "../types/schema"
-import { 
+  handleChallengeInfoUpdatedEvent,
   handleColumnArrayUpdatedEvent,
   handleResponseMakersUpdatedEvent,
   handleSpvUpdatedEvent,
   handleupdateRulesRootEvent
 } from "./mdc-core"
+import { padZeroToAddress } from "./utils"
 
 export function handleChallengeInfoUpdated(
   event: ChallengeInfoUpdatedEvent
 ): void {
-  let entity = new ChallengeInfoUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  handleChallengeInfoUpdatedEvent(
+    event,
+    event.params.challengeId.toHexString(),
+    event.params.challengeInfo.sourceTxFrom,
+    event.params.challengeInfo.sourceTxTime,
+    event.params.challengeInfo.challenger.toHexString(),
+    event.params.challengeInfo.freezeToken.toHexString(),
+    event.params.challengeInfo.challengeUserRatio,
+    event.params.challengeInfo.freezeAmount0,
+    event.params.challengeInfo.freezeAmount1,
+    event.params.challengeInfo.challengeTime,
+    event.params.challengeInfo.abortTime,
+    event.params.challengeInfo.verifiedTime0,
+    event.params.challengeInfo.verifiedTime1,
+    event.params.challengeInfo.verifiedDataHash0.toHexString()
   )
-  entity.challengeId = event.params.challengeId
-  entity.challengeInfo_sourceTxFrom = event.params.challengeInfo.sourceTxFrom
-  entity.challengeInfo_sourceTxTime = event.params.challengeInfo.sourceTxTime
-  entity.challengeInfo_challenger = event.params.challengeInfo.challenger
-  entity.challengeInfo_freezeToken = event.params.challengeInfo.freezeToken
-  entity.challengeInfo_challengeUserRatio =
-    event.params.challengeInfo.challengeUserRatio
-  entity.challengeInfo_freezeAmount0 = event.params.challengeInfo.freezeAmount0
-  entity.challengeInfo_freezeAmount1 = event.params.challengeInfo.freezeAmount1
-  entity.challengeInfo_challengeTime = event.params.challengeInfo.challengeTime
-  entity.challengeInfo_abortTime = event.params.challengeInfo.abortTime
-  entity.challengeInfo_verifiedTime0 = event.params.challengeInfo.verifiedTime0
-  entity.challengeInfo_verifiedTime1 = event.params.challengeInfo.verifiedTime1
-  entity.challengeInfo_verifiedDataHash0 =
-    event.params.challengeInfo.verifiedDataHash0
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleColumnArrayUpdated(event: ColumnArrayUpdatedEvent): void {
@@ -76,18 +67,6 @@ export function handleRulesRootUpdated(event: RulesRootUpdatedEvent): void {
 }
 
 export function handleSpvUpdated(event: SpvUpdatedEvent): void {
-  // let entity = new SpvUpdated(
-  //   event.transaction.hash.concatI32(event.logIndex.toI32())
-  // )
-  // entity.impl = event.params.impl
-  // entity.chainId = event.params.chainId
-  // entity.spv = event.params.spv
-
-  // entity.blockNumber = event.block.number
-  // entity.blockTimestamp = event.block.timestamp
-  // entity.transactionHash = event.transaction.hash
-
-  // entity.save()
   handleSpvUpdatedEvent(
     event,
     event.params.impl,

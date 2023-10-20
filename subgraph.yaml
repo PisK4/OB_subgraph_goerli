@@ -128,7 +128,7 @@ templates:
         - SpvUpdated
       abis:
         - name: MDC
-          file: ./abis/MDC.json
+          file: ./abis/ORMakerDeposit.json
       eventHandlers:
         - event: ChallengeInfoUpdated(indexed
             bytes32,(uint256,uint64,address,address,uint64,uint256,uint256,uint64,uint64,uint64,uint64,bytes32))

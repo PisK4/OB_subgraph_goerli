@@ -7,21 +7,20 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Bytes, Address, BigInt, ethereum } from "@graphprotocol/graph-ts"
-import { 
-  ChallengeInfoUpdated,
-  ColumnArrayUpdated, 
+import {
+  ColumnArrayUpdated,
 } from "../src/types/schema"
-import { 
+import {
   ChallengeInfoUpdated as ChallengeInfoUpdatedEvent,
-  ColumnArrayUpdated as ColumnArrayUpdatedEvent, 
+  ColumnArrayUpdated as ColumnArrayUpdatedEvent,
 } from "../src/types/templates/MDC/MDC"
-import { 
+import {
   handleChallengeInfoUpdated,
-  handleColumnArrayUpdated, 
+  handleColumnArrayUpdated,
 } from "../src/mappings/mdc"
-import { 
+import {
   createChallengeInfoUpdatedEvent,
-  createColumnArrayUpdatedEvent, 
+  createColumnArrayUpdatedEvent,
 } from "./mdc-utils"
 import { createMDCCreatedEvent } from "./mdc-factory-utils"
 import { handleMDCCreated } from "../src/mappings/mdc-factory"
@@ -46,20 +45,20 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     let mdc = Address.fromString(mdcAddress)
     let newMDCCreatedEvent = createMDCCreatedEvent(maker, mdc)
     handleMDCCreated(newMDCCreatedEvent)
-    
 
-    let dealersAddr = Address.fromString(dealers) 
+
+    let dealersAddr = Address.fromString(dealers)
     let dealersAddr1 = Address.fromString(dealer1)
     let dealersAddrRemove1 = Address.fromString(dealerRemoved1)
     let dealersAddrRemove2 = Address.fromString(dealerRemoved2)
     let ebcsRemove = [Address.fromString(ebcRemoved1), Address.fromString(ebcRemoved2)]
     let chainIds = [123, 456, 789, 123, 123]
     let ebcs = [Address.fromString(ebc0), Address.fromString(ebc1), Address.fromString(ebc2)]
- 
+
     const newColumnArrayUpdatedEvent0 = createColumnArrayUpdatedEvent(
       Address.fromString(impl),
       Bytes.fromHexString(columnArrayHash) as Bytes,
-      [ dealersAddrRemove1,
+      [dealersAddrRemove1,
         dealersAddrRemove2,
         dealersAddrRemove1,
       ],
@@ -67,18 +66,18 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       []
     )
     handleColumnArrayUpdated(newColumnArrayUpdatedEvent0)
- 
- 
+
+
     const newColumnArrayUpdatedEvent = createColumnArrayUpdatedEvent(
       Address.fromString(impl),
       Bytes.fromHexString(columnArrayHash) as Bytes,
-      [dealersAddr,dealersAddr1,dealersAddr1],
+      [dealersAddr, dealersAddr1, dealersAddr1],
       ebcs,
       chainIds
     )
     handleColumnArrayUpdated(newColumnArrayUpdatedEvent)
   })
-  
+
 
   afterAll(() => {
     clearStore()
@@ -145,7 +144,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
 
 
   test("ColumnArrayUpdated created and stored", () => {
-    assert.entityCount("ColumnArrayUpdated", 1) 
+    assert.entityCount("ColumnArrayUpdated", 1)
 
   })
 
@@ -235,7 +234,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
     )
   })
 
-  test("MDCMapping created and stored", () =>{
+  test("MDCMapping created and stored", () => {
     assert.entityCount("MDCMapping", 1)
 
     assert.fieldEquals(
@@ -276,7 +275,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
       "dealerSnapshot",
       "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
-    )    
+    )
 
     // un-bind dealer msut be removed in dealerSnapshot
     assert.fieldEquals(
@@ -284,7 +283,7 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x12346f7b0cd1633348877043ae92302139796686",
       "MDCMapping",
       "[]"
-    )    
+    )
 
     assert.fieldEquals(
       "DealerMappingSnapshot",

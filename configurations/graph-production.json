@@ -1,0 +1,6 @@
+{
+  "isProduction": true,
+  "debugLog": false,
+  "debugLogCreateRules": false,
+  "debugLogMapping": false
+}

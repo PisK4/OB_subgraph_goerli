@@ -207,16 +207,19 @@ export class SpvUpdated__Params {
 export class MDC__getVersionAndEnableTimeResult {
   value0: BigInt;
   value1: BigInt;
+  value2: BigInt;
 
-  constructor(value0: BigInt, value1: BigInt) {
+  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
+    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     return map;
   }
 
@@ -224,8 +227,12 @@ export class MDC__getVersionAndEnableTimeResult {
     return this.value0;
   }
 
-  getEnableTime(): BigInt {
+  getBlockNumber(): BigInt {
     return this.value1;
+  }
+
+  getEnableTime(): BigInt {
+    return this.value2;
   }
 }
 
@@ -291,13 +298,14 @@ export class MDC extends ethereum.SmartContract {
   getVersionAndEnableTime(): MDC__getVersionAndEnableTimeResult {
     let result = super.call(
       "getVersionAndEnableTime",
-      "getVersionAndEnableTime():(uint192,uint64)",
+      "getVersionAndEnableTime():(uint128,uint64,uint64)",
       []
     );
 
     return new MDC__getVersionAndEnableTimeResult(
       result[0].toBigInt(),
-      result[1].toBigInt()
+      result[1].toBigInt(),
+      result[2].toBigInt()
     );
   }
 
@@ -306,7 +314,7 @@ export class MDC extends ethereum.SmartContract {
   > {
     let result = super.tryCall(
       "getVersionAndEnableTime",
-      "getVersionAndEnableTime():(uint192,uint64)",
+      "getVersionAndEnableTime():(uint128,uint64,uint64)",
       []
     );
     if (result.reverted) {
@@ -316,7 +324,8 @@ export class MDC extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new MDC__getVersionAndEnableTimeResult(
         value[0].toBigInt(),
-        value[1].toBigInt()
+        value[1].toBigInt(),
+        value[2].toBigInt()
       )
     );
   }
@@ -748,12 +757,12 @@ export class UpdateRulesRootCallRulesStruct extends ethereum.Tuple {
     return this[11].toBigInt();
   }
 
-  get tradingFee0(): i32 {
-    return this[12].toI32();
+  get tradingFee0(): BigInt {
+    return this[12].toBigInt();
   }
 
-  get tradingFee1(): i32 {
-    return this[13].toI32();
+  get tradingFee1(): BigInt {
+    return this[13].toBigInt();
   }
 
   get responseTime0(): BigInt {
@@ -890,12 +899,12 @@ export class UpdateRulesRootERC20CallRulesStruct extends ethereum.Tuple {
     return this[11].toBigInt();
   }
 
-  get tradingFee0(): i32 {
-    return this[12].toI32();
+  get tradingFee0(): BigInt {
+    return this[12].toBigInt();
   }
 
-  get tradingFee1(): i32 {
-    return this[13].toI32();
+  get tradingFee1(): BigInt {
+    return this[13].toBigInt();
   }
 
   get responseTime0(): BigInt {

@@ -9,23 +9,9 @@ import {
 import { MDC as mdcContract } from "../types/templates/MDC/MDC"
 import {
   ONE_ADDRESS,
-  ONE_BI,
-  ONE_NUM,
-  ZERO_BI,
-  func_updateRulesRoot,
-  func_updateRulesRootERC20,
-  func_updateRulesRootERC20Selector,
-  func_updateRulesRootSelector,
-  getMDCFactory,
   getMDCEntity,
-  getONEBytes,
-  updateRulesRootMode,
-  isProduction,
   ebcSave,
-  debugLog,
-  parseTransactionInputData,
   removeDuplicates,
-  ebcManagerUpdate,
   AddressFmtPadZero,
   getChainInfoEntity,
   ChainInfoUpdatedMode,
@@ -45,12 +31,13 @@ import {
   getEBCSnapshotEntity,
   getChainIdSnapshotEntity,
   decodeEnabletime,
-  func_updateColumnArraySelector,
+  func_updateColumnArrayName,
   STRING_INVALID,
   ETH_ZERO_ADDRESS,
-  func_registerChainsSelector,
-  func_updateChainSpvsSelector,
-  fullfillLatestRuleSnapshot
+  func_registerChainsName,
+  func_updateChainSpvsName,
+  fullfillLatestRuleSnapshot,
+  func_challenge
 } from "./helpers"
 import {
   FactoryManager, ebcRel
@@ -62,12 +49,19 @@ import {
   funcETHRootMockInput2,
   functionUpdateChainSpvsMockinput,
   functionRegisterChainMockinput,
-  functionupdateColumnArrayMockinput
+  functionupdateColumnArrayMockinput,
+  functionrChallengeinput
 } from "../../tests/mock-data";
 import { ChainInfoUpdatedChainInfoStruct, ChainTokenUpdatedTokenInfoStruct } from "../types/ORManager/ORManager";
-import { getFunctionSelector, padZeroToUint } from "./utils";
+import {
+  calldata,
+  padZeroToUint
+} from "./utils";
 import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol } from "./ERC20utils";
-
+import {
+  isProduction
+} from './config'
+import { rscRules } from "./rule-utils";
 
 
 export function handleupdateRulesRootEvent(
@@ -80,7 +74,7 @@ export function handleupdateRulesRootEvent(
   const _mdcAddress = event.address.toHexString()
   const mdcAddress = isProduction ? _mdcAddress as string : mockMdcAddr
   const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(funcERC20RootMockInput) as Bytes
-  const updateRulesRootEntity = parseTransactionInputData(inputData, mdcAddress)
+  const updateRulesRootEntity = rscRules.parseCalldata(inputData, mdcAddress)
   const ebcAddress = updateRulesRootEntity.ebcAddress
   let mdc = getMDCEntity(Address.fromString(mdcAddress), Address.fromString(ONE_ADDRESS), event)
   let factoryAddress = Bytes.fromHexString(mdc.factory._id)
@@ -118,7 +112,6 @@ export function handleupdateRulesRootEvent(
     log.warning("ebcAddress is null", ["error"])
   }
 
-
 }
 
 export function handleColumnArrayUpdatedEvent(
@@ -132,7 +125,7 @@ export function handleColumnArrayUpdatedEvent(
   const mdcAddress = isProduction ? event.address : Address.fromString(mockMdcAddr);
   let mdc = getMDCEntity(mdcAddress, Address.fromString(ONE_ADDRESS), event)
   const inputData = isProduction ? event.transaction.input : Bytes.fromHexString(functionupdateColumnArrayMockinput) as Bytes
-  const enableTimestamp = decodeEnabletime(inputData, func_updateColumnArraySelector)
+  const enableTimestamp = decodeEnabletime(inputData, func_updateColumnArrayName)
 
   // process dealers
   let uniqueDealers = removeDuplicates(dealers)
@@ -191,10 +184,6 @@ export function handleEbcsUpdatedEvent(
   } else if (ebcs.length < statuses.length) {
     _statuses = statuses.slice(0, ebcs.length);
   }
-
-  for (let i = 0; i < ebcs.length; i++) {
-    ebcManagerUpdate(ebcs[i], _statuses[i], event);
-  }
 }
 
 export function handleChainInfoUpdatedEvent(
@@ -215,10 +204,10 @@ export function handleChainInfoUpdatedEvent(
   const inputdata = isProduction ?
     event.transaction.input :
     Bytes.fromHexString(functionRegisterChainMockinput) as Bytes
-  const selector = compareChainInfoUpdatedSelector(getFunctionSelector(inputdata))
+  const selector = compareChainInfoUpdatedSelector(calldata.getSelector(inputdata))
   if (selector == ChainInfoUpdatedMode.registerChains) {
     log.info("registerChains", ["registerChains"])
-    const enableTime = decodeEnabletime(inputdata, func_registerChainsSelector)
+    const enableTime = decodeEnabletime(inputdata, func_registerChainsName)
     _chainInfo.batchLimit = batchLimit
     _chainInfo.minVerifyChallengeSourceTxSecond = minVerifyChallengeSourceTxSecond
     _chainInfo.maxVerifyChallengeSourceTxSecond = maxVerifyChallengeSourceTxSecond
@@ -231,12 +220,12 @@ export function handleChainInfoUpdatedEvent(
 
   } else if (selector == ChainInfoUpdatedMode.updateChainSpvs) {
     log.info("updateChainSpvs", ["updateChainSpvs"])
-    const enableTime = decodeEnabletime(inputdata, func_updateChainSpvsSelector)
+    const enableTime = decodeEnabletime(inputdata, func_updateChainSpvsName)
     parseChainInfoUpdatedInputData(inputdata, _chainInfo)
     _chainInfo.enableTimestamp = enableTime
 
   } else {
-    log.warning("chainInfoUpdated selector not match {}", [getFunctionSelector(inputdata).toHexString()])
+    log.warning("chainInfoUpdated selector not match {}", [calldata.getSelector(inputdata).toHexString()])
   }
   _chainInfo.save()
 
@@ -299,4 +288,34 @@ export function handleSpvUpdatedEvent(
   _spv.save()
   mdc.save()
   log.info('mdc {} update:  _spv[{}] = {}', [mdc.id, chainId.toString(), spv.toHexString()])
+}
+
+export function handleChallengeInfoUpdatedEvent(
+  event: ethereum.Event,
+  challengeId: String,
+  sourceTxFrom: BigInt,
+  sourceTxTime: BigInt,
+  challenger: String,
+  freezeToken: String,
+  challengeUserRatio: BigInt,
+  freezeAmount0: BigInt,
+  freezeAmount1: BigInt,
+  challengeTime: BigInt,
+  abortTime: BigInt,
+  verifiedTime0: BigInt,
+  verifiedTime1: BigInt,
+  verifiedDataHash0: String
+): void {
+  const inputdata = isProduction ?
+    event.transaction.input :
+    Bytes.fromHexString(functionrChallengeinput) as Bytes
+  const selector: string = calldata.getSelector(inputdata).toHexString()
+
+  if (selector == func_challenge) {
+    log.debug("challenge", [selector]);
+  } else if (selector == func_challenge) {
+    log.debug("challenge", [selector]);
+  } else {
+    log.error("error selector", [selector]);
+  }
 }

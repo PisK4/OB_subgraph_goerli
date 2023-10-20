@@ -764,6 +764,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mustache@npm:^4":
+  version: 4.2.2
+  resolution: "@types/mustache@npm:4.2.2"
+  checksum: c20af86032df6c733af33f72f92ba48be10034c0ecab385addc1789432b714251513966675f3cb502863bc712d8c8936812e0fd548e91b196c35ad2786d3e506
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:>=13.7.0":
   version: 20.4.1
   resolution: "@types/node@npm:20.4.1"
@@ -1024,6 +1031,7 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-cli": "npm:0.51.2"
     "@graphprotocol/graph-ts": "npm:^0.31.0"
+    "@types/mustache": "npm:^4"
     "@typescript-eslint/eslint-plugin": "npm:^5.58.0"
     "@typescript-eslint/parser": "npm:^5.58.0"
     eslint: "npm:^8.38.0"
@@ -1033,6 +1041,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^7.0.0"
     eslint-plugin-unused-imports: "npm:^2.0.0"
     matchstick-as: "npm:^0.5.2"
+    mustache: "npm:^4.2.0"
     prettier: "npm:^2.8.8"
     prettier-plugin-solidity: "npm:^1.1.3"
     solhint: "npm:^3.4.1"
@@ -4970,6 +4979,15 @@ __metadata:
   version: 9.9.0
   resolution: "multiformats@npm:9.9.0"
   checksum: 551a16184e3b2c308144410fd337831f2fba6edf8722e0319829698d15dc49558bb1f5105b32617f1d3e1037ff6c54798a4b710556dad5d1d0f2765a12d3ba8d
+  languageName: node
+  linkType: hard
+
+"mustache@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "mustache@npm:4.2.0"
+  bin:
+    mustache: bin/mustache
+  checksum: d678fe2de44c66bae4bd57b97ea8f1931d4dadd14b355f047b67313571ef80ffaf9ec0991b86764d600ed9e3a8e27c90d3168fa134157fddd7aa5b1acba9c2f9
   languageName: node
   linkType: hard
 
