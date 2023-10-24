@@ -142,3 +142,21 @@ templates:
         - event: SpvUpdated(indexed address,uint64,address)
           handler: handleSpvUpdated
       file: ./src/mappings/mdc.ts
+  - kind: ethereum
+    name: MDCFactory
+    network: mainnet
+    source:
+      abi: MDCFactory
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MDCCreated
+      abis:
+        - name: MDCFactory
+          file: ./abis/MDCFactory.json
+      eventHandlers:
+        - event: MDCCreated(address,address)
+          handler: handleMDCCreated
+      file: ./src/mappings/mdc-factory.ts

@@ -2108,6 +2108,87 @@ export class Dealer extends Entity {
   }
 }
 
+export class SubgraphManager extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SubgraphManager entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type SubgraphManager must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("SubgraphManager", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): SubgraphManager | null {
+    return changetype<SubgraphManager | null>(
+      store.get_in_block("SubgraphManager", id)
+    );
+  }
+
+  static load(id: string): SubgraphManager | null {
+    return changetype<SubgraphManager | null>(store.get("SubgraphManager", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get factory(): Array<string> {
+    let value = this.get("factory");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set factory(value: Array<string>) {
+    this.set("factory", Value.fromStringArray(value));
+  }
+
+  get totalFactory(): i32 {
+    let value = this.get("totalFactory");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set totalFactory(value: i32) {
+    this.set("totalFactory", Value.fromI32(value));
+  }
+
+  get currentFactoryTemplate(): i32 {
+    let value = this.get("currentFactoryTemplate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set currentFactoryTemplate(value: i32) {
+    this.set("currentFactoryTemplate", Value.fromI32(value));
+  }
+}
+
 export class FactoryManager extends Entity {
   constructor(id: string) {
     super();
@@ -2201,43 +2282,12 @@ export class FactoryManager extends Entity {
     this.set("mdcCounts", Value.fromBigInt(value));
   }
 
-  get latestUpdateHash(): string {
-    let value = this.get("latestUpdateHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set latestUpdateHash(value: string) {
-    this.set("latestUpdateHash", Value.fromString(value));
-  }
-
-  get latestUpdateTimestamp(): BigInt {
-    let value = this.get("latestUpdateTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set latestUpdateTimestamp(value: BigInt) {
-    this.set("latestUpdateTimestamp", Value.fromBigInt(value));
-  }
-
-  get latestUpdateBlockNumber(): BigInt {
-    let value = this.get("latestUpdateBlockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set latestUpdateBlockNumber(value: BigInt) {
-    this.set("latestUpdateBlockNumber", Value.fromBigInt(value));
+  get subgraphManager(): SubgraphManagerLoader {
+    return new SubgraphManagerLoader(
+      "FactoryManager",
+      this.get("id")!.toString(),
+      "subgraphManager"
+    );
   }
 }
 
@@ -7072,6 +7122,24 @@ export class ruleRelLoader extends Entity {
   load(): ruleRel[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ruleRel[]>(value);
+  }
+}
+
+export class SubgraphManagerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): SubgraphManager[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<SubgraphManager[]>(value);
   }
 }
 

@@ -200,6 +200,13 @@ type Dealer @entity {
   latestUpdateBlockNumber: BigInt!
 }
 
+type SubgraphManager @entity {
+  id: ID! #101
+  factory: [FactoryManager!]!
+  totalFactory: Int!
+  currentFactoryTemplate: Int!
+}
+
 # customed using entity
 type FactoryManager @entity {
   id: ID! # factory address
@@ -207,9 +214,11 @@ type FactoryManager @entity {
   owners: [String!]! # ownerAddress
   responseMakers: [responseMaker!]! # responseMaker[]
   mdcCounts: BigInt!
-  latestUpdateHash: String!
-  latestUpdateTimestamp: BigInt!
-  latestUpdateBlockNumber: BigInt!
+  # latestUpdateHash: String!
+  # latestUpdateTimestamp: BigInt!
+  # latestUpdateBlockNumber: BigInt!
+  #Rel
+  subgraphManager: SubgraphManager! @derivedFrom(field: "factory")
 }
 
 type responseMaker @entity {

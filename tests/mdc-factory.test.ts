@@ -31,7 +31,7 @@ describe("Describe entity assertions", () => {
   // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
 
   test("FactoryManager created and stored", () => {
-    assert.entityCount("FactoryManager", 1)
+    assert.entityCount("FactoryManager", 3)
 
     // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
     assert.fieldEquals(

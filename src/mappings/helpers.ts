@@ -60,6 +60,7 @@ import {
     rscRuleType,
     rscRules
 } from './rule-utils'
+import { getSubgraphManager } from './factory-core'
 
 export const ZERO_BI: BigInt = BigInt.fromI32(0)
 export const ONE_BI: BigInt = BigInt.fromI32(1)
@@ -130,20 +131,20 @@ export function initRulesEntity(
 
 export function getFactoryEntity(
     id: string,
-    event: ethereum.Event
 ): FactoryManager {
     let factory = FactoryManager.load(id)
     if (factory == null) {
-        log.info('create new FactoryManager, id: {}', [id])
         factory = new FactoryManager(id)
         factory.mdcCounts = BigInt.fromI32(0);
         factory.mdcs = []
         factory.owners = []
         factory.responseMakers = []
+        let subgraphManager = getSubgraphManager()
+        subgraphManager.currentFactoryTemplate++;
+        subgraphManager.factory = entity.addRelation(subgraphManager.factory, id)
+        log.debug("create FactoryTemplate, Id: {}, statues:[{}/{}]", [id, subgraphManager.currentFactoryTemplate.toString(), subgraphManager.totalFactory.toString()])
+        subgraphManager.save()
     }
-    factory.latestUpdateHash = event.transaction.hash.toHexString()
-    factory.latestUpdateBlockNumber = event.block.number
-    factory.latestUpdateTimestamp = event.block.timestamp
     return factory as FactoryManager
 }
 
@@ -727,7 +728,7 @@ function getResponseMakerEntity(
         _responseMaker.mdcs = []
         _responseMaker.mdcs = entity.addRelation(_responseMaker.mdcs, mdc.id)
         log.info('create new responseMaker, id: {}', [id])
-        let factory = getFactoryEntity(mdc.factoryAddr, event)
+        let factory = getFactoryEntity(mdc.factoryAddr)
         factory.responseMakers = entity.addRelation(factory.responseMakers, id)
         factory.save()
     }

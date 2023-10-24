@@ -15,3 +15,17 @@ export class MDC extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("MDC", [address.toHex()], context);
   }
 }
+
+export class MDCFactory extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("MDCFactory", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "MDCFactory",
+      [address.toHex()],
+      context
+    );
+  }
+}
