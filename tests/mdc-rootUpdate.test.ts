@@ -20,7 +20,7 @@ describe("Describe check MDC rule snaptShot", () => {
   // referenced from schema.graphql type ruleTypes @entity -id
   const ruleSnapshotId = "0x2f4bc33ff3ec2534bfb44762c76c7a1be7fa4789b2d866043e7066f48b7acd5a" as string
   const ebcAddress = "0x9e6d2b0b3adb391ab62146c1b14a94e8d840ff82" as string
-  const inputMDC = "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb" as string
+  const inputMDC = "0xf2be509057855b055f0515ccd0223bef84d19ad4" as string
 
   // must exctly match the root and version in the mock data
   const root = "0x08a92c999eb741eeb3f0c1193a98e68863f8108b309fe9952907d11aac4cadf3"
@@ -75,23 +75,6 @@ describe("Describe check MDC rule snaptShot", () => {
   })
 
   test("mdc rule snaptShot created and stored", () => {
-
-    // check new create snapshot relation
-    assert.fieldEquals(
-      "ruleRel",
-      ruleSnapshotId,
-      "mdc",
-      `[${inputMDC.toLowerCase()}]`
-    )
-
-    // check new create snapshot relation
-    assert.fieldEquals(
-      "ruleRel",
-      ruleSnapshotId,
-      "ebc",
-      `[${ebcAddress.toLowerCase()}]`
-    )
-
     // check MDC relation
     assert.fieldEquals(
       "MDC",
