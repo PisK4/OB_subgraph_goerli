@@ -19,12 +19,12 @@ import {
     getMDCMappingEntity,
 } from './helpers'
 import { entity } from "./utils";
-import { FactoryDefinition, subgraphManagerID } from "./contractAddressConfig";
+import { ContractDeployment, subgraphManagerID } from "./contractAddressConfig";
 
 export function getSubgraphManager(): SubgraphManager {
     let subgraphManager = SubgraphManager.load(subgraphManagerID)
     if (subgraphManager == null) {
-        const factoryList: Address[] = FactoryDefinition.getfactoryList()
+        const factoryList: Address[] = ContractDeployment.getFactoryList()
         const totalFactory = factoryList.length;
         subgraphManager = new SubgraphManager(subgraphManagerID)
         subgraphManager.factory = []
@@ -60,7 +60,7 @@ export function factoryCreate(): void {
     let subgraphManager = getSubgraphManager();
     if (subgraphManager.currentFactoryTemplate < subgraphManager.totalFactory) {
         for (let i = 0; i < subgraphManager.totalFactory; i++) {
-            const factoryList: Address[] = FactoryDefinition.getfactoryList()
+            const factoryList: Address[] = ContractDeployment.getFactoryList()
             const factoryId = factoryList[i].toHexString();
             let factory = FactoryManager.load(factoryId)
             if (factory == null) {
