@@ -1040,7 +1040,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^4.2.1"
     eslint-plugin-simple-import-sort: "npm:^7.0.0"
     eslint-plugin-unused-imports: "npm:^2.0.0"
-    matchstick-as: "npm:^0.5.2"
+    matchstick-as: "npm:^0.6.0"
     mustache: "npm:^4.2.0"
     prettier: "npm:^2.8.8"
     prettier-plugin-solidity: "npm:^1.1.3"
@@ -4687,12 +4687,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"matchstick-as@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "matchstick-as@npm:0.5.2"
+"matchstick-as@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "matchstick-as@npm:0.6.0"
   dependencies:
     wabt: "npm:1.0.24"
-  checksum: e063f3e36d5ef8b4b19511ad8c90fc2c1a7b55d0f52c63ddf3f6f911c5799af24c67bd71d2c8e4eddc321b1c35641a4d2813eeaa85ae943ebafad1a926fe1cce
+  checksum: bc26c48f81c9fc01074f1f207abbb772bcf93e72fbb3763b6c826ec8935bb3e86700b6dfb95ab0e5135f1a6075e5fa984a61ce05d8516d0403da9a1a78fe8ef6
   languageName: node
   linkType: hard
 

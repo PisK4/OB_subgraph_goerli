@@ -1,9 +1,11 @@
 {
   "network": "mainnet",
-  "orMDCFactoryAddress": "0x4a9d89E2d8a4b670f1AAb126Bf15ebad3E96af7d",
-  "orMDCFactoryStartBlock": 9674680,
-  "orManagerAddress": "0xcdF5e5e50030b6389A75bF3a48aCA0f18ca0190D",
-  "orManagerStartBlock": 9674680,
-  "orFeeManagerAddress": "0xdf3CF1f661368036C694d50b3e9D85231f6fc7De",
-  "orFeeManagerStartBlock": 9755542
+  "orMDCFactoryAddress": "0xfd854cb189Eb6754f02c5d6d0f9a70D78629F644",
+  "orMDCFactoryStartBlock": 18417650,
+  "orManagerAddress": "0xe90fab21fEbFb008886B3639C26cCf70E414B9de",
+  "orManagerStartBlock": 18212087,
+  "orFeeManagerAddress": "0xcC45c67d121A4BC3BC88Cc5A3099a8F7854f11f6",
+  "orFeeManagerStartBlock": 18212091,
+  "DeploymentID-LastVersion": "QmTRWhRLhEtZdNaJsJLuBbR9Znusrju9Hoys6vGgqU8AMG",
+  "UpgradeStartBlock": 18417650
 }

@@ -512,6 +512,7 @@ export function mdcStoreDealerNewMapping(
     mdcMapping.dealerMapping = latesMappingTmp
     _MDCBindDealer.dealerMappingSnapshot = snapshotMappingTmp
     mdcMapping.save()
+
 }
 
 function removeMDCFromEBC(

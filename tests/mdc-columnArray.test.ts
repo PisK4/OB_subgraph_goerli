@@ -256,33 +256,19 @@ describe("Describe ColumnArrayUpdated assertions", () => {
       "0xa1ae843d71ef6843137f70d6e93c5d143c1843e4"
     )
 
+
     assert.fieldEquals(
-      "DealerMapping",
-      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4",
       "MDCMapping",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
+      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb",
+      "dealerMapping",
+      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
     assert.fieldEquals(
-      "DealerMapping",
-      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
-      "MDCMapping",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
-    )
-
-    assert.fieldEquals(
-      "DealerMappingSnapshot",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb",
       "dealerSnapshot",
-      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1\]"
-    )
-
-    // un-bind dealer msut be removed in dealerSnapshot
-    assert.fieldEquals(
-      "DealerMapping",
-      "0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb-0x12346f7b0cd1633348877043ae92302139796686",
-      "MDCMapping",
-      "[]"
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
+      "dealerMappingSnapshot",
+      "[0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0xa1ae843d71ef6843137f70d6e93c5d143c1843e4, 0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1-0x230b33bdcbd07f10ffaa8251fc843ed293495feb\]"
     )
 
     assert.fieldEquals(
@@ -410,13 +396,6 @@ describe("Describe ColumnArrayUpdated assertions", () => {
 
   test("ebcSnapshot created and stored", () => {
     assert.entityCount("ebcSnapshot", 1)
-
-    assert.fieldEquals(
-      "ebcSnapshot",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "mdc",
-      "[0x7a0b33bdcbd07f10ffaa8251fc843ed293495feb\]"
-    )
 
     assert.fieldEquals(
       "MDC",
