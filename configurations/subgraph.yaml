@@ -1,6 +1,11 @@
 specVersion: 0.0.5
 schema:
   file: ./schema.graphql
+features:
+  - grafting
+graft:
+  base: {{DeploymentID-LastVersion}}
+  block: {{UpgradeStartBlock}}
 dataSources:
   - kind: ethereum
     name: MDCFactory
